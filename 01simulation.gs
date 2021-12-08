@@ -38,8 +38,9 @@ function simulate(iterations = false) {
 
     // Set up agents, if any.
     if (gs.agents) {
-      for (let a in gs.agents) {
-        gs.agents[a] = new Agent(a, gs.agent[a]);
+      gs.agents = [];
+      for (let a in initialGameState.agents) {
+        gs.agents.push(new Agent(a, initialGameState.agent[a]));
       }
     }
 
@@ -56,7 +57,10 @@ function simulate(iterations = false) {
     /**
      * Process data that should be stored for statistics.
      */
-    // @TODO: Write stub code.
+    // @TODO: Move this to a separate function in helpersGameSpecific.
+    let stats = {};
+    stats.rounds = gs.round; // Example. Anything added to the stats object will be stored from the iteration.
+    results.push(stats);
   }
 
   /**
