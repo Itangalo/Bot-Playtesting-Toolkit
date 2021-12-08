@@ -6,9 +6,23 @@
 function buildInitialData() {
   /**
    * Build global data that should be accessible from anywhere.
+   *
+   * This could be data about game board, fixed values used by other functions,
+   * or something else that does not change in or between games.
    */
+
+  // These properties are used by the board game scripting tools.
+  // They may be changed, but not removed.
   global.defaultIterations = 1;
   global.percentilesForStatistics = [0, .05, .15, .50, .85, .95, 1];
+
+  // Other properties that are game-dependent.
+  // @Examples.
+  global.distances = {
+    'a-b': 5,
+    'a-c': 3,
+    'b-c': 4,
+  };
 
   /**
    * Build object describing initial game state.
@@ -23,7 +37,7 @@ function buildInitialData() {
    */
   let initialGameState = {};
 
-  // @EXAMPLES
+  // @Examples.
   initialGameState.decks = {};
   initialGameState.decks.deck1 = buildObjectArrayFromRows('deck1', 'A1:B53');
   

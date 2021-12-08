@@ -6,6 +6,10 @@
  */
 
 agentStrategies.default = {};
+
+/**
+ * @Examples: Just logs the agent object.
+ */
 agentStrategies.default.log = function(agent) {
   log(JSON.stringify(agent), 'test');
 }

@@ -7,7 +7,7 @@
  * @return Either true or false.
  */
 function gameOver(gameState) {
-  // Example: Game is over when 10 rounds have been played.
+  // @Examples: Game is over when 10 rounds have been played.
   if (gameState.round >= 10)
     return true;
   else
@@ -22,7 +22,7 @@ function gameOver(gameState) {
 function buildStatistics(gameState) {
   let stats = {};
 
-  // Examples.
+  // @Examples.
   stats.gameLength = gameState.round;
   // stats.mostHitPoints = getMax(gameState.agents, 'hitPoints');
 

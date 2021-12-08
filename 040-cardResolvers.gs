@@ -6,7 +6,7 @@
  */
 
 /**
- * Example resolver. Logs the card data, but strips away the deck object
+ * @Examples: Logs the card data, but strips away the deck object
  * (in a non-destructive way) first.
  * @param {Card} card: The card object.
  */
