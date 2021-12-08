@@ -125,6 +125,39 @@ class Deck {
   }
 
   /**
+   * Counts how many cards matching property:value are in the deck.
+   */
+  countOccurances(property, value) {
+    let occurances = 0;
+    for (let c of this.cards) {
+      if (c[property] == value)
+        occurances++;
+    }
+    return occurances;
+  }
+
+  /**
+   * Lists how many cards there are with each value of the given property.
+   * Returns an array with entries {value:X, occurances:NN}, sorted with most
+   * common values first.
+   */
+  getAllOccurances(property) {
+    let unsortedList = {};
+    for (let c of this.cards) {
+      if (!unsortedList[c[property]])
+        unsortedList[c[property]] = 1;
+      else
+        unsortedList[c[property]]++;
+    }
+    let sortedList = [];
+    for (let value in unsortedList) {
+      sortedList.push({value: value, occurances: unsortedList[value]});
+    }
+    sortByProperty(sortedList, 'occurances', false);
+    return sortedList;
+  }
+
+  /**
    * Short-hand function for reading number of cards left in the deck.
    */
   getNumberOfCards() {
