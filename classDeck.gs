@@ -1,18 +1,18 @@
 /**
- * Class for managing decks of cards. Also used for creating cards (through deck.constructCard).
+ * Class for managing decks of cards. Also used for creating cards (through Deck.constructCard).
  */
-class deck {
+class Deck {
   /**
-   * @param {string} id: The unique identifier of the deck.
-   * @param {array} cardDataArray: An array of objects which will be used to create cards.
-   * @param {boolean} shuffle: Whether to shuffle after constructed. Defaults to true.
+   * @param {String} id: The unique identifier of the deck.
+   * @param {Array} cardDataArray: An array of objects which will be used to create cards.
+   * @param {Boolean} shuffle: Whether to shuffle after constructed. Defaults to true.
    */
   constructor(id, cardDataArray = false, shuffle = true) {
     this.id = id;
     this.cards = [];
     this.discardPile = [];
     this.addDiscardWhenShuffling = true;
-    if (typeof cardDataArray == 'array') {
+    if (cardDataArray) {
       for (let c of cardDataArray) {
         this.constructCard(c);
       }
@@ -23,12 +23,12 @@ class deck {
 
   /**
    * Creates a card object and adds to the bottom of the deck.
-   * @param {object} cardData: An object with any sets of property:value pairs.
+   * @param {Object} cardData: An object with any sets of property:value pairs.
    * @return
    */
   constructCard(cardData) {
     // Note that the card constructor adds it to the bottom of the deck.
-    let c = new card(cardData, this);
+    let c = new Card(cardData, this);
     return c;
   }
 
@@ -107,5 +107,19 @@ class deck {
     }
     log('Could not find any card where ' + property + ' is ' + value + ' in deck ' + this.id + '.', 'notice');
     return false;
+  }
+
+  /**
+   * Short-hand function for reading number of cards left in the deck.
+   */
+  getNumberOfCards() {
+    return this.cards.length;
+  }
+
+  /**
+   * Short-hand function for reading number of cards in the discard pile.
+   */
+  getNumberOfDiscardedCards() {
+    return this.discardPile.length;
   }
 }

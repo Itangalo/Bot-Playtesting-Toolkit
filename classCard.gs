@@ -1,13 +1,13 @@
 /**
  * Class for managing cards, making up decks.
  */
-class card {
+class Card {
   /**
-   * @param {object} cardData: Any propery:value pairs that should be added to the card.
-   * @param {deckObject} deck: A deck object, to which the card should be added.
+   * @param {Object} cardData: Any propery:value pairs that should be added to the card.
+   * @param {Deck} deck: A deck object, to which the card should be added.
    */
-  constructor(cardData, deckObject) {
-    if (!deckObject instanceof deck) {
+  constructor(cardData, deck) {
+    if (!deck instanceof Deck) {
       log('Cards must be added to a proper deck.', 'error');
       return false;
     }
@@ -15,8 +15,8 @@ class card {
     for (let i in cardData) {
       this[i] = cardData[i];
     }
-    this.deck = deckObject;
-    deckObject.addToBottom(this);
+    this.deck = deck;
+    deck.addToBottom(this);
   }
 
   /**

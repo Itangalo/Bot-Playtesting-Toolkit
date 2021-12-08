@@ -182,6 +182,42 @@ function buildObject(data, separator = false) {
   return o;
 }
 
+/**
+ * Builds an array of objects with data taken from spreadsheet, one object for each row.
+ * @param {Object} columnMapping: Describes which properties to assign column values to, on the form title:columnNumber. 1-indexed.
+ * @param {String} sheetName: The name of the sheet to collect data from.
+ * @param {String} range: The range, in a format accepted by Google spreadsheet.
+ */
+function buildObjectArrayFromRows(columnMapping, sheetName, range) {
+  let data = SpreadsheetApp.getActive().getSheetByName(sheetName).getRange(range).getValues();
+  let objArray = [];
+  for (let row of data) {
+    let obj = {};
+    for (let property in columnMapping) {
+      let value = row[-1 + columnMapping[property]];
+      if (typeof(value) == 'string')
+        value = value.trim();
+      obj[property] = value;
+    }
+    objArray.push(obj);
+  }
+  return objArray;
+}
+
+/**
+ * Parses values in an array: Trims any strings and turns numbers to floats.
+ */
+function washArray(arr) {
+  for (let i in arr) {
+    if (typeof(arr[i]) == 'string') {
+      arr[i] = arr[i].trim();
+    }
+    if (!isNaN(arr[i])) {
+      arr[i] = parseFloat(arr[i]);
+    }
+  }
+}
+
 // Transpose an array/matrix.
 // From https://stackoverflow.com/questions/17428587/transposing-a-2d-array-in-javascript
 function transpose(arr){

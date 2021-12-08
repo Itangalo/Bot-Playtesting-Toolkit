@@ -1,5 +1,6 @@
 /**
- * Board game scripting tools. Version 1.0
+ * Board game scripting tools.
+ * See https://github.com/Itangalo/Board-game-scripting-tools
  */
 
 /**
@@ -8,7 +9,14 @@
  */
 
 // Initiate some global variables.
-var global = {};
-var initialGameState = {};
-var playerStrategies = {};
-var cardResolvers = {};
+var global = {defaultIterations: 1}; // Set by buildInitialData().
+var initialGameState = {}; // Set by buildInitialData().
+var agentStrategies = {}; // Populated in separate files.
+var cardResolvers = {}; // Populated in separate files.
+
+function simulate(iterations = false) {
+  if (!iterations)
+    iterations = global.defaultIterations;
+  
+
+}

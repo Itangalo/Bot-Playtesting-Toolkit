@@ -8,7 +8,7 @@
 /**
  * Example resolver. Logs the card data, but strips away the deck object
  * (in a non-destructive way) first.
- * @param {card} card: The card object.
+ * @param {Card} card: The card object.
  */
 cardResolvers.log = function(card) {
   let copy = Object.assign({}, card);
