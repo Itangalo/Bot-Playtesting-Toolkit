@@ -44,7 +44,6 @@ function simulate(iterations = false) {
 
     // Play the game until it is over.
     gs.round = 0;
-    debugger
     while (!gameOver(gs)) {
       gs.round++;
 
