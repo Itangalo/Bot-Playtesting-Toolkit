@@ -56,14 +56,60 @@ function simulate(iterations = false) {
     /**
      * Process data that should be stored for statistics.
      */
-    // @TODO: Move this to a separate function in helpersGameSpecific.
-    let stats = {};
-    stats.rounds = gs.round; // Example. Anything added to the stats object will be stored from the iteration.
-    results.push(stats);
+    results.push(buildStatistics(gs));
   }
 
   /**
    * Process and display + return data.
    */
-  // @TODO: Write stub code.
+  // Sort results. (Needed for percentiles.)
+  var sortedResults = {};
+  for (let i in results[0]) {
+    sortedResults[i] = [];
+  }
+  for (let i in results) {
+    for (let j in results[i]) {
+      sortedResults[j].push(results[i][j]);
+    }
+  }
+  for (let i in sortedResults) {
+    sortedResults[i].sort(function(a, b) {return a - b;});
+  }
+
+  // Build log
+  let message = 'DISTRIBUTION: average (percentile ';
+  let values = [];
+  for (let p of global.percentilesForStatistics) {
+    values.push(p);
+  }
+  message += values.join(' | ') + ')\r\n---\r\n';
+  for (let i in sortedResults) {
+    message += i + ': ';
+    message += average(sortedResults[i]).toFixed(2) + ' (';
+    values = [];
+    for (let p of global.percentilesForStatistics) {
+      values.push(percentile(sortedResults[i], p).toFixed(2));
+    }
+    message += values.join(' | ');
+    message += ")\r\n";
+  }
+  log(message, 'statistics');
+
+  // Build output array.
+  let output = [['']];
+  for (let i in sortedResults) {
+    output[0].push(i);
+  }
+  output.push(['Average']);
+  for (let i in sortedResults) {
+    output[1].push(average(sortedResults[i]));
+  }
+  for (let p of global.percentilesForStatistics) {
+    let line = ['percentile ' + p];
+    for (let i in sortedResults) {
+      line.push(percentile(sortedResults[i], p));
+    }
+    output.push(line);
+  }
+  return output;
 }

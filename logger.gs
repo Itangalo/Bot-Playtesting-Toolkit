@@ -8,6 +8,7 @@ function log(message, type) {
     rounds: true,
     notice: true,
     test: true,
+    statistics: true,
     errors: true,
   };
 

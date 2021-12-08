@@ -8,7 +8,7 @@ function buildInitialData() {
    * Build global data that should be accessible from anywhere.
    */
   global.defaultIterations = 1;
-
+  global.percentilesForStatistics = [0, .05, .15, .50, .85, .95, 1];
 
   /**
    * Build object describing initial game state.
