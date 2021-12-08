@@ -21,8 +21,8 @@ class Card {
 
   /**
    * Passes on work to any resolver function declared for the card,
-   * along with any parameters. Card needs to have property 'resolver'
-   * set to a method available in the cardResolvers object.
+   * along with any parameters. Card needs to have a the property 'resolver'
+   * set and the cardResolvers object needs to have a corresponding method.
    */
   resolve() {
     if (!this.resolver)

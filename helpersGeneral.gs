@@ -195,7 +195,6 @@ function buildObjectArrayFromRows(sheetName, range, columnMapping = false) {
   if (!columnMapping) {
     columnMapping = {};
     let properties = data.shift();
-    debugger
     for (let i in properties) {
       columnMapping[properties[i]] = 1 + parseInt(i);
     }
