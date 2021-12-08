@@ -1,6 +1,7 @@
 /**
  * Board game scripting tools.
- * See https://github.com/Itangalo/Board-game-scripting-tools
+ * See https://github.com/Itangalo/Board-game-scripting-tools for details,
+ * including license (GNU GPL version 3) and issue queue.
  */
 
 /**
@@ -9,7 +10,7 @@
  */
 
 // Initiate some global variables.
-var global = {defaultIterations: 1}; // Set by buildInitialData().
+var global = {defaultIterations: 1}; // Populated by buildInitialData().
 var agentStrategies = {}; // Populated in separate files.
 var cardResolvers = {}; // Populated in separate files.
 
@@ -34,7 +35,8 @@ function simulate(iterations = false) {
       }
     }
 
-    // Set up agents, if any. Note that these are stored in an array, not keyed by id.
+    // Set up agents, if any. Note that these are stored in an array,
+    // not keyed by id, to allow setting and changing order.
     if (gs.agents) {
       gs.agents = [];
       for (let a in initialGameState.agents) {
@@ -61,6 +63,7 @@ function simulate(iterations = false) {
   /**
    * Process and display + return data.
    */
+  // @TODO: Move to a separate function and a separate file.
   // Sort results. (Needed for percentiles.)
   var sortedResults = {};
   for (let i in results[0]) {
