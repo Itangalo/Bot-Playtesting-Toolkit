@@ -19,4 +19,48 @@ function simulate(iterations = false) {
     iterations = global.defaultIterations;
   
   buildInitialData();
+
+  // Variable used to save data from each game iteration.
+  let results = [];
+  // Start iterating game plays.
+  for (let iteration = 1; iteration <= iterations; iteration++) {
+    let gs = JSON.parse(JSON.stringify(initialGameState)); // Short-hand for game state.
+
+    /**
+     * Set up each game.
+     */
+    // Set up decks, if any.
+    if (gs.decks) {
+      for (let d in gs.decks) {
+        gs.decks[d] = new Deck(d, gs.decks[d]);
+      }
+    }
+
+    // Set up agents, if any.
+    if (gs.agents) {
+      for (let a in gs.agents) {
+        gs.agents[a] = new Agent(a, gs.agent[a]);
+      }
+    }
+
+    // Play the game until it is over.
+    gs.round = 0;
+    while (!gameOver(gs)) {
+      gs.round++;
+
+      /**
+       * This is where the magic happens.
+       */
+    }
+
+    /**
+     * Process data that should be stored for statistics.
+     */
+    // @TODO: Write stub code.
+  }
+
+  /**
+   * Process and display + return data.
+   */
+  // @TODO: Write stub code.
 }
