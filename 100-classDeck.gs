@@ -110,6 +110,21 @@ class Deck {
   }
 
   /**
+   * Picks all cards matching property:value, returned in an array (can be empty).
+   */
+  pickAll(property, value) {
+    let picked = [];
+    for (let i = this.cards.length - 1; i >= 0; i--) {
+      if (this.cards[i][property] == value) {
+        let c = this.cards[i];
+        this.cards.splice(i, 1);
+        picked.push(c);
+      }
+    }
+    return picked;
+  }
+
+  /**
    * Short-hand function for reading number of cards left in the deck.
    */
   getNumberOfCards() {
