@@ -18,5 +18,5 @@ function simulate(iterations = false) {
   if (!iterations)
     iterations = global.defaultIterations;
   
-
+  buildInitialData();
 }

@@ -184,12 +184,22 @@ function buildObject(data, separator = false) {
 
 /**
  * Builds an array of objects with data taken from spreadsheet, one object for each row.
- * @param {Object} columnMapping: Describes which properties to assign column values to, on the form title:columnNumber. 1-indexed.
+ * By default the first row is used for property names. Can be overridden by columnMapping.
  * @param {String} sheetName: The name of the sheet to collect data from.
  * @param {String} range: The range, in a format accepted by Google spreadsheet.
+ * @param {Object} columnMapping: Used if first row is _not_ property names. Describes which
+ * properties to assign column values to, on the form title:columnNumber. 1-indexed.
  */
-function buildObjectArrayFromRows(columnMapping, sheetName, range) {
+function buildObjectArrayFromRows(sheetName, range, columnMapping = false) {
   let data = SpreadsheetApp.getActive().getSheetByName(sheetName).getRange(range).getValues();
+  if (!columnMapping) {
+    columnMapping = {};
+    let properties = data.shift();
+    debugger
+    for (let i in properties) {
+      columnMapping[properties[i]] = 1 + parseInt(i);
+    }
+  }
   let objArray = [];
   for (let row of data) {
     let obj = {};
