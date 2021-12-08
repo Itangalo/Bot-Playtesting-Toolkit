@@ -62,7 +62,7 @@ class Deck {
     let cards = [];
     for (let i = 0; i < n; i++) {
       let c = this.draw();
-      if (!c) // Don't add the card if there were none to draw.
+      if (c !== false) // Don't add the card if there were none to draw.
         cards.push(c);
     }
     return cards;
