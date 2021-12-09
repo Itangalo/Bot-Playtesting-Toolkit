@@ -5,6 +5,7 @@
 /**
  * Helper functions for randomness.
  */
+
 // Selects a random element from an array. If property is set, the
 // property value will be used for weighting probabily.
 function selectRandom(arr, property = false) {
@@ -20,7 +21,6 @@ function selectRandom(arr, property = false) {
     sum += o[property];
   }
   let selection = Math.random() * sum;
-  debugger
   for (let i = l; i > -1; i--) {
     if (selection > selectionArray[i])
       return arr[i];
@@ -30,6 +30,7 @@ function selectRandom(arr, property = false) {
 /**
  * Helper functions handling arrays.
  */
+
 // Used for sorting an array of objects by an object property.
 function sortByProperty(objArray, property, ascending = true) {
   if (ascending)
@@ -46,7 +47,7 @@ function sortBySubProperty(objArray, property, subProperty, ascending = true) {
     objArray.sort((a, b) => b[property][subProperty] > a[property][subProperty] ? 1 : -1);
 }
 
-// Shoffles an array.
+// Shuffles an array.
 // Code from https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 function shuffle(array) {
   var currentIndex = array.length, temporaryValue, randomIndex;
@@ -192,18 +193,40 @@ function buildObject(data, separator = false) {
  */
 function buildObjectArrayFromRows(sheetName, range, columnMapping = false) {
   let data = SpreadsheetApp.getActive().getSheetByName(sheetName).getRange(range).getValues();
-  if (!columnMapping) {
-    columnMapping = {};
+  return buildObjectArray(data, columnMapping);
+}
+
+/**
+ * Builds an array of objects with data taken from spreadsheet, one object for each column.
+ * By default the first column is used for property names. Can be overridden by rowMapping.
+ * @param {String} sheetName: The name of the sheet to collect data from.
+ * @param {String} range: The range, in a format accepted by Google spreadsheet.
+ * @param {Object} rowMapping: Used if first column is _not_ property names. Describes which
+ * properties to assign rows values to, on the form title:rowNumber. 1-indexed.
+ */
+function buildObjectArrayFromColumns(sheetName, range, rowMapping = false) {
+  let data = SpreadsheetApp.getActive().getSheetByName(sheetName).getRange(range).getValues();
+  data = transpose(data);
+  return buildObjectArray(data, rowMapping);
+}
+
+/**
+ * Helper function building an array of objects from a provided matrix.
+ * Intended to be called internally.
+ */
+function buildObjectArray(data, mapping) {
+  if (!mapping) {
+    mapping = {};
     let properties = data.shift();
     for (let i in properties) {
-      columnMapping[properties[i]] = 1 + parseInt(i);
+      mapping[properties[i]] = 1 + parseInt(i);
     }
   }
   let objArray = [];
   for (let row of data) {
     let obj = {};
-    for (let property in columnMapping) {
-      let value = row[-1 + columnMapping[property]];
+    for (let property in mapping) {
+      let value = row[-1 + mapping[property]];
       if (typeof(value) == 'string')
         value = value.trim();
       obj[property] = value;
