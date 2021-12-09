@@ -147,42 +147,6 @@ function percentile(arr, p) {
  * Miscellaneous helper functions.
  */
 
-// Builds and returns an object with properties/values specified in an array of data.
-// The array either contains property name and value in sub arrays, or has them combined
-// in a string with a given separator. Values will be trimmed and also converted to numbers if possible.
-function buildObject(data, separator = false) {
-  // If we have a single array with property name and value mixed, split them up and call again.
-  if (separator !== false) {
-    d = [];
-    for (i in data) {
-      if (typeof(data[i]) == 'array') {
-        data[i] = data[i][0];
-      }
-      t = data[i].split(separator);
-      d.push([t[0], t[1]]);
-    }
-    return buildObject(d);
-  }
-
-  // Build an object and add the values.
-  o = {};
-  for (i in data) {
-    property = data[i][0];
-    if (typeof(property) == 'string') {
-      property = property.trim();
-    }
-    value = data[i][1];
-    if (typeof(value) == 'string') {
-      value = value.trim();
-    }
-    if (!isNaN(value)) {
-      value = parseFloat(value);
-    }
-    o[property] = value;
-  }
-  return o;
-}
-
 /**
  * Builds an array of objects with data taken from spreadsheet, one object for each row.
  * By default the first row is used for property names. Can be overridden by columnMapping.
@@ -208,6 +172,50 @@ function buildObjectArrayFromColumns(sheetName, range, rowMapping = false) {
   let data = SpreadsheetApp.getActive().getSheetByName(sheetName).getRange(range).getValues();
   data = transpose(data);
   return buildObjectArray(data, rowMapping);
+}
+
+/**
+ * Builds an object with data taken from spreadsheet, with a single row or column where each
+ * cell has content on the form 'propertyName: value'. If 'valueSeparator' is provided, all
+ * values brackeded by [] will be split into an array using the separator. Values (also arrayed)
+ * are processed: trimmed and turned into floats if possible. Property names are trimmed.
+ * @param {String} sheetName: The name of the sheet to collect data from.
+ * @param {String} range: The range, in a format accepted by Google spreadsheet.
+ * @param {String} propertySeparator: A string separating property name from value(s). Defaults to colon.
+ * @param {String} valueSeparator: If provided, array values will be split into arrays using this as separator.
+ */
+function buildObjectFromLine(sheetName, range, propertySeparator = ':', valueSeparator = false) {
+  let data = SpreadsheetApp.getActive().getSheetByName(sheetName).getRange(range).getValues();
+  // Make a column into a row.
+  if (data.length > 1)
+    data = transpose(data);
+  // Only take first row.
+  data = data[0];
+
+  let obj = {};
+  for (let i of data) {
+    let d = i.split(propertySeparator);
+    if (d.length > 2)
+      throw('Cell contains the property separator multiple times. Range: ' + range);
+    let p = processValue(d[0]);
+    let v = processValue(d[1]);
+    if (valueSeparator && v[0] == '[' && v[v.length-1] == ']') {
+      v = v.substring(1, v.length-1);
+      v = v.split(valueSeparator);
+      v = v.map(processValue);
+    }
+    obj[p] = v;
+  }
+  return obj;
+}
+
+/**
+ * Transposes an array/matrix and returns the result.
+ * Code from https://stackoverflow.com/questions/17428587/transposing-a-2d-array-in-javascript
+ */
+function transpose(arr){
+  arr = arr[0].map((_, colIndex) => arr.map(row => row[colIndex]));
+  return arr;
 }
 
 /**
@@ -237,22 +245,16 @@ function buildObjectArray(data, mapping) {
 }
 
 /**
- * Parses values in an array: Trims any strings and turns numbers to floats.
+ * Trims strings and turn numeric-like values into floats.
  */
-function washArray(arr) {
-  for (let i in arr) {
-    if (typeof(arr[i]) == 'string') {
-      arr[i] = arr[i].trim();
-    }
-    if (!isNaN(arr[i])) {
-      arr[i] = parseFloat(arr[i]);
-    }
+function processValue(value) {
+  if (!value)
+    return value;
+  if (typeof(value) == 'string') {
+    value = value.trim();
   }
-}
-
-// Transpose an array/matrix.
-// From https://stackoverflow.com/questions/17428587/transposing-a-2d-array-in-javascript
-function transpose(arr){
-  arr = arr[0].map((_, colIndex) => arr.map(row => row[colIndex]));
-  return arr;
+  if (!isNaN(value)) {
+    value = parseFloat(value);
+  }
+  return value;
 }
