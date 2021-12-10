@@ -35,7 +35,7 @@ class Card {
     if (!this.resolver)
       return false;
     if (!cardResolvers[this.resolver]) {
-      log('Resolver ' + this.resolver + ' does not exist.', 'error');
+      log('Card resolver ' + this.resolver + ' does not exist.', 'error');
       return false;
     }
 

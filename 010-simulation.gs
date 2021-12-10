@@ -13,6 +13,7 @@
 var global = {defaultIterations: 1}; // Populated by buildInitialData().
 var agentStrategies = {}; // Populated in separate files.
 var cardResolvers = {}; // Populated in separate files.
+var spaceResolvers = {}; // Populated in separate files.
 
 function simulate(iterations = false) {
   let initialGameState = buildInitialData();
