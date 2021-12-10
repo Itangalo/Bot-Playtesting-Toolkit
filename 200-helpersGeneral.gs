@@ -3,28 +3,127 @@
  */
 
 /**
- * Helper functions for randomness.
+ * Helper functions for reading data from the spreadsheet.
  */
 
-// Selects a random element from an array. If property is set, the
-// property value will be used for weighting probabily.
-function selectRandom(arr, property = false) {
-  let l = arr.length;
-  if (!property) {
-    return arr[Math.floor(Math.random()*l)];
+/**
+ * Builds an array of objects with data taken from spreadsheet, one object for each row.
+ * By default the first row is used for property names. Can be overridden by columnMapping.
+ * All values brackeded by [] will be split into an array using comma as separator.
+ * @param {String} sheetName: The name of the sheet to collect data from.
+ * @param {String} range: The range, in a format accepted by Google spreadsheet.
+ * @param {Object} columnMapping: Used if first row is _not_ property names. Describes which
+ * properties to assign column values to, on the form title:columnNumber. 1-indexed.
+ */
+function buildObjectArrayFromRows(sheetName, range, columnMapping = false) {
+  let data = SpreadsheetApp.getActive().getSheetByName(sheetName).getRange(range).getValues();
+  return buildObjectArray(data, columnMapping);
+}
+
+/**
+ * Builds an array of objects with data taken from spreadsheet, one object for each column.
+ * By default the first column is used for property names. Can be overridden by rowMapping.
+ * All values brackeded by [] will be split into an array using comma as separator.
+ * @param {String} sheetName: The name of the sheet to collect data from.
+ * @param {String} range: The range, in a format accepted by Google spreadsheet.
+ * @param {Object} rowMapping: Used if first column is _not_ property names. Describes which
+ * properties to assign rows values to, on the form title:rowNumber. 1-indexed.
+ */
+function buildObjectArrayFromColumns(sheetName, range, rowMapping = false) {
+  let data = SpreadsheetApp.getActive().getSheetByName(sheetName).getRange(range).getValues();
+  data = transpose(data);
+  return buildObjectArray(data, rowMapping);
+}
+
+/**
+ * Builds an object with data taken from spreadsheet, with a single row or column where each
+ * cell has content on the form 'propertyName: value'. All values brackeded by [] will be split
+ * into an array using comma as separator.
+ * @param {String} sheetName: The name of the sheet to collect data from.
+ * @param {String} range: The range, in a format accepted by Google spreadsheet.
+ * @param {String} propertySeparator: A string separating property name from value(s). Defaults to colon.
+ */
+function buildObjectFromLine(sheetName, range, propertySeparator = ':') {
+  let data = SpreadsheetApp.getActive().getSheetByName(sheetName).getRange(range).getValues();
+  // Make a column into a row.
+  if (data.length > 1)
+    data = transpose(data);
+  // Only take first row, even if more are provided.
+  data = data[0];
+
+  let obj = {};
+  for (let i of data) {
+    let d = i.split(propertySeparator);
+    if (d.length > 2)
+      throw('Cell contains the property separator multiple times. Range: ' + range);
+    let p = processValue(d[0], false);
+    let v = processValue(d[1]);
+    obj[p] = v;
+  }
+  return obj;
+}
+
+/**
+ * Transposes an array/matrix and returns the result.
+ * Code from https://stackoverflow.com/questions/17428587/transposing-a-2d-array-in-javascript
+ */
+function transpose(arr){
+  arr = arr[0].map((_, colIndex) => arr.map(row => row[colIndex]));
+  return arr;
+}
+
+/**
+ * Helper function building an array of objects from a provided matrix.
+ * Intended to be called internally.
+ */
+function buildObjectArray(data, mapping) {
+  if (!mapping) {
+    mapping = {};
+    let properties = data.shift();
+    for (let i in properties) {
+      mapping[processValue(properties[i], false)] = 1 + parseInt(i);
+    }
+  }
+  let objArray = [];
+  for (let row of data) {
+    let obj = {};
+    for (let property in mapping) {
+      let value = processValue(row[-1 + mapping[property]]);
+      obj[property] = value;
+    }
+    objArray.push(obj);
+  }
+  return objArray;
+}
+
+/**
+ * Trims strings and turn numeric-like strings into floats.
+ * If a string is bracketed by '[]' it is split by ',' and each piece processed
+ * (unless 'checkArrays' is false).
+ */
+function processValue(value, checkArrays = true) {
+  // Don't process numbers, boolean values and the like.
+  if (!value || typeof(value) != 'string')
+    return value;
+  value = value.trim();
+
+  // Check if the value is bracketed. If so, split and call this function on each part.
+  if (checkArrays) {
+    if (value[0] == '[' && value[value.length-1] == ']') {
+      value = value.substring(1, value.length-1);
+      if (value == '')
+        value = [];
+      else
+        value = value.split(',');
+      return value.map(processValue);
+    }
   }
 
-  let selectionArray = [];
-  let sum = 0;
-  for (let o of arr) {
-    selectionArray.push(sum);
-    sum += o[property];
+  // Make numeric-like strings into strings.
+  if (!isNaN(value)) {
+    value = parseFloat(value);
   }
-  let selection = Math.random() * sum;
-  for (let i = l; i > -1; i--) {
-    if (selection > selectionArray[i])
-      return arr[i];
-  }
+  return value;
 }
 
 /**
@@ -147,114 +246,23 @@ function percentile(arr, p) {
  * Miscellaneous helper functions.
  */
 
-/**
- * Builds an array of objects with data taken from spreadsheet, one object for each row.
- * By default the first row is used for property names. Can be overridden by columnMapping.
- * @param {String} sheetName: The name of the sheet to collect data from.
- * @param {String} range: The range, in a format accepted by Google spreadsheet.
- * @param {Object} columnMapping: Used if first row is _not_ property names. Describes which
- * properties to assign column values to, on the form title:columnNumber. 1-indexed.
- */
-function buildObjectArrayFromRows(sheetName, range, columnMapping = false) {
-  let data = SpreadsheetApp.getActive().getSheetByName(sheetName).getRange(range).getValues();
-  return buildObjectArray(data, columnMapping);
-}
-
-/**
- * Builds an array of objects with data taken from spreadsheet, one object for each column.
- * By default the first column is used for property names. Can be overridden by rowMapping.
- * @param {String} sheetName: The name of the sheet to collect data from.
- * @param {String} range: The range, in a format accepted by Google spreadsheet.
- * @param {Object} rowMapping: Used if first column is _not_ property names. Describes which
- * properties to assign rows values to, on the form title:rowNumber. 1-indexed.
- */
-function buildObjectArrayFromColumns(sheetName, range, rowMapping = false) {
-  let data = SpreadsheetApp.getActive().getSheetByName(sheetName).getRange(range).getValues();
-  data = transpose(data);
-  return buildObjectArray(data, rowMapping);
-}
-
-/**
- * Builds an object with data taken from spreadsheet, with a single row or column where each
- * cell has content on the form 'propertyName: value'. If 'valueSeparator' is provided, all
- * values brackeded by [] will be split into an array using the separator. Values (also arrayed)
- * are processed: trimmed and turned into floats if possible. Property names are trimmed.
- * @param {String} sheetName: The name of the sheet to collect data from.
- * @param {String} range: The range, in a format accepted by Google spreadsheet.
- * @param {String} propertySeparator: A string separating property name from value(s). Defaults to colon.
- * @param {String} valueSeparator: If provided, array values will be split into arrays using this as separator.
- */
-function buildObjectFromLine(sheetName, range, propertySeparator = ':', valueSeparator = false) {
-  let data = SpreadsheetApp.getActive().getSheetByName(sheetName).getRange(range).getValues();
-  // Make a column into a row.
-  if (data.length > 1)
-    data = transpose(data);
-  // Only take first row.
-  data = data[0];
-
-  let obj = {};
-  for (let i of data) {
-    let d = i.split(propertySeparator);
-    if (d.length > 2)
-      throw('Cell contains the property separator multiple times. Range: ' + range);
-    let p = processValue(d[0]);
-    let v = processValue(d[1]);
-    if (valueSeparator && v[0] == '[' && v[v.length-1] == ']') {
-      v = v.substring(1, v.length-1);
-      v = v.split(valueSeparator);
-      v = v.map(processValue);
-    }
-    obj[p] = v;
+// Selects a random element from an array. If property is set, the
+// property value will be used for weighting probabily.
+function selectRandom(arr, property = false) {
+  let l = arr.length;
+  if (!property) {
+    return arr[Math.floor(Math.random()*l)];
   }
-  return obj;
-}
 
-/**
- * Transposes an array/matrix and returns the result.
- * Code from https://stackoverflow.com/questions/17428587/transposing-a-2d-array-in-javascript
- */
-function transpose(arr){
-  arr = arr[0].map((_, colIndex) => arr.map(row => row[colIndex]));
-  return arr;
-}
-
-/**
- * Helper function building an array of objects from a provided matrix.
- * Intended to be called internally.
- */
-function buildObjectArray(data, mapping) {
-  if (!mapping) {
-    mapping = {};
-    let properties = data.shift();
-    for (let i in properties) {
-      mapping[properties[i]] = 1 + parseInt(i);
-    }
+  let selectionArray = [];
+  let sum = 0;
+  for (let o of arr) {
+    selectionArray.push(sum);
+    sum += o[property];
   }
-  let objArray = [];
-  for (let row of data) {
-    let obj = {};
-    for (let property in mapping) {
-      let value = row[-1 + mapping[property]];
-      if (typeof(value) == 'string')
-        value = value.trim();
-      obj[property] = value;
-    }
-    objArray.push(obj);
+  let selection = Math.random() * sum;
+  for (let i = l; i > -1; i--) {
+    if (selection > selectionArray[i])
+      return arr[i];
   }
-  return objArray;
-}
-
-/**
- * Trims strings and turn numeric-like values into floats.
- */
-function processValue(value) {
-  if (!value)
-    return value;
-  if (typeof(value) == 'string') {
-    value = value.trim();
-  }
-  if (!isNaN(value)) {
-    value = parseFloat(value);
-  }
-  return value;
 }
