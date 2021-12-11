@@ -9,6 +9,7 @@
  * @param {Object} trackData: An object with properties to set to the
  * track. Some special properties:
  *    * assumePresent: If true, missing pawns start on the first space.
+ *    * loop: If true, the last space is followed by the first.
  */
 class Track {
   constructor(id, spacesArrayData = false, trackData = false) {
@@ -63,10 +64,88 @@ class Track {
     if (i < 0)
       throw('Cannot move pawn ' + pawnId + ' on track ' + this.id + '. Pawn is not present.');
 
-    // Move up or down the track, but not beyond its edges.    
-    i = Math.max(0, Math.min(i + steps, this.spaces.length - 1));
+    // Move up or down the track, but not beyond its edges.
+    if (this.loop)
+      i = (i + steps) % this.spaces.length;
+    else 
+      i = Math.max(0, Math.min(i + steps, this.spaces.length - 1));
     this.pawnIndices[pawnId] = i;
     return this.spaces[i];
+  }
+
+  /**
+   * Moves the pawn to the first space. Creates pawn if necessary.
+   */
+  movePawnToStart(pawnId) {
+    this.pawnIndices[pawnId] = 0;
+  }
+
+  /**
+   * Moves the pawn to the last space. Creates pawn if necessary.
+   */
+  movePawnToStart(pawnId) {
+    this.pawnIndices[pawnId] = this.spaces.length - 1;
+  }
+
+  /**
+   * Tells whether the pawn is at the first space.
+   */
+  isAtStart(pawnId) {
+    return (this.pawnIndices[pawnId] == 0);
+  }
+
+  /**
+   * Tells whether the pawn is at the last space.
+   */
+  isAtEnd(pawnId) {
+    return (this.pawnIndices[pawnId] == this.spaces.length - 1);
+  }
+
+  /**
+   * Returns the first space matching the given property:value, or
+   * false if none is found.
+   */
+  getSpace(property, value) {
+    for (let s of this.spaces) {
+      if (s[property] == value)
+        return s;
+    }
+    return false;
+  }
+
+  /**
+   * Returns the track index for the first space matching the
+   * given property:value, or false if none is found.
+   */
+  getSpaceIndex(property, value) {
+    for (let i in this.spaces) {
+      if (this.spaces[i][property] == value)
+        return i;
+    }
+    return false;
+  }
+
+  /**
+   * Returns an array of all pawn IDs at a given track index.
+   */
+  getPawnsAtIndex(index) {
+    let pawnIds = [];
+    for (let p in this.pawnIndices) {
+      if (this.pawnIndices[p] == index)
+        pawnIds.push(p);
+    }
+    return pawnIds;
+  }
+
+  /**
+   * Moves a pawn to the first space matching property:value. Creates
+   * the pawn if necessary.
+   */
+  moveToSpace(pawnId, property, value) {
+    let i = this.getSpaceIndex(property, value);
+    if (i < 0)
+      throw('Cannot move ' + pawnId + ' to a space matching ' + property + ':' + value + '. No such space.');
+    this.pawnIndices[pawnId] = i;
   }
 
   /**
