@@ -3,22 +3,33 @@
  */
 class Deck {
   /**
-   * @param {String} id: The unique identifier of the deck.
+   * @param {object} deckData: Data with properties for the deck. Special properties:
+   *  - id (string): The unique identifier of the deck. Required.
+   *  - shuffleWhenCreated (boolean): Whether to shuffle after constructed.
+   *  - addDiscardWhenShuffling (boolean): Whether to add the discard pile when shuffling.
+   *  - displaySize (integer): Used if there should be a common display drawn from the deck.
+   *  - autoFillDisplay (boolean): Whether to always fill the display to its intended size.
+   * 
    * @param {Array} cardDataArray: An array of objects which will be used to create cards.
-   * @param {Boolean} shuffle: Whether to shuffle after constructed. Defaults to true.
+   * Optional. Special properties used for cards:
+   *  - resolver (string): Name of method in global cardResolvers object. Called from card.resolver().
    */
-  constructor(id, cardDataArray = false, shuffle = true) {
-    this.id = id;
+  constructor(deckData, cardDataArray = false) {
+    for (let i in deckData) {
+      this[i] = deckData[i];
+    }
     this.cards = [];
     this.discardPile = [];
-    this.addDiscardWhenShuffling = true;
+    this.display = [];
     if (cardDataArray) {
       for (let c of cardDataArray) {
         this.constructCard(c);
       }
     }
-    if (shuffle)
+    if (this.shuffleWhenCreated || this.shuffleWhenCreated === undefined)
       this.shuffle();
+    if (this.autoFillDisplay)
+      this.fillDisplay();
   }
 
   /**
@@ -158,16 +169,30 @@ class Deck {
   }
 
   /**
-   * Short-hand function for reading number of cards left in the deck.
+   * Fills the display with cards drawn from the top of the deck.
    */
-  getNumberOfCards() {
-    return this.cards.length;
+  fillDisplay() {
+    if (!this.displaySize)
+      return false;
+    while (this.display.length < this.displaySize && this.cards.length > 0) {
+      this.display.push(this.draw());
+    }
   }
 
   /**
-   * Short-hand function for reading number of cards in the discard pile.
+   * Picks the first card found matching property:value from the display, or false if none is found.
    */
-  getNumberOfDiscardedCards() {
-    return this.discardPile.length;
+  pickFromDisplay(property, value) {
+    for (let i in this.display) {
+      if (this.display[i][property] == value) {
+        let c = this.display[i];
+        this.display.splice(i, 1);
+        if (this.autoFillDisplay)
+          this.fillDisplay();
+        return c;
+      }
+    }
+    log('Could not find any card where ' + property + ' is ' + value + ' in display of deck ' + this.id + '.', 'error');
+    return false;
   }
 }

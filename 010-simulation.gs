@@ -22,7 +22,7 @@ function simulate(iterations = false) {
   let results = [];
   // Start iterating game plays.
   if (!iterations)
-    iterations = global.defaultIterations;
+    iterations = global.defaults.iterations;
   for (let iteration = 1; iteration <= iterations; iteration++) {
     let gs = JSON.parse(JSON.stringify(initialGameState)); // Short-hand for game state.
 
@@ -31,8 +31,17 @@ function simulate(iterations = false) {
      */
     // Set up decks, if any.
     if (gs.decks) {
-      for (let d in gs.decks) {
-        gs.decks[d] = new Deck(d, gs.decks[d]);
+      gs.decks = {};
+      for (let o of initialGameState.decks) {
+        gs.decks[o.deck.id] = new Deck(o.deck, o.cards);
+      }
+    }
+
+    // Set up tracks, if any.
+    if (gs.tracks) {
+      gs.tracks = {};
+      for (let o of initialGameState.tracks) {
+        gs.tracks[o.track.id] = new Track(o.track, o.spaces);
       }
     }
 
@@ -40,10 +49,12 @@ function simulate(iterations = false) {
     // not keyed by id, to allow setting and changing order.
     if (gs.agents) {
       gs.agents = [];
-      for (let a in initialGameState.agents) {
-        gs.agents.push(new Agent(a, initialGameState.agents[a]));
+      for (let a of initialGameState.agents) {
+        gs.agents.push(new Agent(a));
       }
     }
+
+    // @TODO: Add a function here where additional processing may be made.
 
     // Play the game until it is over.
     gs.round = 0;
@@ -53,6 +64,7 @@ function simulate(iterations = false) {
       /**
        * This is where the magic happens.
        */
+      // @TODO: Add a function here where rounds are carried out.
     }
 
     /**

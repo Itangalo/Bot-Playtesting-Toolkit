@@ -13,10 +13,16 @@ function buildInitialData() {
 
   // These properties are used by the board game scripting tools.
   // They may be changed, but not removed.
-  global.defaultIterations = 1;
+  global.defaults = {};
+  global.defaults.iterations = 1;
+  global.defaults.diceRoll = {
+    quantity: 3,
+    numberOfSides: 6,
+    customSides: false,
+  }
   global.percentilesForStatistics = [0, .05, .15, .50, .85, .95, 1];
 
-  // Other properties that are game-dependent.
+  // Other properties that are independent of game instance.
   // @Examples.
   global.distances = {
     'a-b': 5,
@@ -27,13 +33,18 @@ function buildInitialData() {
   /**
    * Build object describing initial game state.
    * 
-   * Any decks put in initialGameState.decks will be created on game start.
-   * Decks should be stored on the form initialGameState.decks[deckId] = array_of_card_data,
-   * not as Deck objects. (Nor should cards be Card objects, just objects with data.)
+   * Any decks put in the initialGameState.decks array will be created on game start.
+   * Each entry should be on the form {deck:objectWithData, cards:arrayWithCardData}.
+   * The deck must have an id set. See Deck class for more details.
    *
-   * Any agents put in initialGameState.agents will be created on game start.
-   * Agents should be stored on the form initialGameState.agents[agendId] = object_with_agent_data,
-   * not as Agent objects.
+   * Any agents put in the initialGameState.agents array will be created on game start.
+   * Each entry should be an object with data. The agent must have an id set.
+   * See Agent class for more details. Note that agents in the processed game state
+   * object will be stored in an _array_, to allow ordering them.
+   *
+   * Any tracks put in the initialGameState.tracks array will be created on game start.
+   * Each entry should be on the form {track:objectWithData, spaces:arrayWithSpaceData}.
+   * The track must have an id set. See Track class for more details.
    */
   let initialGameState = {};
 
