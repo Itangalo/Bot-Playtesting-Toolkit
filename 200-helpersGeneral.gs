@@ -266,3 +266,41 @@ function selectRandom(arr, property = false) {
       return arr[i];
   }
 }
+
+/**
+ * Returns an array of the straights found in an array of values, eg.
+ * [[2, 3, 4], [6], [10, 11]]. The straights are sorted by value, ascending.
+ * 
+ * @param {array} values: An array with integer values.
+ * @param {integer} lowest: The lowest value to check for.
+ * @param {integer} highest: The highest value to check for.
+ */
+function getStraights(values, lowest, highest) {
+  let straights = [];
+  for (let i = lowest; i <= highest; i++) {
+    let straight = [];
+    while (values.includes(i) && i <= highest) {
+      straight.push(i);
+      i++;
+    }
+    if (straight.length)
+      straights.push(straight);
+  }
+  return straights;
+}
+
+/**
+ * Returns the longest straight found in an array of values, for example [2, 3, 4].
+ * If several longest are found, the highest is returned.
+ * 
+ * @param {array} values: An array with integer values.
+ * @param {integer} lowest: The lowest value to check for.
+ * @param {integer} highest: The highest value to check for.
+ */
+function getLongestStraight(values, lowest, highest) {
+  let straights = getStraights(values, lowest, highest);
+  if (straights.length == 0)
+    return [];
+  sortByProperty(straights, 'length', false);
+  return straights[0];
+}

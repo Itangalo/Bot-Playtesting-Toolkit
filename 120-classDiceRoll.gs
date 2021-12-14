@@ -85,28 +85,14 @@ class DiceRoll {
   /**
    * Returns the longest straight found in the dice results, for example [2, 3, 4].
    * If several longest are found, the highest is returned.
-   * @TODO: Take custom sides better into consideration. There may be gaps and negative numbers.
    */
   getLongestStraight() {
     let max = this.numberOfSides;
+    let min = 1;
     if (this.customSides) {
       max = Math.max(...this.customSides);
+      min = Math.min(...this.customSides);
     }
-    let counts = [];
-    for (let i = 0; i < max; i++) {
-      counts.push([]);
-    }
-
-    // @TODO: Make this loop a bit more efficient.
-    for (let i in counts) {
-      let checkValue = parseInt(i) + 1;
-      while(this.result.includes(checkValue)) {
-        counts[i].push(checkValue);
-        checkValue++;
-      }
-    }
-    sortByProperty(counts, 'length', false);
-    return counts[0];
+    return getLongestStraight(this.result, min, max);
   }
-
 }
