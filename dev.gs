@@ -13,3 +13,10 @@ function tmp(gs) {
   track.moveAgent(agent, 2);
   debugger;
 }
+
+function tmp2() {
+  let a = [1, 2, 19, 19, 19, 4, 5, 6, 20, 10, 11, 12, 20, 21];
+  Logger.log(getStraights(a, 1, 21));
+
+  Logger.log(getLongestStraight(a, 1, 21));
+}

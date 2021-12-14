@@ -49,13 +49,16 @@ function buildInitialData() {
   let initialGameState = {};
 
   // @Examples.
-  initialGameState.decks = {};
-  initialGameState.decks.deck1 = buildObjectArrayFromRows('deck1', 'A1:B53');
+  initialGameState.decks = [];
+  let deck1 = {
+    deck: buildObjectArrayFromRows('deck1', 'A1:B53'),
+  }
+  initialGameState.decks.push(deck1);
   
-  initialGameState.agents = {};
+  initialGameState.agents = [];
   let agents = buildObjectArrayFromRows('agents', 'A1:D4');
   for (let i of agents) {
-    initialGameState.agents[i.id] = i;
+    initialGameState.agents.push(i);
   }
 
   return initialGameState;

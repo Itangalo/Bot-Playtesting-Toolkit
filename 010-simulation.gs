@@ -14,9 +14,12 @@ var global = {defaultIterations: 1}; // Populated by buildInitialData().
 var agentStrategies = {}; // Populated in separate files.
 var cardResolvers = {}; // Populated in separate files.
 var spaceResolvers = {}; // Populated in separate files.
+global.startTime = Date.now();
 
 function simulate(iterations = false) {
+  log('Starting to build initial data.', 'system');
   let initialGameState = buildInitialData();
+  log('Initial data complete.', 'system');
 
   // Variable used to save data from each game iteration.
   let results = [];
@@ -24,6 +27,7 @@ function simulate(iterations = false) {
   if (!iterations)
     iterations = global.defaults.iterations;
   for (let iteration = 1; iteration <= iterations; iteration++) {
+    log('Starting iteration ' + iteration, 'system');
     let gs = JSON.parse(JSON.stringify(initialGameState)); // Short-hand for game state.
 
     /**
@@ -58,6 +62,7 @@ function simulate(iterations = false) {
 
     // Play the game until it is over.
     gs.round = 0;
+    log('Starting first round in iteration ' + iteration, 'system');
     while (!gameOver(gs)) {
       gs.round++;
 

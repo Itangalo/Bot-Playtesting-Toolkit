@@ -10,10 +10,18 @@ function log(message, type) {
     example: true,
     statistics: true,
     tests: true,
+    system: true,
     errors: true,
   };
+  const showTimestamps = true;
 
   if (onOff[type]) {
+    if (showTimestamps)
+      message += ' (time: ' + getTime() + ')';
     Logger.log(message);
   }
+}
+
+function getTime(label) {
+  return Date.now() - global.startTime;
 }
