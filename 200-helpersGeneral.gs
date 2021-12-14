@@ -112,10 +112,12 @@ function processValue(value, checkArrays = true) {
     if (value[0] == '[' && value[value.length-1] == ']') {
       value = value.substring(1, value.length-1);
       if (value == '')
-        value = [];
+        return [''];
       else
         value = value.split(',');
-      return value.map(processValue);
+      for (let i in value)
+        value[i] = processValue(value[i], true);
+      return value;
     }
   }
 

@@ -7,8 +7,9 @@ function log(message, type) {
   const onOff = {
     rounds: true,
     notice: true,
-    test: true,
+    example: true,
     statistics: true,
+    tests: true,
     errors: true,
   };
 

@@ -14,5 +14,5 @@ cardResolvers.log = function(card) {
   let copy = Object.assign({}, card);
   delete(copy.deck);
   copy.deck = card.deck.id;
-  log('Logging card: ' + JSON.stringify(copy), 'test');
+  log('Logging card: ' + JSON.stringify(copy), 'example');
 }
