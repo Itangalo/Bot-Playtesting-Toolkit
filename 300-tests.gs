@@ -1,3 +1,10 @@
+/**
+ * @file: Contains tests for some functionality in the toolbox.
+ *
+ * Good when developing. May steal some time in execution, so if a script is
+ * going slowly it _might_ help to delete this file.
+ */
+
 var tests = {};
 
 tests.helpersGeneral = {};
@@ -65,9 +72,11 @@ tests.helpersGeneral.arrayManagement = function() {
     return 'Limiting range in getLongestStraight is not working properly.'
   return true;
 }
+// @TODO: Write tests for sortByProperty, sortBySubProperty, getMax, getMin,
+// getSum and getAverage. Perhaps also selectRandom and percentile.
 
 tests.deck = {};
-
+// @TODO: Write tests for decks. And agents, and tracks. And dice rolls.
 
 function runTests() {
   log('== TEST RESULTS ==', 'tests');
