@@ -110,8 +110,8 @@ function simulate(iterations = false) {
     for (let p of global.percentilesForStatistics) {
       values.push(percentile(sortedResults[i], p).toFixed(2));
     }
-    message += values.join(' | ');
-    message += ")\r\n";
+    message += values.join(' | ') + ') Non-zero at ';
+    message += getNonZeroThreshold(sortedResults[i]) + '\r\n';
   }
   log(message, 'statistics');
 
@@ -123,6 +123,10 @@ function simulate(iterations = false) {
   output.push(['Average']);
   for (let i in sortedResults) {
     output[1].push(average(sortedResults[i]));
+  }
+  output.push(['Non-zero at']);
+  for (let i in sortedResults) {
+    output[2].push(getNonZeroThreshold(sortedResults[i]));
   }
   for (let p of global.percentilesForStatistics) {
     let line = ['percentile ' + p];
