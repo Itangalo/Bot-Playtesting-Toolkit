@@ -260,6 +260,11 @@ function getNonZeroThreshold(arr) {
  * Miscellaneous helper functions.
  */
 
+// Copies an object or an array. Does not copy methods.
+function copy(object) {
+  return JSON.parse(JSON.stringify(object));
+}
+
 // Selects a random element from an array. If property is set, the
 // property value will be used for weighting probabily.
 function selectRandom(arr, property = false) {

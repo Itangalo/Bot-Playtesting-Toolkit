@@ -11,8 +11,8 @@
  * @param {Card} card: The card object.
  */
 cardResolvers.log = function(card) {
-  let copy = Object.assign({}, card);
-  delete(copy.deck);
-  copy.deck = card.deck.id;
-  log('Logging card: ' + JSON.stringify(copy), 'example');
+  let temporaryCopy = copy(card);
+  delete(temporaryCopy.deck);
+  temporaryCopy.deck = card.deck.id;
+  log('Logging card: ' + JSON.stringify(temporaryCopy), 'example');
 }

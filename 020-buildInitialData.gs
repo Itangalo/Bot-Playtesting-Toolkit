@@ -1,7 +1,7 @@
 /**
  * Builds the data needed to start a game.
  * 
- * Should populate the global and return an object describing initial game state.
+ * Should populate the global variable and also return an object describing initial game state.
  */
 function buildInitialData() {
   /**
