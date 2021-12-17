@@ -169,6 +169,35 @@ function shuffle(array) {
   return array;
 }
 
+// Returns first element from an array where property == value
+// or false if no match is found.
+function pickFromArray(objectArray, property, value) {
+  for (let o of objectArray) {
+    if (o[property] == value)
+      return o;
+  }
+  return false;
+}
+
+// Returns an array with all elements in an array where property == value.
+function pickAllFromArray(objectArray, property, value) {
+  let result = [];
+  for (let o of objectArray) {
+    if (o[property] == value)
+      result.push(o);
+  }
+  return result;
+}
+
+// Takes an array of objects and returns an array with all values for the selected property.
+function buildArrayWithProperty(objectArray, property) {
+  let result = [];
+  for (let o of objectArray) {
+    result.push(o[property]);
+  }
+  return result;
+}
+
 /**
  * Helper functions for statistics.
  */
@@ -263,6 +292,11 @@ function getNonZeroThreshold(arr) {
 // Copies an object or an array. Does not copy methods.
 function copy(object) {
   return JSON.parse(JSON.stringify(object));
+}
+
+// Returns the agent with the matching id.
+function getAgentById(gameState, id) {
+  return pickFromArray(gameState.agents, 'id', id);
 }
 
 // Selects a random element from an array. If property is set, the
