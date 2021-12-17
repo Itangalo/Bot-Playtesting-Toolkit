@@ -157,11 +157,11 @@ class Track {
     let space = this.getPawnSpace(pawnId);
     if (!space.resolver)
       return false;
-    if (!spaceResolvers[space.resolver]) {
+    if (!spaceResolvers[module][space.resolver]) {
       log('Space resolver ' + space.resolver + ' does not exist.', 'error');
       return false;
     }
 
-    spaceResolvers[space.resolver](pawnId, ...arguments);
+    spaceResolvers[module][space.resolver](pawnId, ...arguments);
   }
 }
