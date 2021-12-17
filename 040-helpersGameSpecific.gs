@@ -6,7 +6,7 @@
  * Tells when the game is over.
  * @return Either true or false.
  */
-function gameOver(gameState) {
+modules.example.gameOver = function(gameState) {
   // @Examples: Game is over when 10 rounds have been played.
   if (gameState.round >= 10)
     return true;
@@ -19,7 +19,7 @@ function gameOver(gameState) {
  * for statistics based on all games. Data must be numeric.
  * @return Object on the form {property: numericalValue, ...}
  */
-function buildStatistics(gameState) {
+modules.example.buildStatistics = function(gameState) {
   let stats = {};
 
   // @Examples.

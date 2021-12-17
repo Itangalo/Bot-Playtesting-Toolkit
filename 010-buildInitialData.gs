@@ -3,7 +3,11 @@
  * 
  * Should populate the global variable and also return an object describing initial game state.
  */
-function buildInitialData() {
+
+// Add an entry for the module.
+modules.example = {};
+
+modules.example.buildInitialData = function() {
   /**
    * Build global data that should be accessible from anywhere.
    *
@@ -13,7 +17,6 @@ function buildInitialData() {
 
   // These properties are used by the board game scripting tools.
   // They may be changed, but not removed.
-  global.defaults = {};
   global.defaults.iterations = 1;
   global.defaults.diceRoll = {
     quantity: 3,

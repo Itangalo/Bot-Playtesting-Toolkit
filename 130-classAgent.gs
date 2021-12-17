@@ -73,6 +73,6 @@ class Agent {
       throw('Method ' + method + ' does not exist in ' + this.strategy + '.');
     }
 
-    return agentStrategies[this.strategy][method](this, ...arguments);
+    return agentStrategies[module][this.strategy][method](this, ...arguments);
   }
 }

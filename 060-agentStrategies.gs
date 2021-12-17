@@ -5,11 +5,15 @@
  * In the actual methods, the first argument is always the agent object.
  */
 
-agentStrategies.default = {};
+// Add an entry for the module.
+agentStrategies.example = {};
+
+// Add an entry for the strategy.
+agentStrategies.example.default = {};
 
 /**
- * @Examples: Just logs the agent object.
+ * Add strategy callbacks. This one just logs the agent object.
  */
-agentStrategies.default.log = function(agent) {
+agentStrategies.example.default.log = function(agent) {
   log(JSON.stringify(agent), 'example');
 }

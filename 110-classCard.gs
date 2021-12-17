@@ -41,11 +41,11 @@ class Card {
   resolve() {
     if (!this.resolver)
       return false;
-    if (!cardResolvers[this.resolver]) {
+    if (!cardResolvers[module][this.resolver]) {
       log('Card resolver ' + this.resolver + ' does not exist.', 'error');
       return false;
     }
 
-    cardResolvers[this.resolver](...arguments);
+    cardResolvers[module][this.resolver](...arguments);
   }
 }

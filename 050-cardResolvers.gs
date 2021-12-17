@@ -10,7 +10,8 @@
  * (in a non-destructive way) first.
  * @param {Card} card: The card object.
  */
-cardResolvers.log = function(card) {
+cardResolvers.example = {};
+cardResolvers.example.log = function(card) {
   let temporaryCopy = copy(card);
   delete(temporaryCopy.deck);
   temporaryCopy.deck = card.deck.id;

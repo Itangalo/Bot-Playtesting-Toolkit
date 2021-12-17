@@ -6,19 +6,25 @@
 
 /**
  * @file: Runs simulation. Creates some global variables.
- * This file should be the first in the list of files.
+ * This file must be the first in the list of files when the script runs.
  */
 
 // Initiate some global variables.
-var global = {defaultIterations: 1}; // Populated by buildInitialData().
+var global = {defaults: {module: 'example'}}; // Further populated by buildInitialData().
+var modules = {}; // Populated by custom code.
+var module = global.defaults.module;
 var agentStrategies = {}; // Populated in separate files.
 var cardResolvers = {}; // Populated in separate files.
 var spaceResolvers = {}; // Populated in separate files.
 global.startTime = Date.now();
 
-function simulate(iterations = false) {
+function simulate(iterations = false, mod = false) {
+  // Set which module (game simulation) to run.
+  if (mod !== false)
+    module = mod;
+
   log('Starting to build initial data.', 'system');
-  let initialGameState = buildInitialData();
+  let initialGameState = modules[module].buildInitialData();
   log('Initial data complete.', 'system');
 
   // Variable used to save data from each game iteration.
@@ -59,22 +65,22 @@ function simulate(iterations = false) {
     }
 
     // Make any customized additional processing of the game state.
-    preIteration(gs);
+    modules[module].preIteration(gs);
 
     // Play the game until it is over.
     gs.round = 0;
     log('Starting first round in iteration ' + iteration, 'system');
-    while (!gameOver(gs)) {
+    while (!modules[module].gameOver(gs)) {
       gs.round++;
 
       // Call the function carrying out the actual actions in a round.
-      playRound(gs);
+      modules[module].playRound(gs);
     }
 
     /**
      * Process data that should be stored for statistics.
      */
-    results.push(buildStatistics(gs));
+    results.push(modules[module].buildStatistics(gs));
   }
 
   return processResults(results);
