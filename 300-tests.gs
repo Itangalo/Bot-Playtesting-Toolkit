@@ -23,12 +23,10 @@ tests.helpersGeneral.processValue = function() {
     return 'Array parsing works incorrectly.';
   if (processValue('[[test]]')[0][0] != 'test')
     return 'Recursive array parsing works incorrectly.';
-  debugger
   if (processValue('[]')[0] != '')
     return 'Empty arrays are parsed incorrectly.';
   if (processValue('[test,]')[1] != '')
     return 'Empty array values are parsed incorrectly.';
-  return true;
 };
 tests.helpersGeneral.buildObjectArrayFromRows = function() {
   let d = buildObjectArrayFromRows('testData', 'A2:C54');
@@ -39,7 +37,6 @@ tests.helpersGeneral.buildObjectArrayFromRows = function() {
   d = buildObjectArrayFromRows('testData', 'A3:C54', {type: 1, v: 2, resolver: 3});
   if (d[20].type != 'hearts')
     return 'Property mapping is not working correctly.'
-  return true;
 };
 tests.helpersGeneral.buildObjectArrayFromColumns = function() {
   let d = buildObjectArrayFromColumns('testData', 'E7:H11');
@@ -48,14 +45,12 @@ tests.helpersGeneral.buildObjectArrayFromColumns = function() {
     return 'Matrix is not transposed correctly.'
   if (d.length != 3)
     return 'Incorrect number of objects.';
-  return true;
 };
 tests.helpersGeneral.buildObjectFromLine = function() {
   let d1 = buildObjectFromLine('testData', 'O2:O4');
   let d2 = buildObjectFromLine('testData', 'O6:Q6');
   if (JSON.stringify(d1) != JSON.stringify(d2))
     return 'Lines and rows are processed differently.';
-  return true;
 };
 tests.helpersGeneral.arrayManagement = function() {
   let a = [1, 2, 19, 19, 19, 4, 5, 6, 20, 10, 11, 12, 20, 21];
@@ -70,7 +65,17 @@ tests.helpersGeneral.arrayManagement = function() {
     return 'getLongestStraight is not working properly.'
   if (JSON.stringify(getLongestStraight(b, 1, 20)) != JSON.stringify([10, 11, 12]))
     return 'Limiting range in getLongestStraight is not working properly.'
-  return true;
+}
+tests.helpersGeneral.getNonZeroThreshold = function() {
+  let a = [0, 0, 0, 0];
+  if (getNonZeroThreshold(a) != 1)
+    return 'getNonZeroThreshold does not work properly for zero-arrays.';
+  a.push(1);
+  if (getNonZeroThreshold(a) != .8)
+    return 'getNonZeroThreshold does not work properly.';
+  a.unshift(1);
+  if (getNonZeroThreshold(a) != 0)
+    return 'getNonZeroThreshold does not work properly for percentile 0.';
 }
 // @TODO: Write tests for sortByProperty, sortBySubProperty, getMax, getMin,
 // getSum and getAverage. Perhaps also selectRandom and percentile.
@@ -83,11 +88,11 @@ function runTests() {
   for (let i in tests) {
     log('## ' + i, 'tests');
     for (let j in tests[i]) {
-      let result = tests[i][j]();
-      if (result == true)
+      let errorMessage = tests[i][j]();
+      if (!errorMessage)
         log(j + ': OK.', 'tests');
       else
-        log(j + ': ERROR. ' + result, 'tests');
+        log(j + ': ERROR. ' + errorMessage, 'tests');
     }
   }
 }
