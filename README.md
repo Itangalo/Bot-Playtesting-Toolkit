@@ -13,8 +13,15 @@ The idea behind this project is as follows:
   * playRound: This is the most central code, playing each round in the game. For complex games, this will most likely be split up into more functions.
   * gameOver: This function looks at the game state and tells whether the game is over or not.
   * buildStatistics: This function takes the game state and extracts whichever information should be included in overall statistics. (Number of rounds played, how many cards have been drawn in total, etc.)
-* Players are called "agents" in the framework. The module can provide several different strategies that agents could use.
-* To make it easier to take care of special effects of cards and board/track spaces, the module can also provide "resolvers" for cards and board/track spaces. This allows calling the special code easily, keeping each resolver function separate from one another, and also saves you the headache of a gazillion of if statements.
 * When the code is run, it plays the game the stated number of times and outputs statistics in a nice table. If called from the coding environemnt the results are shown in the log. If called from the spreadsheet the results show up in the sheet.
 
-More documentation and code is coming. Comments and ideas are welcome.
+The framework provides pre-written classes for agets (players/characters), cards, decks, dice and tracks/boards. These contain some common methods, making coding easier for you.
+* Agent: Keep track of how stats change. Also, the module you write can provide several different strategies that agents could use.
+* Cards and decks: Shuffle, draw, discard, return to deck. Fill displays. Pick cards matching certain criteria. Also, your module can provide "resolvers" for cards. These are separate functions called from the card, making it easier to handle special effects without writing spaghetti code. Note that cards can be used for simulating worker placement.
+* Dice rolls: Set number of dice, number of sides and also customized dice values. Get various results, such as sum, frequence of all of a special result, check for straights, etc.
+* Tracks and spaces: Move pawns on the track, and get information of where pawns are located. Also, as with cards your module can proide resolvers for spaces on the track. This allows for having special stuff happening when pawns reach certain spaces, without having to write a lot of code.
+
+The framework also contains handy logging functionality, with time logging during execution as an extra option.
+
+
+More functionality, documentation and examples are coming. Comments and ideas are welcome.
