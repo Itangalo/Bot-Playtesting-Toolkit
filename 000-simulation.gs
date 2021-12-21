@@ -16,6 +16,7 @@ var module = global.defaults.module;
 var agentStrategies = {}; // Populated in separate files.
 var cardResolvers = {}; // Populated in separate files.
 var spaceResolvers = {}; // Populated in separate files.
+var goodsResolvers = {}; // Populated in separate files.
 global.startTime = Date.now();
 
 function simulate(iterations = false, mod = false) {

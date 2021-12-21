@@ -357,3 +357,43 @@ function getLongestStraight(values, lowest, highest) {
   sortByProperty(straights, 'length', false);
   return straights[0];
 }
+
+/**
+ * Looks through the properties of an object and returns the property
+ * with the highest numerical value. If several have the highest value,
+ * a random of these are returned.
+ */
+function getHighestProperty(obj) {
+  let max = Number.NEGATIVE_INFINITY;
+  let properties = [];
+  for (let p in obj) {
+    if (typeof(obj[p]) == 'number' && obj[p] >= max) {
+      if (obj[p] > max) {
+        properties = [];
+        max = obj[p];
+      }
+      properties.push(p);
+    }
+  }
+  if (properties.length == 0) return false;
+  return selectRandom(properties);
+}
+
+/**
+ * Processes arguments object into an array, skipping the number of specified first items.
+ */
+function parseArguments(args, skip = 0) {
+  args = Object.values(args);
+  for (let i = 0; i < skip; i++)
+    args.shift();
+  return args;
+}
+
+/**
+ * Checks whether two objects are similar when JSON-stringified.
+ */
+function compareObjects(o1, o2) {
+  if (JSON.stringify(o1) == JSON.stringify(o2))
+    return true;
+  return false;
+}

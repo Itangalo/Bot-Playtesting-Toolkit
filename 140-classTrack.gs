@@ -3,13 +3,13 @@
  * 
  * @param {Array} spacesArrayData: An array of objects describing each
  * space on the track. Some special properties:
- *    * resolver: Name of a method in the spaceResolver object. Called
+ *    - resolver: Name of a method in the spaceResolver object. Called
  *      through track.resolve(pawnId).
  * 
  * @param {Object} trackData: An object with properties to set to the
  * track. Some special properties:
- *    * assumePresent: If true, missing pawns start on the first space.
- *    * loop: If true, the last space is followed by the first.
+ *    - assumePresent: If true, missing pawns start on the first space.
+ *    - loop: If true, the last space is followed by the first.
  */
 class Track {
   constructor(id, spacesArrayData = false, trackData = false) {

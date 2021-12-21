@@ -77,11 +77,91 @@ tests.helpersGeneral.getNonZeroThreshold = function() {
   if (getNonZeroThreshold(a) != 0)
     return 'getNonZeroThreshold does not work properly for percentile 0.';
 }
+tests.helpersGeneral.getHighestProperty = function() {
+  let o = {a: -3, b: -5, c: -3};
+  let r = [];
+  for (let i = 0; i < 10; i++)
+    r.push(getHighestProperty(o));
+  if (!r.includes('a') || !r.includes('c'))
+    return 'getHighestProperty fails in selecting by random among shared highest properties.';
+  o = {a: '1', b: '100'};
+  if (getHighestProperty(o) !== false)
+    return 'getHighestProperty handles objects without numerical properties incorrectly.';
+}
 // @TODO: Write tests for sortByProperty, sortBySubProperty, getMax, getMin,
 // getSum and getAverage. Perhaps also selectRandom and percentile.
 
 tests.deck = {};
 // @TODO: Write tests for decks. And agents, and tracks. And dice rolls.
+
+tests.market = {};
+tests.market.general = function() {
+  let marketData = buildObjectArrayFromColumns('testData', 'S2:T4');
+  let goodsData = buildObjectArrayFromRows('testData', 'U2:AE9');
+  let m = new Market(marketData[0], goodsData);
+  if (!compareObjects(m.resources, ['wood', 'clay', 'sheep', 'grain', 'ore']))
+    return 'Markets are not built correctly.';
+  let r = {
+    wood: 1,
+    clay: 1,
+    sheep: 1,
+    grain: 1,
+    ore: 0,
+  };
+  if (!compareObjects(r, m.getPrice('house')))
+    return 'getPrice is not working correctly.';
+  let a = m.getPrice('ore');
+  if (a.anyButSame != 4)
+    return 'getPrice fails to catch costs of type "anyButSame".';
+  a = m.getPrice('sheep');
+  if (a.any != 2)
+    return 'getPrice fails to catch costs of type "any".';
+  r.clay = 0; r.ore = 1;
+  let b = m.getBalance('house', r);
+  if (b !== false)
+    return 'Markets allows purchase when resources are missing.';
+  r.clay = 1;
+  b = m.getBalance('house', r);
+  if (!b)
+    return 'Markets disallows purchase when enough resources are provided.';
+  b = m.getBalance('sheep', r);
+  if (!b)
+    return 'Markets handles any incorrectly. Disallows even when resources are provided.';
+  b = m.getBalance('ore', r);
+  if (b !== false)
+    return 'Markets handles anyButSame incorrectly. Allows different resources.';
+  r.sheep = 4;
+  b = m.getBalance('ore', r);
+  if (!b)
+    return 'Markets handles anyButSame incorrectly. Disallows when resources are provided.';
+  if (b.ore != 2)
+    return 'Markets handles purchase of resources incorrectly. Returned resources are not increased.';
+  if (m.getQuantity('house') != 5)
+    return 'getQuantity is not working properly.';
+  m.buy('house', r);
+  if (m.getQuantity('house') != 4)
+    return 'Markets do not decrease quantity on purchase correctly.';
+  m.setQuantity('city', 5);
+  m.restock(['city']);
+  if (m.getQuantity('house') != 4)
+    return 'Markets do not carry out selective restocking correctly.';
+  if (m.getQuantity('city') != 5)
+    return 'Markets do not respect restockOnlyIncreases.';
+  m.restock();
+  if (m.getQuantity('house') != 5)
+    return 'Markets do not carry out restocking correctly.';
+  m.setQuantity('city', 1, true);
+  if (m.getQuantity('city') != 6)
+    return 'Markets do not carry out relative quantity changes correctly.';
+  m.setQuantity('city', 100);
+  if (m.getQuantity('city') != 7)
+    return 'Markets do not respect maxQuantity.';
+  m.setQuantity('city', -100, true);
+  if (m.getQuantity('city') != 0)
+    return 'Markets do not respect 0 as lower quantity limit.';
+
+}
+
 
 function runTests() {
   log('== TEST RESULTS ==', 'tests');
