@@ -1,9 +1,14 @@
 /**
  * @file: Handles log outputs.
+ * 
+ * @TODO: Allow module to overwrite values, instead of hacking this file.
  */
 
 /**
  * Outputs log messages, if the flag for the message type is on.
+ * 
+ * @param {string} message: The message to display.
+ * @param {string} type: The type of log message, used for restricting actual output.
  */
 function log(message, type) {
   // Only message types set to true will be printed.

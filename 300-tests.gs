@@ -95,7 +95,7 @@ tests.deck = {};
 // @TODO: Write tests for decks. And agents, and tracks. And dice rolls.
 
 tests.market = {};
-tests.market.general = function() {
+tests.market.theLot = function() {
   let marketData = buildObjectArrayFromColumns('testData', 'S2:T4');
   let goodsData = buildObjectArrayFromRows('testData', 'U2:AE9');
   let m = new Market(marketData[0], goodsData);

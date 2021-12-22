@@ -1,19 +1,19 @@
 /**
  * Class for managing tracks where pawns are moved.
  * 
+ * @param {Object} trackData: An object with properties to set to the
+ * track. Some special properties:
+ *    - id: The unique id for the track. Required.
+ *    - assumePresent: If true, missing pawns start on the first space.
+ *    - loop: If true, the last space is followed by the first.
+ * 
  * @param {Array} spacesArrayData: An array of objects describing each
  * space on the track. Some special properties:
  *    - resolver: Name of a method in the spaceResolver object. Called
  *      through track.resolve(pawnId).
- * 
- * @param {Object} trackData: An object with properties to set to the
- * track. Some special properties:
- *    - assumePresent: If true, missing pawns start on the first space.
- *    - loop: If true, the last space is followed by the first.
  */
 class Track {
-  constructor(id, spacesArrayData = false, trackData = false) {
-    this.id = id;
+  constructor(trackData, spacesArrayData = false) {
     if (trackData) {
       for (let i in trackData) {
         this[i] = trackData[i];
@@ -28,6 +28,8 @@ class Track {
     // Object used to track where on the track pawns are.
     this.pawnIndices = {};
   }
+
+  // @TODO: Write method for adding spaces. And for modifying?
 
   /**
    * Returns the index for the space where the pawn is, or -1 if

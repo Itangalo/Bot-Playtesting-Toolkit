@@ -6,12 +6,12 @@
  */
 
 /**
- * @Examples: Logs the card data, but strips away the deck object
- * (in a non-destructive way) first.
+ * @Examples: Just logs the card data.
  * @param {Card} card: The card object.
  */
 cardResolvers.example = {};
 cardResolvers.example.log = function(card) {
+  // Make a temporary copy and remove the deck, to not clutter the log message.
   let temporaryCopy = copy(card);
   delete(temporaryCopy.deck);
   temporaryCopy.deck = card.deck.id;

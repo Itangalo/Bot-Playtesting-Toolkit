@@ -9,7 +9,7 @@ modules.example = {};
 
 modules.example.buildInitialData = function() {
   /**
-   * Build global data that should be accessible from anywhere.
+   * Build global non-changing data that should be accessible from anywhere.
    *
    * This could be data about game board, fixed values used by other functions,
    * or something else that does not change in or between games.

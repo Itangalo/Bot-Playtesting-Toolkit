@@ -1,5 +1,5 @@
 /**
- * @file: Helper functions dealing with general JavaScript stuff.
+ * @file: Helper functions dealing with general JavaScript/Google sheets stuff.
  */
 
 /**
@@ -289,7 +289,7 @@ function getNonZeroThreshold(arr) {
  * Miscellaneous helper functions.
  */
 
-// Copies an object or an array. Does not copy methods.
+// Copies an object or an array. Deep copies, but no methods.
 function copy(object) {
   return JSON.parse(JSON.stringify(object));
 }

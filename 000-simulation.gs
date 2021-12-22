@@ -56,6 +56,14 @@ function simulate(iterations = false, mod = false) {
       }
     }
 
+    // Set up markets, if any.
+    if (gs.markets) {
+      gs.markets = {};
+      for (let o of initialGameState.markets) {
+        gs.markets[o.market.id] = new Market(o.market, o.goods);
+      }
+    }
+
     // Set up agents, if any. Note that these are stored in an array,
     // not keyed by id, to allow setting and changing order.
     if (gs.agents) {

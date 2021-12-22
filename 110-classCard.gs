@@ -7,10 +7,8 @@ class Card {
    * @param {Deck} deck: A deck object, to which the card should be added.
    */
   constructor(cardData, deck) {
-    if (!deck instanceof Deck) {
-      log('Cards must be added to a proper deck.', 'error');
-      return false;
-    }
+    if (!deck instanceof Deck)
+      throw('Cards must be added to a proper deck.');
 
     for (let i in cardData) {
       this[i] = cardData[i];

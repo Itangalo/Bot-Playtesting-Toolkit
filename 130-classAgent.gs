@@ -1,11 +1,17 @@
 /**
  * Class for managing players/agents/avatars/characters.
+ * 
+ * @param {object} agentData: The data describing the agent. Some
+ * special properties:
+ *    - id: The unique id for the agent. Required.
+ *    - strategy: Any strategy used by the agent, and called from
+ *      agent.consultStragety(method, arguments...). Methods must be
+ *      added to agentStrategies[module].
+ *      
  */
 class Agent {
-  constructor(id, agentData = false, strategy = false) {
-    this.id = id;
-    this.strategy = strategy;
-    this.tracking = {}; // Used for storing 
+  constructor(agentData) {
+    this.tracking = {}; // Used for storing changes for statistics
     if (agentData) {
       for (let i in agentData) {
         this[i] = agentData[i];
@@ -13,6 +19,15 @@ class Agent {
     }
   }
 
+  // @TODO: Add ways to limit max and min values for properties.
+
+  /**
+   * Called when changes to agent properties should be logged, for example
+   * to include number of changes in statistics.
+   * 
+   * @param {string} property: The name of the property to change.
+   * @param {number} change: The change, relative current value.
+   */
   trackChange(property, change) {
     if (isNaN(change)) {
       log('Tried to track change of property ' + property + ', but change ' + change + ' is not a number.', 'error');

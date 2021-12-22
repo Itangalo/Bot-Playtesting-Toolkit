@@ -20,8 +20,8 @@
  *    - quantity: Set to an integer to limit the amount of that type of goods.
  *      Defaults to infinite.
  *    - maxQuantity: Set to an integer to cap the possible amount of the goods type.
- *    - resolver: Name of a method in the spaceResolver object. Called
- *      through track.resolve(pawnId).
+ *    - resolver: Name of a method in the goodsResolver object. Called
+ *      through market.resolve(goodsId, arguments...).
  */
 class Market {
   constructor(marketData, goodsArrayData) {
@@ -38,6 +38,8 @@ class Market {
       g.initialQuantity = g.quantity;
     }
   }
+
+  // @TODO: Add method for adding goods.
 
   /**
    * Resets goods quantity to initial amount.
