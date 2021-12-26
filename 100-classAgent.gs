@@ -12,7 +12,7 @@
 class Agent {
   constructor(agentData) {
     // Build basic data and verify required properties.
-    Object.assign(this, deckData);
+    Object.assign(this, agentData);
     if (this.id === undefined)
       throw('Agents must have an id property set.');
     
@@ -86,11 +86,11 @@ class Agent {
       log('Agent ' + this.id + ' has no strategy set.', 'error');
       throw('Agent ' + this.id + ' has no strategy set.');
     }
-    if (!agentStrategies[this.strategy]) {
+    if (!agentStrategies[module] || !agentStrategies[module][this.strategy]) {
       log('Strategy ' + this.strategy + ' does not exist.', 'error');
       throw('Strategy ' + this.strategy + ' does not exist.');
     }
-    if (!agentStrategies[this.strategy][method]) {
+    if (!agentStrategies[module][this.strategy][method]) {
       log('Method ' + method + ' does not exist in ' + this.strategy + '.', 'error');
       throw('Method ' + method + ' does not exist in ' + this.strategy + '.');
     }

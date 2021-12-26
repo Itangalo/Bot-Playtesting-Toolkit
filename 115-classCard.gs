@@ -33,6 +33,7 @@ class Card {
    * Passes on work to any resolver function declared for the card,
    * along with any parameters. Card needs to have a the property 'resolver'
    * set and the cardResolvers object needs to have a corresponding method.
+   * Note that the card itelf is always passed on as the first parameter.
    */
   resolve() {
     if (!this.resolver)
@@ -42,6 +43,6 @@ class Card {
       return false;
     }
 
-    cardResolvers[module][this.resolver](...arguments);
+    cardResolvers[module][this.resolver](this, ...arguments);
   }
 }

@@ -1,10 +1,8 @@
 /**
  * @file: Carries out each round in the game. Called once for each round.
- * 
- * @param {object} gameState: The game state. Altered in place, not returned.
  */
 
-modules.example.playRound = function(gameState) {
+modules.example.playRound = function() {
   // Agents draw cards.
   for (let a of gameState.agents) {
     // Shuffle deck if player is out of cards. Discard pile is added by default.

@@ -7,7 +7,7 @@
  *
  * @return Either true or false.
  */
-modules.example.gameOver = function(gameState) {
+modules.example.gameOver = function() {
   // Game is over if (at least) one agent is out of hit points.
   for (let a of gameState.agents) {
     if (a.hitPoints <= 0)
@@ -22,7 +22,7 @@ modules.example.gameOver = function(gameState) {
  *
  * @return Object on the form {property: numericalValue, ...}
  */
-modules.example.buildStatistics = function(gameState) {
+modules.example.buildStatistics = function() {
   let stats = {};
 
   stats.gameLength = gameState.round;

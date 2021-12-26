@@ -52,13 +52,12 @@ modules.example.buildInitialData = function() {
   let initialGameState = {};
 
   // Build data for agents (players).
-  initialGameState.agents = buildObjectArrayFromColumns('exampleData', 'E2:G5');
+  initialGameState.agents = buildObjectArrayFromColumns('exampleData', 'E2:G6');
 
   // Create a deck for each player. Use player id as deck id.
   let cardData = buildObjectArrayFromRows('exampleData', 'A2:C54');
   initialGameState.decks = [];
-  debugger
-  for (let a in initialGameState.agents) {
+  for (let a of initialGameState.agents) {
     initialGameState.decks.push(
       {deck: {id:a.id},
       cards: cardData},

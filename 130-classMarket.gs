@@ -23,6 +23,9 @@
  *    - resolver: Name of a method in the goodsResolver object. Called
  *      through market.resolve(goodsId, arguments...).
  */
+
+// @TODO: Rewrite to use agent as argument, not only resources.
+// @TODO: Probably move a lot of methods to the Goods class.
 class Market {
   constructor(marketData, goodsDataArray = false) {
     // Build basic data and verify required properties.

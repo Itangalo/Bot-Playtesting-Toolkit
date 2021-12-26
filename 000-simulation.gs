@@ -36,61 +36,58 @@ function simulate(iterations = false, mod = false) {
     iterations = global.defaults.iterations;
   for (let iteration = 1; iteration <= iterations; iteration++) {
     log('Starting iteration ' + iteration, 'system');
-    let gs = JSON.parse(JSON.stringify(initialGameState)); // Short-hand for game state.
+    let gameState = JSON.parse(JSON.stringify(initialGameState)); // Short-hand for game state.
 
     /**
      * Set up each game.
      */
+    // Set up agents, if any. Note that these are stored in an array,
+    // not keyed by id, to allow setting and changing order.
+    if (gameState.agents) {
+      for (let a of initialGameState.agents) {
+        new Agent(a);
+      }
+    }
+
     // Set up decks, if any.
-    if (gs.decks) {
-      gs.decks = {};
+    if (gameState.decks) {
       for (let o of initialGameState.decks) {
-        gs.decks[o.deck.id] = new Deck(o.deck, o.cards);
+        new Deck(o.deck, o.cards);
       }
     }
 
     // Set up tracks, if any.
-    if (gs.tracks) {
-      gs.tracks = {};
+    if (gameState.tracks) {
       for (let o of initialGameState.tracks) {
-        gs.tracks[o.track.id] = new Track(o.track, o.spaces);
+        new Track(o.track, o.spaces);
       }
     }
 
     // Set up markets, if any.
-    if (gs.markets) {
-      gs.markets = {};
+    if (gameState.markets) {
       for (let o of initialGameState.markets) {
-        gs.markets[o.market.id] = new Market(o.market, o.goods);
+        new Market(o.market, o.goods);
       }
     }
 
-    // Set up agents, if any. Note that these are stored in an array,
-    // not keyed by id, to allow setting and changing order.
-    if (gs.agents) {
-      gs.agents = [];
-      for (let a of initialGameState.agents) {
-        gs.agents.push(new Agent(a));
-      }
-    }
 
     // Make any customized additional processing of the game state.
-    modules[module].preIteration(gs);
+    modules[module].preIteration();
 
     // Play the game until it is over.
-    gs.round = 0;
+    gameState.round = 0;
     log('Starting first round in iteration ' + iteration, 'system');
-    while (!modules[module].gameOver(gs)) {
-      gs.round++;
+    while (!modules[module].gameOver()) {
+      gameState.round++;
 
       // Call the function carrying out the actual actions in a round.
-      modules[module].playRound(gs);
+      modules[module].playRound();
     }
 
     /**
      * Process data that should be stored for statistics.
      */
-    results.push(modules[module].buildStatistics(gs));
+    results.push(modules[module].buildStatistics());
   }
 
   return processResults(results);
