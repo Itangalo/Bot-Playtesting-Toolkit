@@ -10,9 +10,7 @@ class Card {
     if (!deck instanceof Deck)
       throw('Cards must be added to a proper deck.');
 
-    for (let i in cardData) {
-      this[i] = cardData[i];
-    }
+    Object.assign(this, cardData);
     this.deck = deck;
     deck.addToBottom(this);
   }
@@ -39,8 +37,8 @@ class Card {
   resolve() {
     if (!this.resolver)
       return false;
-    if (!cardResolvers[module][this.resolver]) {
-      log('Card resolver ' + this.resolver + ' does not exist.', 'error');
+    if (!cardResolvers[module] || !cardResolvers[module][this.resolver]) {
+      log('Card resolver ' + this.resolver + ' does not exist in module ' + module + '.', 'error');
       return false;
     }
 

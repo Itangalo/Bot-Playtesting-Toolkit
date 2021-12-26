@@ -172,6 +172,8 @@ function shuffle(array) {
 // Returns first element from an array where property == value
 // or false if no match is found.
 function pickFromArray(objectArray, property, value) {
+  if (objectArray.length == 0)
+    return false;
   for (let o of objectArray) {
     if (o[property] == value)
       return o;
@@ -294,8 +296,8 @@ function copy(object) {
   return JSON.parse(JSON.stringify(object));
 }
 
-// Returns the agent with the matching id.
-function getAgentById(gameState, id) {
+// Returns the agent with the matching id or false if none is found.
+function getAgentById(id) {
   return pickFromArray(gameState.agents, 'id', id);
 }
 

@@ -13,6 +13,7 @@
 var global = {defaults: {module: 'example'}}; // Further populated by buildInitialData().
 var modules = {}; // Populated by custom code.
 var module = global.defaults.module;
+var gameState = {};
 var agentStrategies = {}; // Populated in separate files.
 var cardResolvers = {}; // Populated in separate files.
 var spaceResolvers = {}; // Populated in separate files.

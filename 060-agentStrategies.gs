@@ -9,11 +9,20 @@
 agentStrategies.example = {};
 
 // Add an entry for the strategy.
-agentStrategies.example.default = {};
+agentStrategies.example.offensive = {};
+agentStrategies.example.defensive = {};
 
 /**
  * Add strategy callbacks. This one just logs the agent object.
  */
-agentStrategies.example.default.log = function(agent) {
-  log(JSON.stringify(agent), 'example');
+agentStrategies.example.offensive.buy = function(agent, gameState) {
+  while (gameState.market.market1.getBuyableItems(agent.resources).attackBooster !== undefined) {
+    // The buy returns the updated resources. The extra 'agent' argument is passed to the goods resolver.
+    agent.resources = gameState.market.market1.buy('attackBooster', agent.resources, agent);
+  }
+}
+agentStrategies.example.defensive.buy = function(agent, gameState) {
+  while (gameState.market.market1.getBuyableItems(agent.resources).healing !== undefined) {
+    agent.resources = gameState.market.market1.buy('healing', agent.resources, agent);
+  }
 }

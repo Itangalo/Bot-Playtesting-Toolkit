@@ -11,12 +11,18 @@
  */
 class Agent {
   constructor(agentData) {
+    // Build basic data and verify required properties.
+    Object.assign(this, deckData);
+    if (this.id === undefined)
+      throw('Agents must have an id property set.');
+    
+    // Add the agent to gameState.
+    if (gameState.agents === undefined)
+      gameState.agents = [];
+    gameState.agents.push(this);
+
+    // Additional processing just for decks.
     this.tracking = {}; // Used for storing changes for statistics
-    if (agentData) {
-      for (let i in agentData) {
-        this[i] = agentData[i];
-      }
-    }
   }
 
   // @TODO: Add ways to limit max and min values for properties.
@@ -72,6 +78,7 @@ class Agent {
   /**
    * Used to call a strategy on behalf of the agent. Any arguments will be passed on
    * to the strategy method. First argument will always be the agent object.
+   * 
    * @param {String} method: The name of the method in the strategy.
    */
   consultStrategy(method) {

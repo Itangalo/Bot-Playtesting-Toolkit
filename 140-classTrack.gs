@@ -7,26 +7,46 @@
  *    - assumePresent: If true, missing pawns start on the first space.
  *    - loop: If true, the last space is followed by the first.
  * 
- * @param {Array} spacesArrayData: An array of objects describing each
+ * @param {Array} spacesDataArray: An array of objects describing each
  * space on the track. Some special properties:
  *    - resolver: Name of a method in the spaceResolver object. Called
  *      through track.resolve(pawnId).
  */
 class Track {
-  constructor(trackData, spacesArrayData = false) {
-    if (trackData) {
-      for (let i in trackData) {
-        this[i] = trackData[i];
-      }
+  constructor(trackData, spacesDataArray = false) {
+    // Build basic data and verify required properties.
+    Object.assign(this, deckData);
+    if (this.id === undefined)
+      throw('Tracks must have an id property set.');
+    
+    // Add the track to gameState and, if relevant, to an agent with the same ID.
+    if (gameState.tracks === undefined)
+      gameState.tracks = {};
+    gameState.tracks[this.id] = this;
+    let agent = getAgentById(this.id);
+    if (agent) {
+      agent.track = this;
     }
 
-    if (spacesArrayData)
-      this.spaces = spacesArrayData;
-    else
-      this.spaces = [];
+    // Additional processing just for decks.
+    this.spaces = [];
+    if (spacesArrayData) {
+      for (let s of spacesDataArray) {
+        this.constructSpace(s);
+      }
+    }
     
     // Object used to track where on the track pawns are.
     this.pawnIndices = {};
+  }
+
+  /**
+   * Creates a space object and adds last on the track.
+   * @param {Object} spaceData: An object with any sets of property:value pairs.
+   */
+  constructSpace(spaceData) {
+    let s = new Space(spaceData, this);
+    return s;
   }
 
   // @TODO: Write method for adding spaces. And for modifying?
@@ -108,11 +128,7 @@ class Track {
    * false if none is found.
    */
   getSpace(property, value) {
-    for (let s of this.spaces) {
-      if (s[property] == value)
-        return s;
-    }
-    return false;
+    return pickFromArray(this.spaces, property, value);
   }
 
   /**
@@ -152,18 +168,20 @@ class Track {
 
   /**
    * Calls any resolver set for the pawn's space.
-   * Resolver will be called with pawn ID as first parameter, followed
-   * by any other parameters provided.
+   * Any arguments after the pawn ID will be passed on to the resolver.
+   * Note that resolver also can be called from space.resolve().
    */
   resolve(pawnId) {
     let space = this.getPawnSpace(pawnId);
-    if (!space.resolver)
+
+    if (!space || !space.resolver)
       return false;
-    if (!spaceResolvers[module][space.resolver]) {
-      log('Space resolver ' + space.resolver + ' does not exist.', 'error');
+    if (!spaceResolvers[module] || !spaceResolvers[module][space.resolver]) {
+      log('Space resolver ' + space.resolver + ' does not exist in module ' + module + '.', 'error');
       return false;
     }
 
-    spaceResolvers[module][space.resolver](pawnId, ...arguments);
+    let args = parseArguments(arguments, 1);
+    spaceResolvers[module][space.resolver](...args);
   }
 }

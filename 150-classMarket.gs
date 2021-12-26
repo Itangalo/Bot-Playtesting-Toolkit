@@ -8,7 +8,7 @@
  *    - restockOnlyIncreases: If true, restocking never decreases quantity.
  * 
  *
- * @param {Array} goodsArrayData: An array with one object for each goods type that
+ * @param {Array} goodsDataArray: An array with one object for each goods type that
  * can be bought on the market. ID will be used as property name. Some special properties:
  *    - id: The unique id for the goods type. Will be used as property name under market.goods.
  *    - [resource]: Any property matching a resource ID will be interpreted
@@ -24,22 +24,39 @@
  *      through market.resolve(goodsId, arguments...).
  */
 class Market {
-  constructor(marketData, goodsArrayData) {
-    for (let p in marketData) {
-      this[p] = marketData[p];
+  constructor(marketData, goodsDataArray = false) {
+    // Build basic data and verify required properties.
+    Object.assign(this, marketData);
+    if (this.id === undefined)
+      throw('Markets must have an id property set.');
+
+    // Add the market to gameState and, if relevant, to an agent with the same ID.
+    if (gameState.markets === undefined)
+      gameState.markets = {};
+    gameState.markets[this.id] = this;
+    let agent = getAgentById(this.id);
+    if (agent) {
+      agent.market = this;
     }
+
+    // Additional processing just for markets.
     this.goods = {};
-    for (let g of goodsArrayData) {
-      this.goods[g.id] = g;
-      if (!g.quantity && g.quantity !== 0)
-        g.quantity = Number.POSITIVE_INFINITY;
-      if (!g.maxQuantity)
-        g.maxQuantity = Number.POSITIVE_INFINITY;
-      g.initialQuantity = g.quantity;
+    if (goodsDataArray) {
+      for (let g of goodsDataArray) {
+        this.constructGoods(g);
+      }
     }
   }
 
-  // @TODO: Add method for adding goods.
+  /**
+   * Creates a goods object and adds to the market.
+   * @param {Object} goodsData: An object with any sets of property:value pairs.
+   * @see class Goods.
+   */
+  constructGoods(goodsData) {
+    let g = new Goods(goodsData, this);
+    return g;
+  }
 
   /**
    * Resets goods quantity to initial amount.
@@ -189,9 +206,9 @@ class Market {
   }
 
   /**
-   * Calls any resolver set for a goods type, in the active module.
-   * Any parameters passed after the goods ID will be passed on to the
-   * resolver.
+   * Calls any resolver set for the goods type in the active module.
+   * Any arguments after the goods ID will be passed on to the resolver.
+   * Note that resolver also can be called from goods.resolve().
    */
   resolve(goodsId) {
     if (!this.goods[goodsId].resolver)

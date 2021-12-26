@@ -1,4 +1,17 @@
 /**
+ * This example simulates a silly game with the following rules:
+ * 
+ * Players take one standard deck each and flip the top card in each round.
+ *  - The player with the lowest card lose hit points equal to the value
+ *    difference between the cards.
+ *  - A 'two' gives two health points.
+ *  - Jack, queen and king gives a gold.
+ *  - Two golds can be used to either buy 1 hit point or cause 1 hit point
+ *    extra damage in next time damage is dealt.
+ * First to get 0 hit points loses.
+ */
+
+/**
  * Builds the data needed to start a game.
  * 
  * Should populate the global variable and also return an object describing initial game state.
@@ -18,20 +31,7 @@ modules.example.buildInitialData = function() {
   // These properties are used by the board game scripting tools.
   // They may be changed, but not removed.
   global.defaults.iterations = 1;
-  global.defaults.diceRoll = {
-    quantity: 3,
-    numberOfSides: 6,
-    customSides: false,
-  }
   global.percentilesForStatistics = [0, .05, .15, .50, .85, .95, 1];
-
-  // Other properties that are independent of game instance.
-  // @Examples.
-  global.distances = {
-    'a-b': 5,
-    'a-c': 3,
-    'b-c': 4,
-  };
 
   /**
    * Build object describing initial game state.
@@ -51,18 +51,27 @@ modules.example.buildInitialData = function() {
    */
   let initialGameState = {};
 
-  // @Examples.
+  // Build data for agents (players).
+  initialGameState.agents = buildObjectArrayFromColumns('exampleData', 'E2:G5');
+
+  // Create a deck for each player. Use player id as deck id.
+  let cardData = buildObjectArrayFromRows('exampleData', 'A2:C54');
   initialGameState.decks = [];
-  let deck1 = {
-    deck: buildObjectArrayFromRows('deck1', 'A1:B53'),
+  debugger
+  for (let a in initialGameState.agents) {
+    initialGameState.decks.push(
+      {deck: {id:a.id},
+      cards: cardData},
+    );
   }
-  initialGameState.decks.push(deck1);
-  
-  initialGameState.agents = [];
-  let agents = buildObjectArrayFromRows('agents', 'A1:D4');
-  for (let i of agents) {
-    initialGameState.agents.push(i);
-  }
+
+  // Create a market where the stuff can be bought.
+  let marketData = buildObjectFromLine('exampleData', 'I3:I4');
+  let goodsData = buildObjectArrayFromRows('exampleData', 'K2:M4');
+  initialGameState.markets = [];
+  initialGameState.markets.push(
+    {market: marketData, goods: goodsData}
+  );
 
   return initialGameState;
 }

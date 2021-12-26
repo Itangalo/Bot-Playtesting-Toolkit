@@ -5,7 +5,7 @@ class Deck {
   /**
    * @param {object} deckData: Data with properties for the deck. Special properties:
    *  - id (string): The unique identifier of the deck. Required.
-   *  - shuffleWhenCreated (boolean): Whether to shuffle after constructed.
+   *  - shuffleWhenCreated (boolean): Whether to shuffle after constructed. Defaults to true.
    *  - addDiscardWhenShuffling (boolean): Whether to add the discard pile when shuffling.
    *  - displaySize (integer): Used if there should be a common display drawn from the deck.
    *  - autoFillDisplay (boolean): Whether to always fill the display to its intended size.
@@ -15,9 +15,21 @@ class Deck {
    *  - resolver (string): Name of method in global cardResolvers object. Called from card.resolver().
    */
   constructor(deckData, cardDataArray = false) {
-    for (let i in deckData) {
-      this[i] = deckData[i];
+    // Build basic data and verify required properties.
+    Object.assign(this, deckData);
+    if (this.id === undefined)
+      throw('Decks must have an id property set.');
+    
+    // Add the deck to gameState and, if relevant, to an agent with the same ID.
+    if (gameState.decks === undefined)
+      gameState.decks = {};
+    gameState.decks[this.id] = this;
+    let agent = getAgentById(this.id);
+    if (agent) {
+      agent.deck = this;
     }
+
+    // Additional processing just for decks.
     this.cards = [];
     this.discardPile = [];
     this.display = [];

@@ -5,15 +5,12 @@
  * and passed on.
  */
 
-/**
- * @Examples: Just logs the card data.
- * @param {Card} card: The card object.
- */
 cardResolvers.example = {};
-cardResolvers.example.log = function(card) {
-  // Make a temporary copy and remove the deck, to not clutter the log message.
-  let temporaryCopy = copy(card);
-  delete(temporaryCopy.deck);
-  temporaryCopy.deck = card.deck.id;
-  log('Logging card: ' + JSON.stringify(temporaryCopy), 'example');
+cardResolvers.example.heal = function(card, agent) {
+  agent.trackChange('hitPoints', 2);
+  log(a.id + ' draws a two and heals 2 hit points.', 'example');
+}
+cardResolvers.example.income = function(card, agent) {
+  agent.trackChange('gold', 1);
+  log(a.id + ' draws a face card and gains one gold.', 'example');
 }
