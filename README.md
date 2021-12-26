@@ -2,6 +2,9 @@
 
 A toolkit for simulating board games with Google spreadsheets. Intended use is board game development.
 
+Project is under active development. A bit more information can be found at https://creatingboardgames.wordpress.com/2021/12/18/a-framework-for-having-bots-playing-your-board-game/
+
+
 The idea behind this project is as follows:
 
 * You're building a board game. To complement human play testing you want a lot of quantitative data. This project aims towards having bots playing your game hundreds or thousands of times, spitting out statistics over game results.
