@@ -3,4 +3,6 @@
  */
 
 function tmp() {
+  let d = new Deck({id: 'tmp'});
+  debugger
 }
