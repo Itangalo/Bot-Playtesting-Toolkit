@@ -30,7 +30,7 @@ modules.example.buildInitialData = function() {
 
   // These properties are used by the board game scripting tools.
   // They may be changed, but not removed.
-  global.defaults.iterations = 1;
+  global.defaults.iterations = 100;
   global.percentilesForStatistics = [0, .05, .15, .50, .85, .95, 1];
 
   /**

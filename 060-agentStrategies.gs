@@ -16,15 +16,15 @@ modules.example.agentStrategies.defensive = {};
  * Add strategy callbacks. This one just logs the agent object.
  */
 modules.example.agentStrategies.offensive.buy = function(agent) {
-  // @TODO: Determine if resources should be placed under agent.resources[resourceId]
-  // or just at agent[resourceId]. Probably the latter.
   while (gameState.markets.market1.getBuyableItems(agent).attackBooster !== undefined) {
     // The buy returns the updated resources. The extra 'agent' argument is passed to the goods resolver.
-    agent.resources = gameState.markets.market1.buy('attackBooster', agent.resources, agent);
+    gameState.markets.market1.buy('attackBooster', agent);
+    agent.attackBoosters++;
   }
 }
 modules.example.agentStrategies.defensive.buy = function(agent) {
   while (gameState.markets.market1.getBuyableItems(agent).healing !== undefined) {
-    agent.resources = gameState.markets.market1.buy('healing', agent.resources, agent);
+    gameState.markets.market1.buy('healing', agent);
+    agent.hitPoints += 2;
   }
 }

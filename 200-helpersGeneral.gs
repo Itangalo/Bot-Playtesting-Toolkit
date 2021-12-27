@@ -385,9 +385,8 @@ function getHighestProperty(obj) {
  * Processes arguments object into an array, skipping the number of specified first items.
  */
 function parseArguments(args, skip = 0) {
-  args = Object.values(args);
   for (let i = 0; i < skip; i++)
-    args.shift();
+    Array.prototype.shift.apply(args);
   return args;
 }
 
@@ -424,6 +423,6 @@ function callResolver(type, method) {
     return false;
   }
 
-  let args = parseArguments(arguments, 2);
-  modules[module].resolvers[type][method](...args);
+  //let args = parseArguments(arguments, 2);
+  modules[module].resolvers[type][method](...parseArguments(arguments, 2));
 }
