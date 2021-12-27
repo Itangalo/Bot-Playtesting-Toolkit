@@ -14,10 +14,6 @@ var global = {defaults: {module: 'example'}}; // Further populated by buildIniti
 var modules = {}; // Populated by custom code.
 var module = global.defaults.module;
 var gameState = {};
-var agentStrategies = {}; // Populated in separate files.
-var cardResolvers = {}; // Populated in separate files.
-var spaceResolvers = {}; // Populated in separate files.
-var goodsResolvers = {}; // Populated in separate files.
 global.startTime = Date.now();
 
 function simulate(iterations = false, mod = false) {

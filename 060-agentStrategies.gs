@@ -5,17 +5,17 @@
  * In the actual methods, the first argument is always the agent object.
  */
 
-// Add an entry for the module.
-agentStrategies.example = {};
+// Add an entry for agentStrategies to the module.
+modules.example.agentStrategies = {};
 
-// Add an entry for the strategy.
-agentStrategies.example.offensive = {};
-agentStrategies.example.defensive = {};
+// Add base entries for the strategies.
+modules.example.agentStrategies.offensive = {};
+modules.example.agentStrategies.defensive = {};
 
 /**
  * Add strategy callbacks. This one just logs the agent object.
  */
-agentStrategies.example.offensive.buy = function(agent) {
+modules.example.agentStrategies.offensive.buy = function(agent) {
   // @TODO: Determine if resources should be placed under agent.resources[resourceId]
   // or just at agent[resourceId]. Probably the latter.
   while (gameState.markets.market1.getBuyableItems(agent).attackBooster !== undefined) {
@@ -23,7 +23,7 @@ agentStrategies.example.offensive.buy = function(agent) {
     agent.resources = gameState.markets.market1.buy('attackBooster', agent.resources, agent);
   }
 }
-agentStrategies.example.defensive.buy = function(agent) {
+modules.example.agentStrategies.defensive.buy = function(agent) {
   while (gameState.markets.market1.getBuyableItems(agent).healing !== undefined) {
     agent.resources = gameState.markets.market1.buy('healing', agent.resources, agent);
   }

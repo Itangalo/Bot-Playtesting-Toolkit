@@ -86,15 +86,13 @@ class Agent {
       log('Agent ' + this.id + ' has no strategy set.', 'error');
       throw('Agent ' + this.id + ' has no strategy set.');
     }
-    if (!agentStrategies[module] || !agentStrategies[module][this.strategy]) {
-      log('Strategy ' + this.strategy + ' does not exist.', 'error');
-      throw('Strategy ' + this.strategy + ' does not exist.');
-    }
-    if (!agentStrategies[module][this.strategy][method]) {
-      log('Method ' + method + ' does not exist in ' + this.strategy + '.', 'error');
+    if (!modules[module].agentStrategies)
+      throw('The active module has no agent strategies.');
+    if (!modules[module].agentStrategies[this.strategy])
+      throw('Agent strategy ' + this.strategy + ' does not exist in the active module.');
+    if (!modules[module].agentStrategies[this.strategy][method])
       throw('Method ' + method + ' does not exist in ' + this.strategy + '.');
-    }
 
-    return agentStrategies[module][this.strategy][method](this, ...arguments);
+    return modules[module].agentStrategies[this.strategy][method](this, ...arguments);
   }
 }
