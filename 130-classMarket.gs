@@ -20,12 +20,11 @@
  *    - quantity: Set to an integer to limit the amount of that type of goods.
  *      Defaults to infinite.
  *    - maxQuantity: Set to an integer to cap the possible amount of the goods type.
- *    - resolver: Name of a method in the goodsResolver object. Called
+ *    - resolver: Name of a method in modules[module].resolcer.goods. Called
  *      through market.resolve(goodsId, arguments...).
  */
 
-// @TODO: Rewrite to use agent as argument, not only resources.
-// @TODO: Probably move a lot of methods to the Goods class.
+// @TODO: Consider a way to track agents' increase/decrease in resources when buying.
 class Market {
   constructor(marketData, goodsDataArray = false) {
     // Build basic data and verify required properties.
@@ -133,7 +132,7 @@ class Market {
    * the provided resources. Values are the resources left if bought.
    * 
    * @param {object} resources: An object with properties on the form
-   * resourceType:AvailableAmount.
+   * resourceType:AvailableAmount. Can be an agent object.
    */
   getBuyableItems(resources) {
     let result = {};
@@ -150,7 +149,7 @@ class Market {
    * Returns false if the resource cannot be bought.
    * 
    * @param {object} resources: An object with properties on the form
-   * resourceType:AvailableAmount.
+   * resourceType:AvailableAmount. Can be an agent.
    */
   getBalance(goodsId, resources) {
     if (this.goods[goodsId].quantity < 1)
@@ -189,25 +188,73 @@ class Market {
   }
 
   /**
-   * Buys goods (1 piece), calls any resolver, and returns resource balance for buyer.
+   * Buys goods (1 piece) and updates the resource balance for the buying agent.
    * 
    * @param {string} goodsId: The ID for the goods type.
-   * @param {object} resources: An object with properties on the form
-   * resourceType:AvailableAmount.
+   * @param {Agent} agent: The agent buying the goods.
+   * @param {boolean} resolve: Whether to call the goods resolver, if any. Defaults to false.
+   * 
+   * @return: The result of the goods resolver or, if not called, the goods object.
+   *    Returns false if the purchase could not be made.
    */
-  buy(goodsId, resources) {
-    let b = this.getBalance(goodsId, resources);
+  buy(goodsId, agent, resolve = false) {
+    if (!agent instanceof Agent)
+      throw('Only agents may buy from the market.');
+    let b = this.getBalance(goodsId, agent);
     if (b === false) {
-      log('Tried to buy goods type ' + goodsId + ' but this is not possible.', 'error');
+      log(agent.id + ' tried to buy goods type ' + goodsId + ' but this is not possible.', 'error');
       return false;
     }
-    // Prepare and call any resolver for the goods type.
-    let args = parseArguments(arguments, 2);
-    this.resolve(goodsId, ...args);
+    // Update the balance.
+    Object.assign(agent, b);
     this.goods[goodsId].quantity--;
-    return b;
+
+    if (resolve) {
+      let args = parseArguments(arguments, 3);
+      return this.resolve(goodsId, ...args);
+    }
+    return this[goodsId];
   }
 
+  /**
+   * Buys 'amount' goods of a type and updates the resource balance for the buying agent.
+   * Only performs the purchase if the full amount can be bought.
+   *
+   * @param {string} goodsId: The ID for the goods type.
+   * @param {number} amount: The amount of goods to buy.
+   * @param {Agent} agent: The agent buying the goods.
+   * @param {boolean} resolve: Whether to call the goods resolver, if any,
+   *    after _all_ goods are bought. Defaults to false.
+   * 
+   * @return: The result of the goods resolver or, if not called, the goods object.
+   *    Returns false if the purchase could not be made.
+   */
+  buyMultiple(goodsId, amount, agent, resolve = false) {
+    if (!agent instanceof Agent)
+      throw('Only agents may buy from the market.');
+    if (amount < 1)
+      return false;
+    let balance = {};
+    for (let r of this.resources) {
+      balance[r] = agent[r];
+    }
+    for (let i = 0; i < amount; i++) {
+      balance = this.getBalance(goodsId, balance);
+    }
+    if (balance === false) {
+      log(agent.id + ' tried to buy ' + amount + ' of goods type ' + goodsId + ' but this is not possible.', 'notice');
+      return false;
+    }
+    // Update the balance.
+    Object.assign(agent, balance);
+    this.goods[goodsId].quantity -= amount;
+
+    if (resolve) {
+      let args = parseArguments(arguments, 3);
+      return this.resolve(goodsId, ...args);
+    }
+    return this[goodsId];
+  }
   /**
    * Calls any resolver set for the goods type in the active module.
    * Any arguments after the goods ID will be sent to the resolver.

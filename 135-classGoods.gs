@@ -24,6 +24,8 @@ class Goods {
       throw('Goods must be added to a proper market.');
 
     Object.assign(this, goodsData);
+    if (this.id === undefined)
+      throw('Goods must have an id property set.');
     this.market = market;
     market.goods[this.id] = this;
     // Set quantity restrictions, if any.
