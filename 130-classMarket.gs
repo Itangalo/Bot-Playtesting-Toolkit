@@ -210,15 +210,17 @@ class Market {
 
   /**
    * Calls any resolver set for the goods type in the active module.
-   * Any arguments after the goods ID will be passed on to the resolver.
+   * Any arguments after the goods ID will be sent to the resolver.
+   * The goods needs to have a the property 'resolver' set and a corresponding
+   * method must be placed in modules[module].resolvers.goods.
    * Note that resolver also can be called from goods.resolve().
    */
   resolve(goodsId) {
-    if (!this.goods[goodsId].resolver)
+    if (!this[goodsId]) {
+      log('Tried to call resolver for ' + goodsId + ' but the goods does not exist.', 'error');
       return false;
-    if (!goodsResolvers[module] || !goodsResolvers[module][this.goods[goodsId].resolver])
-      throw('Tried to call goods resolver ' + this.goods[goodsId].resolver + ' but it does not exist in module ' + module + '.');
+    }
     let args = parseArguments(arguments, 1);
-    goodsResolvers[module][this.goods[goodsId].resolver](...args);
+    callResolver('goods', this[goodsId].resolver, ...args);
   }
 }

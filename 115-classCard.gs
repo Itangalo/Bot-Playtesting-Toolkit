@@ -30,19 +30,13 @@ class Card {
   }
 
   /**
-   * Passes on work to any resolver function declared for the card,
-   * along with any parameters. Card needs to have a the property 'resolver'
-   * set and the cardResolvers object needs to have a corresponding method.
-   * Note that the card itelf is always passed on as the first parameter.
+   * Calls any resolver set for the card.
+   * Any arguments will be sent to the resolver. Note that the card itelf is
+   * always passed on as the first parameter.
+   * The card needs to have a the property 'resolver' set and a corresponding
+   * method must be placed in modules[module].resolvers.cards.
    */
   resolve() {
-    if (!this.resolver)
-      return false;
-    if (!cardResolvers[module] || !cardResolvers[module][this.resolver]) {
-      log('Card resolver ' + this.resolver + ' does not exist in module ' + module + '.', 'error');
-      return false;
-    }
-
-    cardResolvers[module][this.resolver](this, ...arguments);
+    callResolver('cards', this.resolver, this, ...arguments);
   }
 }

@@ -16,18 +16,11 @@ class Space {
   }
 
   /**
-   * Passes on work to any resolver function declared for the space,
-   * along with any parameters. Spaces needs to have a the property 'resolver'
-   * set and the spaceResolvers object needs to have a corresponding method.
+   * Passes on work to any resolver function declared for the space, along
+   * with any parameters. Spaces needs to have a the property 'resolver' set
+   * and a corresponding method must be placed in modules[module].resolvers.spaces.
    */
   resolve() {
-    if (!this.resolver)
-      return false;
-    if (!spaceResolvers[module] || !spaceResolvers[module][this.resolver]) {
-      log('Space resolver ' + this.resolver + ' does not exist in module ' + module + '.', 'error');
-      return false;
-    }
-
-    spaceResolvers[module][this.resolver](...arguments);
+    callResolver('spaces', this.resolver, ...arguments);
   }
 }

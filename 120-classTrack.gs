@@ -168,20 +168,17 @@ class Track {
 
   /**
    * Calls any resolver set for the pawn's space.
-   * Any arguments after the pawn ID will be passed on to the resolver.
+   * Any arguments after the pawn ID will be sent to the resolver.
+   * The space needs to have a the property 'resolver' set and a corresponding
+   * method must be placed in modules[module].resolvers.spaces.
    * Note that resolver also can be called from space.resolve().
    */
   resolve(pawnId) {
     let space = this.getPawnSpace(pawnId);
-
-    if (!space || !space.resolver)
+    if (!space)
       return false;
-    if (!spaceResolvers[module] || !spaceResolvers[module][space.resolver]) {
-      log('Space resolver ' + space.resolver + ' does not exist in module ' + module + '.', 'error');
-      return false;
-    }
 
     let args = parseArguments(arguments, 1);
-    spaceResolvers[module][space.resolver](...args);
+    callResolver('spaces', space.resolver, ...args);
   }
 }

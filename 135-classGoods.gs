@@ -38,17 +38,11 @@ class Goods {
 
   /**
    * Passes on work to any resolver function declared for the goods,
-   * along with any parameters. Goods needs to have a the property 'resolver'
-   * set and the goodsResolvers object needs to have a corresponding method.
+   * along with any parameters. The space needs to have a the property
+   * 'resolver' set and a corresponding method must be placed in
+   * modules[module].resolvers.goods.
    */
   resolve() {
-    if (!this.resolver)
-      return false;
-    if (!goodsResolvers[module] || !goodsResolvers[module][this.resolver]) {
-      log('Goods resolver ' + this.resolver + ' does not exist in module ' + module + '.', 'error');
-      return false;
-    }
-
-    goodsResolvers[module][this.resolver](...arguments);
+    callResolver('goods', this.resolver, ...arguments);
   }
 }
