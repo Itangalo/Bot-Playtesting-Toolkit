@@ -22,7 +22,7 @@ function simulate(iterations = false, mod = false) {
     module = mod;
 
   log('Starting to build initial data.', 'system');
-  let initialGameState = modules[module].buildInitialData();
+  let initialGameStateSeed = modules[module].buildInitialData();
   log('Initial data complete.', 'system');
 
   // Variable used to save data from each game iteration.
@@ -32,7 +32,7 @@ function simulate(iterations = false, mod = false) {
     iterations = global.defaults.iterations;
   for (let iteration = 1; iteration <= iterations; iteration++) {
     log('Starting iteration ' + iteration, 'system');
-    let gameState = JSON.parse(JSON.stringify(initialGameState)); // Short-hand for game state.
+    let gameState = JSON.parse(JSON.stringify(initialGameStateSeed)); // Short-hand for game state.
 
     /**
      * Set up each game.
@@ -40,28 +40,28 @@ function simulate(iterations = false, mod = false) {
     // Set up agents, if any. Note that these are stored in an array,
     // not keyed by id, to allow setting and changing order.
     if (gameState.agents) {
-      for (let a of initialGameState.agents) {
+      for (let a of initialGameStateSeed.agents) {
         new Agent(a);
       }
     }
 
     // Set up decks, if any.
     if (gameState.decks) {
-      for (let o of initialGameState.decks) {
+      for (let o of initialGameStateSeed.decks) {
         new Deck(o.deck, o.cards);
       }
     }
 
     // Set up tracks, if any.
     if (gameState.tracks) {
-      for (let o of initialGameState.tracks) {
+      for (let o of initialGameStateSeed.tracks) {
         new Track(o.track, o.spaces);
       }
     }
 
     // Set up markets, if any.
     if (gameState.markets) {
-      for (let o of initialGameState.markets) {
+      for (let o of initialGameStateSeed.markets) {
         new Market(o.market, o.goods);
       }
     }
