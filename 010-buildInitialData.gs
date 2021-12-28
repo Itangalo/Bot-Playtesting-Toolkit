@@ -36,33 +36,33 @@ modules.example.buildInitialData = function() {
   /**
    * Build object describing initial game state.
    * 
-   * Any agents put in the initialGameStateSeed.agents array will be created on game start.
+   * Any agents put in the gameStateSeed.agents array will be created on game start.
    * Each entry should be an object with data. The agent must have an id set.
    * See Agent class for more details. Note that agents in the processed game state
    * object will be stored in an _array_, to allow ordering them.
    * 
-   * Any decks put in the initialGameStateSeed.decks array will be created on game start.
+   * Any decks put in the gameStateSeed.decks array will be created on game start.
    * Each entry should be on the form {deck:objectWithData, cards:arrayWithCardData}.
    * The deck must have an id set. See Deck class for more details.
    *
-   * Any tracks put in the initialGameStateSeed.tracks array will be created on game start.
+   * Any tracks put in the gameStateSeed.tracks array will be created on game start.
    * Each entry should be on the form {track:objectWithData, spaces:arrayWithSpaceData}.
    * The track must have an id set. See Track class for more details.
    * 
-   * Any markets put in the initialGameStateSeed.markets array will be created on game start.
+   * Any markets put in the gameStateSeed.markets array will be created on game start.
    * Each entry should be on the form {market:objectWithData, goods:arrayWithGoodsData}.
    * Market and goods must have IDs set. See Market class for more details.
    */
-  let initialGameStateSeed = {};
+  let gameStateSeed = {};
 
   // Build data for agents (players).
-  initialGameStateSeed.agents = buildObjectArrayFromColumns('exampleData', 'E2:G6');
+  gameStateSeed.agents = buildObjectArrayFromColumns('exampleData', 'E2:G6');
 
   // Create a deck for each player. Use player id as deck id.
   let cardData = buildObjectArrayFromRows('exampleData', 'A2:C54');
-  initialGameStateSeed.decks = [];
-  for (let a of initialGameStateSeed.agents) {
-    initialGameStateSeed.decks.push(
+  gameStateSeed.decks = [];
+  for (let a of gameStateSeed.agents) {
+    gameStateSeed.decks.push(
       {deck: {id:a.id},
       cards: cardData},
     );
@@ -71,10 +71,10 @@ modules.example.buildInitialData = function() {
   // Create a market where the stuff can be bought.
   let marketData = buildObjectFromLine('exampleData', 'I3:I4');
   let goodsData = buildObjectArrayFromRows('exampleData', 'K2:M4');
-  initialGameStateSeed.markets = [];
-  initialGameStateSeed.markets.push(
+  gameStateSeed.markets = [];
+  gameStateSeed.markets.push(
     {market: marketData, goods: goodsData}
   );
 
-  return initialGameStateSeed;
+  return gameStateSeed;
 }
