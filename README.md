@@ -32,3 +32,5 @@ Some features of the Bot Playtesting Toolkit:
 ## How can I get started?
 
 The Bot Playtesting Toolkit is not yet released for public use, but it is coming. With video guides and more.
+
+To be sure to be notified when there is more to get, either subscribe to this repository here on GitHub or follow [my blog](https://creatingboardgames.wordpress.com/).
