@@ -3,7 +3,7 @@
  * after all standard processing of the game state has been made.
  */
 
-modules.example.preIteration = function() {
+modules.example1.preIteration = function() {
   // Create a reference to the agent's deck on the agent object, for easier reference.
   // Note that decks have the same IDs as the agents.
   // Also move 'gold' to the main property 'resources', making it easier to handle for markets.

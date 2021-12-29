@@ -6,23 +6,23 @@
  */
 
 // Add an entry for agentStrategies to the module.
-modules.example.agentStrategies = {};
+modules.example1.agentStrategies = {};
 
 // Add base entries for the strategies.
-modules.example.agentStrategies.offensive = {};
-modules.example.agentStrategies.defensive = {};
+modules.example1.agentStrategies.offensive = {};
+modules.example1.agentStrategies.defensive = {};
 
 /**
  * Add strategy callbacks. This one just logs the agent object.
  */
-modules.example.agentStrategies.offensive.buy = function(agent) {
+modules.example1.agentStrategies.offensive.buy = function(agent) {
   while (gameState.markets.market1.getBuyableItems(agent).attackBooster !== undefined) {
     // The buy returns the updated resources. The extra 'agent' argument is passed to the goods resolver.
     gameState.markets.market1.buy('attackBooster', agent);
     agent.attackBoosters++;
   }
 }
-modules.example.agentStrategies.defensive.buy = function(agent) {
+modules.example1.agentStrategies.defensive.buy = function(agent) {
   while (gameState.markets.market1.getBuyableItems(agent).healing !== undefined) {
     gameState.markets.market1.buy('healing', agent);
     agent.hitPoints += 2;

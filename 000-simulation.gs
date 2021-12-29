@@ -10,7 +10,7 @@
  */
 
 // Initiate some global variables.
-var global = {defaults: {module: 'example'}}; // Further populated by buildInitialData().
+var global = {defaults: {module: 'example1'}}; // Further populated by buildInitialData().
 var modules = {}; // Populated by custom code.
 var module = global.defaults.module;
 var gameState = {};

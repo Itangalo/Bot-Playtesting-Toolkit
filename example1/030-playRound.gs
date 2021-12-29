@@ -2,7 +2,7 @@
  * @file: Carries out each round in the game. Called once for each round.
  */
 
-modules.example.playRound = function() {
+modules.example1.playRound = function() {
   // Agents draw cards.
   for (let a of gameState.agents) {
     // Shuffle deck if player is out of cards. Discard pile is added by default.

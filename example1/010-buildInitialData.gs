@@ -18,9 +18,9 @@
  */
 
 // Add an entry for the module.
-modules.example = {};
+modules.example1 = {};
 
-modules.example.buildInitialData = function() {
+modules.example1.buildInitialData = function() {
   /**
    * Build global non-changing data that should be accessible from anywhere.
    *
