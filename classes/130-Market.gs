@@ -268,6 +268,6 @@ class Market {
       return false;
     }
     let args = parseArguments(arguments, 1);
-    callResolver('goods', this[goodsId].resolver, ...args);
+    return callResolver('goods', this[goodsId].resolver, ...args);
   }
 }

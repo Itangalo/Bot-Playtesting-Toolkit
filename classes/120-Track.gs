@@ -30,7 +30,7 @@ class Track {
 
     // Additional processing just for decks.
     this.spaces = [];
-    if (spacesArrayData) {
+    if (spacesDataArray) {
       for (let s of spacesDataArray) {
         this.constructSpace(s);
       }
@@ -179,6 +179,6 @@ class Track {
       return false;
 
     let args = parseArguments(arguments, 1);
-    callResolver('spaces', space.resolver, ...args);
+    return callResolver('spaces', space.resolver, ...args);
   }
 }

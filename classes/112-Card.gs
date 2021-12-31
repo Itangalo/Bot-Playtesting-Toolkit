@@ -37,6 +37,6 @@ class Card {
    * method must be placed in modules[module].resolvers.cards.
    */
   resolve() {
-    callResolver('cards', this.resolver, this, ...arguments);
+    return callResolver('cards', this.resolver, this, ...arguments);
   }
 }

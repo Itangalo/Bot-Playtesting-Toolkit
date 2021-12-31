@@ -45,6 +45,6 @@ class Goods {
    * modules[module].resolvers.goods.
    */
   resolve() {
-    callResolver('goods', this.resolver, ...arguments);
+    return callResolver('goods', this.resolver, ...arguments);
   }
 }

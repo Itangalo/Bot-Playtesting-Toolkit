@@ -423,6 +423,5 @@ function callResolver(type, method) {
     return false;
   }
 
-  //let args = parseArguments(arguments, 2);
-  modules[module].resolvers[type][method](...parseArguments(arguments, 2));
+  return modules[module].resolvers[type][method](...parseArguments(arguments, 2));
 }

@@ -21,6 +21,6 @@ class Space {
    * and a corresponding method must be placed in modules[module].resolvers.spaces.
    */
   resolve() {
-    callResolver('spaces', this.resolver, ...arguments);
+    return callResolver('spaces', this.resolver, ...arguments);
   }
 }
