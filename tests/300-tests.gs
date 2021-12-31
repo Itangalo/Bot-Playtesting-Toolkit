@@ -9,6 +9,12 @@ var tests = {};
 
 tests.helpersGeneral = {};
 tests.helpersGeneral.processValue = function() {
+  if (processValue(' True ') !== true)
+    return 'Boolean-ish values (true) are not parsed correctly.';
+  if (processValue(' FALSE ') !== false)
+    return 'Boolean-ish values (false) are not parsed correctly.';
+  if (processValue(' test ') != 'test')
+    return 'Strings are not trimmed correctly.';
   if (processValue(' test ') != 'test')
     return 'Strings are not trimmed correctly.';
   if (processValue(' 1 ') + 1 != 2)

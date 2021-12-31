@@ -121,6 +121,11 @@ function processValue(value, checkArrays = true) {
     }
   }
 
+  // Make boolean-like strings into booleans.
+  if (value.toLowerCase() == 'true')
+    return true;
+  if (value.toLowerCase() == 'false')
+    return false;
   // Make numeric-like strings into strings.
   if (!isNaN(value)) {
     value = parseFloat(value);
@@ -298,6 +303,8 @@ function copy(object) {
 
 // Returns the agent with the matching id or false if none is found.
 function getAgentById(id) {
+  if (!gameState.agents)
+    return false;
   return pickFromArray(gameState.agents, 'id', id);
 }
 
