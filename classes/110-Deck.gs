@@ -245,13 +245,11 @@ class Card {
   }
 
   /**
-   * Calls any resolver set for the card.
-   * Any arguments will be sent to the resolver. Note that the card itelf is
-   * always passed on as the first parameter.
+   * Calls any resolver set for the card. Any arguments will be sent to the resolver.
    * The card needs to have a the property 'resolver' set and a corresponding
    * method must be placed in modules[module].resolvers.cards.
    */
   resolve() {
-    return callResolver('cards', this.resolver, this, ...arguments);
+    return callResolver('cards', this.resolver, ...arguments);
   }
 }
