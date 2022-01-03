@@ -44,7 +44,7 @@ function processResults(results) {
       values.push(percentile(sortedResults[i], p).toFixed(2));
     }
     message += values.join(' | ') + ') Non-zero at ';
-    message += getNonZeroThreshold(sortedResults[i]) + '\r\n';
+    message += getNonZeroThreshold(sortedResults[i]).toFixed(2) + '\r\n';
   }
   log(message, 'statistics');
 
