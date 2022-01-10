@@ -7,7 +7,11 @@ function tmp2() {
   let sData = buildObjectArrayFromRows('testData', 'L2:M63');
   let track = new Track(tData, sData);
   
-  let path = aStar(track.graph, track.heuristic, 0, 60);
+  track.setPawnSpace('test', '5x1');
+  track.buildPath('test', '5x5');
+  track.movePawn('test', 2);
+  track.moveTowards('test', '1x1', 3);
+  track.moveTowards('test', '5x7', 3);
   debugger
 }
 

@@ -46,7 +46,7 @@ class Track {
 
     // Used for quickly finding the right space based on its ID.
     this.spaceMapping = {};
-    for (let i of this.spaces)
+    for (let i in this.spaces)
       this.spaceMapping[this.spaces[i].id] = i;
 
     // Object used to track where on the track pawns are or are going.
@@ -112,20 +112,49 @@ class Track {
   }
 
   /**
+   * Sets the pawn on the given space and returns the space.
+   */
+  setPawnSpace(pawnId, spaceId) {
+    let index = this.getSpaceIndex('id', spaceId);
+    this.pawnIndices[pawnId] = index;
+    return this.spaces[index];
+  }
+
+  /**
    * Moves a pawn a number of steps on the track. Returns the resulting space.
+   * Uses movement in grid, towards a set goal space, if grid movement is enabled.
    */
   movePawn(pawnId, steps = 1) {
-    let i = this.getPawnIndex(pawnId);
-    if (i < 0)
-      throw('Cannot move pawn ' + pawnId + ' on track ' + this.id + '. Pawn is not present.');
+    // The one-dimensional plain movement.
+    if (!this.gridMovement) {
+      let i = this.getPawnIndex(pawnId);
+      if (i < 0)
+        throw('Cannot move pawn ' + pawnId + ' on track ' + this.id + '. Pawn is not present.');
 
-    // Move up or down the track, but not beyond its edges.
-    if (this.loop)
-      i = (i + steps) % this.spaces.length;
-    else 
-      i = Math.max(0, Math.min(i + steps, this.spaces.length - 1));
-    this.pawnIndices[pawnId] = i;
-    return this.spaces[i];
+      // Move up or down the track, but not beyond its edges.
+      if (this.loop)
+        i = (i + steps) % this.spaces.length;
+      else 
+        i = Math.max(0, Math.min(i + steps, this.spaces.length - 1));
+      this.pawnIndices[pawnId] = i;
+      return this.spaces[i];
+    }
+    // Movement in grid.
+    else {
+      if (!this.pawnPaths[pawnId] || !this.pawnPaths[pawnId].length) {        
+        log('Tried to move pawn ' + pawnId + ' in a grid, but no path was set.', 'error');
+        return false;
+      }
+      let j = 0;
+      let s = false;
+      while (this.pawnPaths[pawnId].length && j < steps) {
+        j++;
+        s = this.pawnPaths[pawnId].shift();
+      }
+      if (s)
+        this.pawnIndices[pawnId] = s.index;
+      return s;
+    }
   }
 
   /**
@@ -203,11 +232,47 @@ class Track {
 
   /**
    * Moves a pawn a number of steps towards a space. Populates path for the pawn if necessary.
+   * Returns the new space for the pawn.
    */
-  moveTowards(pawnId, spaceId, steps = 1) {
+  moveTowards(pawnId, goalSpaceId, steps = 1) {
     if (!this.gridMovement)
       throw('Cannot use "moveTowards" on track ' + this.id + '. It does not have grid movement enabled.');
-    // @TODO: Write code
+    if (this.buildPath(pawnId, goalSpaceId))
+      return this.movePawn(pawnId, steps);
+    return false;
+  }
+
+  /**
+   * Builds a paths for the given pawn to the given space.
+   * Returns true if the path could be built, otherwise false. The pawn path is only
+   * updated if the path could be built -- otherwise it is left untouched.
+   */
+  buildPath(pawnId, goalSpaceId) {
+    if (!this.gridMovement)
+      throw('Cannot use "buildPath" on track ' + this.id + '. It does not have grid movement enabled.');
+    let path = this.pawnPaths[pawnId] || [];
+    // Check if the current path already is set to the given goal.
+    if (path.length && path[path.length - 1].id == goalSpaceId)
+      return true;
+    // Check if the goal is somewhere inside the given path.
+    for (let i in path) {
+      if (path[i].id == goalSpaceId) {
+        path.splice(i + 1);
+        this.pawnPaths[pawnId] = path;
+        return true;
+      }
+    }
+
+    let startSpaceIndex = this.getPawnSpace(pawnId).index;
+    let goalSpaceIndex = this.getSpace('id', goalSpaceId).index;
+    path = aStar(this.graph, this.heuristic, startSpaceIndex, goalSpaceIndex);
+    if (!path)
+      return false;
+    path.shift(); // The first space is where the pawn currently is.
+    for (let i in path)
+      path[i] = this.spaces[path[i]];
+    this.pawnPaths[pawnId] = path;
+    return true;
   }
 
   /**
