@@ -19,7 +19,7 @@
 class Track {
   constructor(trackData, spacesDataArray = false) {
     // Build basic data and verify required properties.
-    Object.assign(this, deckData);
+    Object.assign(this, trackData);
     if (this.id === undefined)
       throw('Tracks must have an id property set.');
     
@@ -39,6 +39,21 @@ class Track {
         this.constructSpace(s);
       }
     }
+    // Build a graph of how the spaces connect.
+    this.graph = [];
+    let graph = this.graph;
+    for (let i = 0; i < this.spaces.length; i++)
+      this.graph.push([]);
+    for (let s of this.spaces) {
+      for (let c of s.connectsTo) {
+        let target = pickFromArray(this.spaces, 'id', c);
+        this.graph[s.index][target.index] = 1;
+        if (this.symmetricConnections)
+          this.graph[target.index][s.index] = 1;
+      }
+    }
+    let row = Array(this.graph.length).fill(1);
+    this.heuristic = Array(this.graph.length).fill(row);
     
     // Object used to track where on the track pawns are.
     this.pawnIndices = {};
@@ -52,8 +67,6 @@ class Track {
     let s = new Space(spaceData, this);
     return s;
   }
-
-  // @TODO: Write method for adding spaces. And for modifying?
 
   /**
    * Returns the index for the space where the pawn is, or -1 if
@@ -200,7 +213,13 @@ class Space {
       throw('Spaces must be added to a proper track.');
 
     Object.assign(this, spaceData);
+    if (!this.connectsTo)
+      this.connectsTo = [];
+    if (typeof(this.connectsTo) != 'object')
+      this.connectsTo = [this.connectsTo];
     this.track = track;
+
+    this.index = track.spaces.length;
     track.spaces.push(this);
   }
 

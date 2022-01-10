@@ -2,6 +2,15 @@
  * Temporary stuff used while developing.
  */
 
+function tmp2() {
+  let tData = buildObjectFromLine('testData', 'K2:K3');
+  let sData = buildObjectArrayFromRows('testData', 'L2:M63');
+  let track = new Track(tData, sData);
+  
+  let path = aStar(track.graph, track.heuristic, 0, 60);
+  debugger
+}
+
 function tmp() {
   let graph = [
     [0, 0, 0, 2, 0],
