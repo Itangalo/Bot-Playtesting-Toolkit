@@ -3,7 +3,7 @@
  */
 
 function tmp2() {
-  let tData = buildObjectFromLine('testData', 'K2:K3');
+  let tData = buildObjectFromLine('testData', 'K2:K4');
   let sData = buildObjectArrayFromRows('testData', 'L2:M63');
   let track = new Track(tData, sData);
   

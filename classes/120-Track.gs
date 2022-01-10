@@ -39,9 +39,27 @@ class Track {
         this.constructSpace(s);
       }
     }
-    // Build a graph of how the spaces connect.
+
+    // Build a graph of how the spaces connect, if advanced movement is used.
+    if (this.gridMovement)
+      this.buildGraph();
+
+    // Used for quickly finding the right space based on its ID.
+    this.spaceMapping = {};
+    for (let i of this.spaces)
+      this.spaceMapping[this.spaces[i].id] = i;
+
+    // Object used to track where on the track pawns are or are going.
+    this.pawnIndices = {};
+  }
+
+  /**
+   * Builds (or rebuilds) a graph of nodes in the track.
+   *
+   * Data used by the a-star algorithm, to find paths in the grid.
+   */
+  buildGraph() {
     this.graph = [];
-    let graph = this.graph;
     for (let i = 0; i < this.spaces.length; i++)
       this.graph.push([]);
     for (let s of this.spaces) {
@@ -54,9 +72,6 @@ class Track {
     }
     let row = Array(this.graph.length).fill(1);
     this.heuristic = Array(this.graph.length).fill(row);
-    
-    // Object used to track where on the track pawns are or are going.
-    this.pawnIndices = {};
     this.pawnPaths = {};
   }
 
@@ -146,6 +161,8 @@ class Track {
    * false if none is found.
    */
   getSpace(property, value) {
+    if (property == 'id')
+      return this.spaces[this.spaceMapping[value]];
     return pickFromArray(this.spaces, property, value);
   }
 
@@ -188,6 +205,8 @@ class Track {
    * Moves a pawn a number of steps towards a space. Populates path for the pawn if necessary.
    */
   moveTowards(pawnId, spaceId, steps = 1) {
+    if (!this.gridMovement)
+      throw('Cannot use "moveTowards" on track ' + this.id + '. It does not have grid movement enabled.');
     // @TODO: Write code
   }
 
@@ -221,11 +240,14 @@ class Space {
       throw('Spaces must be added to a proper track.');
 
     Object.assign(this, spaceData);
-    if (!this.connectsTo)
-      this.connectsTo = [];
-    if (typeof(this.connectsTo) != 'object')
-      this.connectsTo = [this.connectsTo];
     this.track = track;
+
+    if (this.track.gridMovement) {
+      if (!this.connectsTo)
+        this.connectsTo = [];
+      if (typeof(this.connectsTo) != 'object')
+        this.connectsTo = [this.connectsTo];
+    }
 
     this.index = track.spaces.length;
     track.spaces.push(this);
