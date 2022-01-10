@@ -55,8 +55,9 @@ class Track {
     let row = Array(this.graph.length).fill(1);
     this.heuristic = Array(this.graph.length).fill(row);
     
-    // Object used to track where on the track pawns are.
+    // Object used to track where on the track pawns are or are going.
     this.pawnIndices = {};
+    this.pawnPaths = {};
   }
 
   /**
@@ -122,7 +123,7 @@ class Track {
   /**
    * Moves the pawn to the last space. Creates pawn if necessary.
    */
-  movePawnToStart(pawnId) {
+  movePawnToEnd(pawnId) {
     this.pawnIndices[pawnId] = this.spaces.length - 1;
   }
 
@@ -181,6 +182,13 @@ class Track {
     if (i < 0)
       throw('Cannot move ' + pawnId + ' to a space matching ' + property + ':' + value + '. No such space.');
     this.pawnIndices[pawnId] = i;
+  }
+
+  /**
+   * Moves a pawn a number of steps towards a space. Populates path for the pawn if necessary.
+   */
+  moveTowards(pawnId, spaceId, steps = 1) {
+    // @TODO: Write code
   }
 
   /**
