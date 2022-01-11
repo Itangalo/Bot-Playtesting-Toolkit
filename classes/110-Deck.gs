@@ -10,9 +10,9 @@ class Deck {
    * @param {object} deckData: Data with properties for the deck. Special properties:
    *  - id (string): The unique identifier of the deck. Required.
    *  - shuffleWhenCreated (boolean): Whether to shuffle after constructed. Defaults to true.
-   *  - addDiscardWhenShuffling (boolean): Whether to add the discard pile when shuffling.
+   *  - addDiscardWhenShuffling (boolean): Whether to add the discard pile when shuffling. Defaults to false.
    *  - displaySize (integer): Used if there should be a common display drawn from the deck.
-   *  - autoFillDisplay (boolean): Whether to always fill the display to its intended size.
+   *  - autoFillDisplay (boolean): Whether to always fill the display to its intended size. Defaults to false.
    * 
    * @param {Array} cardDataArray: An array of objects which will be used to create cards.
    * Optional. Special properties used for cards:

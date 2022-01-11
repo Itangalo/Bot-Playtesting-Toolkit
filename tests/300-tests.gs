@@ -5,6 +5,20 @@
  * going slowly it _might_ help to delete this file.
  */
 
+function runTests() {
+  log('== TEST RESULTS ==', 'tests');
+  for (let i in tests) {
+    log('## ' + i, 'tests');
+    for (let j in tests[i]) {
+      let errorMessage = tests[i][j]();
+      if (!errorMessage)
+        log(j + ': OK.', 'tests');
+      else
+        log(j + ': ERROR. ' + errorMessage, 'tests');
+    }
+  }
+}
+
 var tests = {};
 
 tests.helpersGeneral = {};
@@ -141,7 +155,49 @@ tests.agents.properties = function() {
 };
 
 tests.deck = {};
-// @TODO: Write tests for decks. And agents. And dice rolls.
+tests.deck.basics = function() {
+  let dData = {
+    id: 'test',
+    shuffleWhenCreated: false,
+    addDiscardWhenShuffling: true,
+    displaySize: 5,
+    autoFillDisplay: true,
+  };
+  let cData = buildObjectArrayFromRows('testData', 'A2:C54');
+  let d = new Deck(dData, cData);
+  
+  if (d.display.length != 5)
+    return 'Autofill of display does not work correctly.';
+  if (d.display[0].value != 1 || d.display[0].colour != 'spades')
+    return 'Deck is shuffled when created, even when option is turned off.';
+  let c = d.draw();
+  if (d.cards.length != 46)
+    return 'Drawing cards does not remove them from the deck.';
+  c.discard();
+  c = d.drawAndDiscard();
+  if (d.discardPile.length != 2)
+    return 'Discarding does not work properly.';
+  d.shuffle();
+  if (d.cards.length != 47 || d.discardPile.length != 0)
+    return 'Shuffling does not add the discard pile, even when option is turned on.';
+  d.autoFillDisplay = false;
+  c = d.pickFromDisplay('value', 1);
+  if (c.value != 1 || c.colour != 'spades')
+    return 'Picking from the display does not return the correct card.';
+  if (d.display.length != 4)
+    return 'Picking from the display does not affect display content correctly.';
+  d.addToBottom(c);
+  if (d.cards[47].value != 1 || d.cards[47].colour != 'spades')
+    return 'Adding cards to bottom of deck does not work correctly.';
+  d.autoFillDisplay = true;
+  c = d.pickFromDisplay('value', 2);
+  if (d.display.length != 5)
+    return 'Autofilling the display after picking cards does not work correctly.';
+  d.addToTop(c);
+  if (d.cards[0].value != 2 || d.cards[0].colour != 'spades')
+    return 'Adding cards to top of deck does not work correctly.';
+};
+// @TODO: Write tests for dice rolls.
 
 tests.track = {};
 tests.track.basic = function() {
@@ -277,19 +333,4 @@ tests.market.theLot = function() {
   if (m.getQuantity('city') != 0)
     return 'Markets do not respect 0 as lower quantity limit.';
 
-}
-
-
-function runTests() {
-  log('== TEST RESULTS ==', 'tests');
-  for (let i in tests) {
-    log('## ' + i, 'tests');
-    for (let j in tests[i]) {
-      let errorMessage = tests[i][j]();
-      if (!errorMessage)
-        log(j + ': OK.', 'tests');
-      else
-        log(j + ': ERROR. ' + errorMessage, 'tests');
-    }
-  }
 }
