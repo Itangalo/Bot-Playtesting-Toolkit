@@ -132,8 +132,11 @@ class Track {
         throw('Cannot move pawn ' + pawnId + ' on track ' + this.id + '. Pawn is not present.');
 
       // Move up or down the track, but not beyond its edges.
-      if (this.loop)
+      if (this.loop) {
+        // A bit awkward computation here, to bypass negative remainders.
+        steps = steps % this.spaces.length + this.spaces.length;
         i = (i + steps) % this.spaces.length;
+      }
       else 
         i = Math.max(0, Math.min(i + steps, this.spaces.length - 1));
       this.pawnIndices[pawnId] = i;

@@ -101,8 +101,49 @@ tests.deck = {};
 // @TODO: Write tests for decks. And agents, and tracks. And dice rolls.
 
 tests.track = {};
-tests.track.gridMovement = function() {
+tests.track.basic = function() {
   let tData = buildObjectFromLine('testData', 'K2:K4');
+  let sData = buildObjectArrayFromRows('testData', 'L2:M63');
+  let track = new Track(tData, sData);
+
+  let ok = false;
+  let space = {};
+  try {
+    space = track.movePawn('test'); // This should fail.
+  }
+  catch (error) {
+    ok = true;
+  }
+  finally {
+    if (!ok)
+    return 'Pawns are incorrectly assumed to be present on the track.';
+  }
+  track.assumePresent = true;
+  space = track.movePawn('test');
+  if (space.index != 1)
+    return 'Setting assumePresent does not work correctly.';
+  space = track.movePawn('test', 10);
+  if (space.index != 11)
+    return 'Moving multiple steps does not work correctly.';
+  space = track.movePawn('test', 100);
+  if (space.index != 60)
+    return 'Pawn does not stop at end of track correctly.';
+  space = track.movePawn('test', -1);
+  if (space.index != 59)
+    return 'Pawn does not move backwards correctly.';
+  space = track.movePawn('test', -100);
+  if (space.index != 0)
+    return 'Pawn does not stop at start of track correctly.';
+  track.loop = true;
+  space = track.movePawn('test', 62);
+  if (space.index != 1)
+    return 'Pawn does not loop correctly.';
+  space = track.movePawn('test', -2);
+  if (space.index != 60)
+    return 'Pawn does not loop backwards correctly.';
+};
+tests.track.gridMovement = function() {
+  let tData = buildObjectFromLine('testData', 'K6:K8');
   let sData = buildObjectArrayFromRows('testData', 'L2:M63');
   let track = new Track(tData, sData);
   if (track.spaces[0].connectsTo[0] != '1x2')
