@@ -100,6 +100,38 @@ tests.helpersGeneral.getHighestProperty = function() {
 tests.deck = {};
 // @TODO: Write tests for decks. And agents, and tracks. And dice rolls.
 
+tests.track = {};
+tests.track.gridMovement = function() {
+  let tData = buildObjectFromLine('testData', 'K2:K4');
+  let sData = buildObjectArrayFromRows('testData', 'L2:M63');
+  let track = new Track(tData, sData);
+  if (track.spaces[0].connectsTo[0] != '1x2')
+    return 'Space connections are not properly turned into arrays.';
+  if (track.graph[0][1] != 1)
+    return 'Track graph is not created correctly.';
+  if (track.graph[1][0] != 1)
+    return 'Symmetric connections are not created correctly.';
+  
+  track.setPawnSpace('test', '5x1');
+  track.buildPath('test', '5x5');
+  if (track.pawnPaths['test'].length != 7)
+    return 'Paths are not built correctly.';
+  let space = track.movePawn('test', 2);
+  if (space.id != '5x3')
+    return 'Movements do not return new pawn space correctly.';
+  if (track.pawnPaths['test'].length != 5)
+    return 'Movements do not shorten the paths correctly.';
+  space = track.movePawn('test', 10);
+  if (space.id != '5x5')
+    return 'Movements do not stop on the end of the path correctly.';
+  space = track.moveTowards('test', '1x1', 3);
+  if (space.id != '4x4' || track.pawnPaths['test'].length != 5)
+    return 'MoveTowards does not update path correctly.'
+  space = track.moveTowards('test', '5x7', 3);
+  if (space !== false || track.pawnPaths['test'].length != 5)
+    return 'Unreachable targets updates path, which it should not.';
+};
+
 tests.market = {};
 tests.market.theLot = function() {
   let marketData = buildObjectArrayFromColumns('testData', 'S2:T4');
