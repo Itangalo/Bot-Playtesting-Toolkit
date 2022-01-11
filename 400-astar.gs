@@ -1,7 +1,7 @@
 /**
  * @file: Algorithm for finding shortest path between two nodes in a graph.
  * 
- * Implementation slightly modified from https://www.algorithms-and-technologies.com/a_star/javascript
+ * Implementation slightly modified from https://github.com/ClaasM/Algorithms/blob/master/src/a_star/javascript/simple/a_star.js
  * Returns either the path or the shortest distance, depending on parameters.
  */
 

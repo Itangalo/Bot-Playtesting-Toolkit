@@ -108,15 +108,10 @@ tests.track.basic = function() {
 
   let ok = false;
   let space = {};
-  try {
-    space = track.movePawn('test'); // This should fail.
-  }
-  catch (error) {
-    ok = true;
-  }
+  try {space = track.movePawn('test');} // This should fail.
+  catch (error) {ok = true;}
   finally {
-    if (!ok)
-    return 'Pawns are incorrectly assumed to be present on the track.';
+    if (!ok) return 'Pawns are incorrectly assumed to be present on the track.';
   }
   track.assumePresent = true;
   space = track.movePawn('test');
