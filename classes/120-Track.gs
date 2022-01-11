@@ -313,7 +313,7 @@ class Space {
     if (this.track.gridMovement) {
       if (!this.connectsTo)
         this.connectsTo = [];
-      if (typeof(this.connectsTo) != 'object')
+      if (typeof(this.connectsTo) !== 'object')
         this.connectsTo = [this.connectsTo];
     }
 

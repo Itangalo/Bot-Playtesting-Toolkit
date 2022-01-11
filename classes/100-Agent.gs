@@ -25,8 +25,6 @@ class Agent {
     this.tracking = {}; // Used for storing changes for statistics
   }
 
-  // @TODO: Add ways to limit max and min values for properties.
-
   /**
    * Called when changes to agent properties should be logged, for example
    * to include number of changes in statistics.
@@ -51,6 +49,14 @@ class Agent {
         count: 0,
         sum: 0,
       }
+    }
+
+    // Check if changes fall outside limits for the property.
+    if (this[property + 'Max'] !== undefined) {
+      change = Math.min(change, this[property + 'Max'] - this[property]);
+    }
+    if (this[property + 'Min'] !== undefined) {
+      change = Math.max(change, this[property + 'Min'] - this[property]);
     }
 
     // Modify the property value for the agent.

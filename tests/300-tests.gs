@@ -97,8 +97,51 @@ tests.helpersGeneral.getHighestProperty = function() {
 // @TODO: Write tests for sortByProperty, sortBySubProperty, getMax, getMin,
 // getSum and getAverage. Perhaps also selectRandom and percentile.
 
+tests.agents = {};
+tests.agents.properties = function() {
+  let aData = buildObjectArrayFromRows('testData', 'E2:H5');
+  let a = new Agent(aData[0]);
+  a.trackChange('hitPoints', 3);
+  if (a.hitPoints != 7)
+    return 'Method trackChange does not increase properties correctly.';
+  a.trackChange('hitPoints', -4);
+  if (a.hitPoints != 3)
+    return 'Method trackChange does not decrease properties correctly.';
+  a.trackChange('hitPoints', 0);
+  let trackedChanges = {
+      increaseCount: 1,
+      increaseSum: 3,
+      decreaseCount: 1,
+      decreaseSum: -4,
+      unchangedCount: 1,
+      count: 3,
+      sum: -1,
+  };
+  if (!compareObjects(a.tracking.hitPoints, trackedChanges))
+    return 'Changes are not tracked correctly.';
+  a.hitPointsMax = 10;
+  a.hitPointsMin = 0;
+  a.trackChange('hitPoints', 100);
+  if (a.hitPoints != 10)
+    return 'Max value for properties is not respected.';
+  a.trackChange('hitPoints', -100);
+  if (a.hitPoints != 0)
+    return 'Min value for properties is not respected.';
+  trackedChanges = {
+    increaseCount: 2,
+    increaseSum: 10,
+    decreaseCount: 2,
+    decreaseSum: -14,
+    unchangedCount: 1,
+    count: 5,
+    sum: -4,
+  };
+  if (!compareObjects(a.tracking.hitPoints, trackedChanges))
+    return 'Changes are not tracked correctly when reaching min or max limits.';
+};
+
 tests.deck = {};
-// @TODO: Write tests for decks. And agents, and tracks. And dice rolls.
+// @TODO: Write tests for decks. And agents. And dice rolls.
 
 tests.track = {};
 tests.track.basic = function() {
