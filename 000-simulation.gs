@@ -1,5 +1,6 @@
 /**
- * Board game scripting tools.
+ * Bot Playtesting Toolkit
+ *
  * See https://github.com/Itangalo/Board-game-scripting-tools for details,
  * including license (GNU GPL version 3) and issue queue.
  */
