@@ -25,3 +25,7 @@ The idea behind the Bot Playtesting Toolkit is that human time is precious, whil
 Check out [the wiki](https://github.com/Itangalo/Bot-Playtesting-Toolkit/wiki).
 
 BPT is under development. To be sure to be notified about new stuff, either subscribe to this repository here on GitHub or follow [my blog](https://creatingboardgames.wordpress.com/).
+
+## Open source
+
+The Bot Playtesting Toolkit is an open source project. This means that the code is free to use, study, share and improve (and that the code must be passed on under the same conditions). It also means that you are very welcome to join in developing the toolkit. There is an [issue queue](https://github.com/Itangalo/Bot-Playtesting-Toolkit/issues) for the Bot Playtesting Toolkit. You can contribute to the project by posting ideas and suggestions there, or discuss ideas that have already been posted. The issue queue is also used for reporting and tracking bugs – feel free to suggest code improvements too.
