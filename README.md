@@ -2,31 +2,29 @@
 
 This repository contains a toolkit for simulating board games with Google spreadsheets. The target group is board game developers who also knows some coding.
 
-The project is under active development. A bit more information can be found at https://creatingboardgames.wordpress.com/2021/12/18/a-framework-for-having-bots-playing-your-board-game/
+Sometimes images are better than words. Below is an example of when the Bot Playtesting Toolkit plays _No Thanks_.
 
-## The idea, in two images
+![Part of log for simulation of No Thanks. Note the time (in milliseconds) in each log message.](https://user-images.githubusercontent.com/262940/149219184-ab73eb9e-2b17-43a7-8d3e-d7a0f0c43917.png)
 
-Sometimes images are better than words. Below are examples of when the Bot Playtesting Toolkit plays "No Thanks!".
-
-![Part of log for simulation of No Thanks. Note the time (in milliseconds) in each log message.](https://user-images.githubusercontent.com/262940/149214836-3688fd09-8981-4a74-b6a9-c9fcaa9c5dc1.png)
-
-Time stamps in the log messages show elapsed time in milliseconds.
+Note that the time stamps in the log messages above show elapsed time in milliseconds.
 
 ![Statistics for 10,000 games of No Thanks, played according to a given strategy.](https://user-images.githubusercontent.com/262940/149214937-8b13ddd1-7a1c-4e96-8355-c2dce2bf0359.png)
 
 Statistics for 10,000 games of No Thanks, played according to a given strategy.
 
-## The idea, in words
+## The idea
 
-You're building a board game. At some point you get interested in getting quantitative data: How often does X occur? How often will strategy A win over strategy B? Will changing a card or a rule in a particular way shorten the game, and if so, by how much?
+You're building a board game. At some point you get interested in getting quantitative data: How often does X occur? Will strategy A generally win over strategy B? Will changing a card or a rule in a particular way shorten the game, and if so, by how much?
 
 These questions could be answered by playtesters, but it would take a lot of sessions to get reliable data. And the results will often lead to tweaking numbers in the game, to get things balanced in the way you want. Which will require even more playtesting. Playtesting that could be better spent on getting feedback on how the game feels, what parts are more or less engaging, what the players want more of, and things like that.
 
-This project helps coding board game bots for playing your game. A lot. (See [300 games in 30 seconds](https://wordpress.com/post/creatingboardgames.wordpress.com/196) for an outdated example.) You will need to write some code, but the Bot Playtesting Toolkit has a lot of pre-made functions and an overall framework that saves you a lot of time and gives more structure to your work.
+This project helps coding board game bots for playing your game. A lot. You will need to write some code, but the Bot Playtesting Toolkit has a lot of pre-made functions and an overall framework that saves you a lot of time and gives more structure to your work.
 
-The idea is to have bot playtesting complementing human playtesting. Human time is precious. Clockcycles are cheap. Use human playtesters for the things computers can't do.
+The idea is to have bot playtesting complementing human playtesting. Human time is precious. Computer clock cycles are cheap. Use human playtesters for the things computers can't do.
 
 ## How do I use the Bot Playtesting Toolkit?
+
+Check out [the wiki](wiki).
 
 The Bot Playtesting Toolkit is written as a script for Google spreadsheet. This brings some limitations (such as maximum 30 seconds execution time), but lowers the threshold for getting started. You combine data in a spreadsheet with custom code, and can either get game statistics in the script log or output to the spreadsheet.
 
