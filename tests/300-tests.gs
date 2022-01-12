@@ -6,6 +6,7 @@
  */
 
 function runTests() {
+  let errors = [];
   log('== TEST RESULTS ==', 'tests');
   for (let i in tests) {
     log('## ' + i, 'tests');
@@ -13,10 +14,14 @@ function runTests() {
       let errorMessage = tests[i][j]();
       if (!errorMessage)
         log(j + ': OK.', 'tests');
-      else
+      else {
         log(j + ': ERROR. ' + errorMessage, 'tests');
+        errors.push(i + ' (' + j + '): ' + errorMessage);
+      }
     }
   }
+  if (errors.length)
+    log('First error for each test suite: \r\n' + errors.join('\r\n'));
 }
 
 var tests = {};
@@ -338,14 +343,14 @@ tests.market.theLot = function() {
 
 tests.diceRoll = {};
 tests.diceRoll.theLot = function() {
-  let d = new DiceRoll(3, 6);
-  if (d.result.length != 3)
+  let d = new DiceRoll(5, 10);
+  if (d.result.length != 5)
     return 'Number of dice is inaccurate.';
   d.restrict(2);
   if (d.result.length != 2)
     return 'Restricting dice numbers does not work correctly.';
   d.unlock();
-  if (d.result.length != 3)
+  if (d.result.length != 5)
     return 'Unlocking dice restrictions does not work correctly.';
   d.result = [1, 2, 3, 4, 4];
   if (d.sum() != 14)
