@@ -197,8 +197,22 @@ class Deck {
 
   /**
    * Picks the first card found matching property:value from the display, or false if none is found.
+   * If no property or value is provided, the first card in the display will be returned.
    */
   pickFromDisplay(property, value) {
+    // If no property is provided, take the first card.
+    if (property === undefined) {
+      if (!this.display.length) {
+        log('Tried to pick the first card in the display of deck ' + this.id + ', but the display is empty.', 'error');
+        return false;
+      }
+      let c = this.display.shift();
+      if (this.autoFillDisplay)
+        this.fillDisplay();
+      return c;
+    }
+
+    // Search for a card matching property:value.
     for (let i in this.display) {
       if (this.display[i][property] == value) {
         let c = this.display[i];

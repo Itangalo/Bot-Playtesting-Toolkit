@@ -6,27 +6,28 @@
  */
 
 // Add an entry for agentStrategies to the module.
-modules.example1.agentStrategies = {};
+modules.noThanks.agentStrategies = {};
 
 // Add base entries for the strategies.
-modules.example1.agentStrategies.offensive = {};
-modules.example1.agentStrategies.defensive = {};
+modules.noThanks.agentStrategies.random = {};
+modules.noThanks.agentStrategies.default = {};
 
 /**
  * Add strategy callbacks.
  */
-// This strategy means always buys attack boosters, if possible.
-modules.example1.agentStrategies.offensive.buy = function(agent) {
+// This is a dummy strategy. It uses a 1/n chance of picking up the card, where
+// n is the number of markers the agent has.
+modules.noThanks.agentStrategies.random.pickOrPay = function(agent) {
+  if (agent.markers == 0 || Math.random() < (1 / agent.markers))
+    pick(agent);
+  else
+    pay(agent);
+};
+
+modules.noThanks.agentStrategies.default.pickOrPay = function(agent) {
   while (gameState.markets.market1.getBuyableItems(agent).attackBooster !== undefined) {
     // The buy returns the updated resources. The extra 'agent' argument is passed to the goods resolver.
     gameState.markets.market1.buy('attackBooster', agent);
     agent.attackBoosters++;
   }
-}
-// This strategy means always buying healing, if possible.
-modules.example1.agentStrategies.defensive.buy = function(agent) {
-  while (gameState.markets.market1.getBuyableItems(agent).healing !== undefined) {
-    gameState.markets.market1.buy('healing', agent);
-    agent.hitPoints += 2;
-  }
-}
+};

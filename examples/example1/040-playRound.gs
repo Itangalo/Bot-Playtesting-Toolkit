@@ -25,8 +25,9 @@ modules.example1.playRound = function() {
   }
   gameState.agents[0].trackChange('hitPoints', damage);
 
-  // After this thrilling combat, agents may buy stuff.
+  // After this thrilling combat, agents may buy stuff. Note that the agent is automatically
+  // added as argument to the strategy callback.
   for (let a of gameState.agents) {
-    a.consultStrategy('buy', gameState);
+    a.consultStrategy('buy');
   }
 }

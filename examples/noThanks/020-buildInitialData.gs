@@ -1,14 +1,17 @@
 /**
- * This example simulates a silly game with the following rules:
+ * This example simulates the No Thanks! game.
+ * See also https://boardgamegeek.com/boardgame/12942/no-thanks
  * 
- * Players take one standard deck each and flip the top card in each round.
- *  - The player with the lowest card lose hit points equal to the value
- *    difference between the cards.
- *  - A 'two' gives two health points.
- *  - Jack, queen and king gives a gold.
- *  - Two golds can be used to either buy 1 hit point or cause 1 hit point
- *    extra damage in next time damage is dealt.
- * First to get 0 hit points loses.
+ * Rules, briefly: There's a deck with cards 3–35, where nine cards are removed
+ * before each game. A card is worth its value in _negative_ points. Each player has
+ * 11 markers, worth one point each. The top card is displayed, and players take turns
+ * to either place one marker on the card or take the card with all the markers on it.
+ * The player who takes the card reveals the next, and then either takes it or places
+ * a marker on it.
+ * 
+ * When there are no more cards, players get negative points for cards and positive points
+ * for markers. But when cards form straights, only the lowest number in the straight
+ * counts. Most points wins.
  */
 
 /**
@@ -18,9 +21,9 @@
  */
 
 // Add an entry for the module.
-modules.example1 = {};
+modules.noThanks = {};
 
-modules.example1.buildInitialData = function() {
+modules.noThanks.buildInitialData = function() {
   /**
    * Build global non-changing data that should be accessible from anywhere.
    *
@@ -71,25 +74,20 @@ modules.example1.buildInitialData = function() {
   let gameStateSeed = {};
 
   // Build data for agents (players).
-  gameStateSeed.agents = buildObjectArrayFromColumns('example1', 'E2:G6');
+  gameStateSeed.agents = buildObjectArrayFromRows('noThanks', 'A2:C6');
 
-  // Create a deck for each player. Use player id as deck id.
-  let cardData = buildObjectArrayFromRows('example1', 'A2:C54');
+  // Each player gets an empty deck, where taken cards are put.
+  // There is also a shared deck, where the cards start.
+  let deckData = buildObjectArrayFromRows('noThanks', 'E2:G7');
+  let cardData = buildObjectArrayFromRows('noThanks', 'I2:I35');
   gameStateSeed.decks = [];
-  for (let a of gameStateSeed.agents) {
+  for (let d of deckData) {
     gameStateSeed.decks.push(
-      {deck: {id:a.id},
-      cards: cardData},
+      {deck: d},
     );
   }
-
-  // Create a market where the stuff can be bought.
-  let marketData = buildObjectFromLine('example1', 'I3:I4');
-  let goodsData = buildObjectArrayFromRows('example1', 'K2:M4');
-  gameStateSeed.markets = [];
-  gameStateSeed.markets.push(
-    {market: marketData, goods: goodsData}
-  );
+  // Add the cards to the shared deck.
+  gameStateSeed.decks[0].cards = cardData;
 
   return gameStateSeed;
 }

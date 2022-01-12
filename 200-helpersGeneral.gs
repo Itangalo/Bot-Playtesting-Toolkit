@@ -243,7 +243,7 @@ function getMax(objArray, property, subProperty = false) {
 // Returns the lowest value.
 function getMin(objArray, property, subProperty = false) {
   if (!subProperty) {
-    sortBy(objArray, property, true);
+    sortByProperty(objArray, property, true);
     return objArray[0][property];
   }
   else {

@@ -204,6 +204,9 @@ tests.deck.basics = function() {
   d.addToTop(c);
   if (d.cards[0].value != 2 || d.cards[0].colour != 'spades')
     return 'Adding cards to top of deck does not work correctly.';
+  c = d.pickFromDisplay();
+  if (c.value != 3 || c.colour != 'spades')
+    return 'Picking first card from display does not work correctly.';
 };
 
 tests.track = {};
