@@ -196,6 +196,23 @@ function pickAllFromArray(objectArray, property, value) {
   return result;
 }
 
+// Returns how many times 'value' occurs in 'array'.
+function getFrequency(array, value) {
+  let frequency = 0;
+  for (let v of array)
+    if (v == value) frequency++;
+  return frequency;
+}
+
+// Returns an object with the frequencies of values in an array.
+// [4, 5, 4, 'banana'] returns {4: 2, 5: 1, banana: 1}.
+function getFrequencies(array) {
+  let frequencies = {};
+  for (let v of array)
+    frequencies[v] = frequencies[v] ? frequencies[v] + 1 : 1;
+  return frequencies;
+}
+
 // Takes an array of objects and returns an array with all values for the selected property.
 function buildArrayWithProperty(objectArray, property) {
   let result = [];
@@ -349,6 +366,10 @@ function selectRandom(arr, property = false) {
  */
 function getStraights(values, lowest, highest) {
   let straights = [];
+  if (lowest === undefined)
+    lowest = Math.min(...values);
+  if (highest === undefined)
+    highest = Math.max(...values);
   for (let i = lowest; i <= highest; i++) {
     let straight = [];
     while (values.includes(i) && i <= highest) {

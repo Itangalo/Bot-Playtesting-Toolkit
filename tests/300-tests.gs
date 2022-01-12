@@ -76,15 +76,18 @@ tests.helpersGeneral.arrayManagement = function() {
   let a = [1, 2, 19, 19, 19, 4, 5, 6, 20, 10, 11, 12, 20, 21];
   let b = [1, 2, 19, 19, 19, 4, 5, 6, 20, 10, 11, 12, 20, 21];
   shuffle(b);
-  if (JSON.stringify(a) == JSON.stringify(b))
+  if (compareObjects(a, b))
     return 'Array shuffling is not working properly';
   let c = [[1.0, 2.0], [4.0, 5.0, 6.0], [10.0, 11.0, 12.0], [19.0, 20.0, 21.0]];
-  if (JSON.stringify(getStraights(b, 1, 21)) != JSON.stringify(c))
+  let d = getStraights(b, 1, 21);
+  if (!compareObjects(getStraights(b, 1, 21), c))
     return 'getStraights function is not working properly.';
-  if (JSON.stringify(getLongestStraight(b, 1, 21)) != JSON.stringify([19, 20, 21]))
-    return 'getLongestStraight is not working properly.'
-  if (JSON.stringify(getLongestStraight(b, 1, 20)) != JSON.stringify([10, 11, 12]))
-    return 'Limiting range in getLongestStraight is not working properly.'
+  if (!compareObjects(getLongestStraight(b, 1, 21), [19, 20, 21]))
+    return 'getLongestStraight is not working properly.';
+  if (!compareObjects(getLongestStraight(b, 1, 20), [10, 11, 12]))
+    return 'Limiting range in getLongestStraight is not working properly.';
+  if (!compareObjects(getFrequencies([4, 5, 4, 'banana']), {4: 2, 5: 1, banana: 1}))
+    return 'getFrequencies is not working properly.';
 }
 tests.helpersGeneral.getNonZeroThreshold = function() {
   let a = [0, 0, 0, 0];
@@ -197,7 +200,6 @@ tests.deck.basics = function() {
   if (d.cards[0].value != 2 || d.cards[0].colour != 'spades')
     return 'Adding cards to top of deck does not work correctly.';
 };
-// @TODO: Write tests for dice rolls.
 
 tests.track = {};
 tests.track.basic = function() {
@@ -332,5 +334,23 @@ tests.market.theLot = function() {
   m.setQuantity('city', -100, true);
   if (m.getQuantity('city') != 0)
     return 'Markets do not respect 0 as lower quantity limit.';
+}
 
+tests.diceRoll = {};
+tests.diceRoll.theLot = function() {
+  let d = new DiceRoll(3, 6);
+  if (d.result.length != 3)
+    return 'Number of dice is inaccurate.';
+  d.restrict(2);
+  if (d.result.length != 2)
+    return 'Restricting dice numbers does not work correctly.';
+  d.unlock();
+  if (d.result.length != 3)
+    return 'Unlocking dice restrictions does not work correctly.';
+  d.result = [1, 2, 3, 4, 4];
+  if (d.sum() != 14)
+    return 'Dice sum does not work correctly.';
+  if (d.countEquals(4) != 2)
+    return 'countEquals does not work correctly.';
+  
 }
