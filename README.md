@@ -22,25 +22,10 @@ This project helps coding board game bots for playing your game. A lot. You will
 
 The idea is to have bot playtesting complementing human playtesting. Human time is precious. Computer clock cycles are cheap. Use human playtesters for the things computers can't do.
 
+The Bot Playtesting Toolkit is written as a script for Google spreadsheet. This brings some limitations (such as maximum 30 seconds execution time), but lowers the threshold for getting started. You combine data in a spreadsheet with custom code, and can either get game statistics in the script log or output to the spreadsheet.
+
 ## How do I use the Bot Playtesting Toolkit?
 
 Check out [the wiki](https://github.com/Itangalo/Bot-Playtesting-Toolkit/wiki).
 
-The Bot Playtesting Toolkit is written as a script for Google spreadsheet. This brings some limitations (such as maximum 30 seconds execution time), but lowers the threshold for getting started. You combine data in a spreadsheet with custom code, and can either get game statistics in the script log or output to the spreadsheet.
-
-Some features of the Bot Playtesting Toolkit:
-
-* All code you write is kept in a "module". This makes it easier to update the main program when updates are available. It will also make it easier to compare different versions of your game, by having them in different modules.
-* There are functions for easily reading data from the spreadsheet, for example for creating decks, complex player data or information about tracks or board spaces.
-* When cards, spaces or other components (such as purchaseable items) causes special effects, the framework has built-in support for adding "resolvers". These are function names specified in the spreadsheet, which can be easily accessed in code (for example by calling ``card.resolve()``).
-* Agents (the toolkit's name for players) have _strategies_. Whenever decisions needs to be made, ``agent.consultStrategy()`` calls any specified method in the agent's strategy. This allows separating code for each decision in the game, and also allows agents to shift strategies if need arises.
-* The toolkit provides an overall flow of the game, and calls the module to alter the game state before each game is started, and during each round. It also asks the module whether the game is over or not. When it is over, the toolkit asks which data should be saved and presented in statistics.
-* The toolkit runs as many iterations of the game as you wish, and then prints data for the results. The data is presented with averages, percentile values and a bit more.
-* The toolkit also contains handy logging functionality, with time logging during execution as an extra option.
-
-
-## How can I get started?
-
-The Bot Playtesting Toolkit is not yet released for public use, but it is coming. With video guides and more.
-
-To be sure to be notified when there is more to get, either subscribe to this repository here on GitHub or follow [my blog](https://creatingboardgames.wordpress.com/).
+BPT is under development. To be sure to be notified about new stuff, either subscribe to this repository here on GitHub or follow [my blog](https://creatingboardgames.wordpress.com/).
