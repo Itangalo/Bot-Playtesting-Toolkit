@@ -18,16 +18,20 @@ modules.noThanks.agentStrategies.default = {};
 // This is a dummy strategy. It uses a 1/n chance of picking up the card, where
 // n is the number of markers the agent has.
 modules.noThanks.agentStrategies.random.pickOrPay = function(agent) {
-  if (agent.markers == 0 || Math.random() < (1 / agent.markers))
+  if (Math.random() < (1 / agent.markers))
     pick(agent);
   else
     pay(agent);
 };
 
+// Picks up the card if the number of markers is at least 1/3 of the card value,
+// or if the card fits a straight held by the agent.
 modules.noThanks.agentStrategies.default.pickOrPay = function(agent) {
-  while (gameState.markets.market1.getBuyableItems(agent).attackBooster !== undefined) {
-    // The buy returns the updated resources. The extra 'agent' argument is passed to the goods resolver.
-    gameState.markets.market1.buy('attackBooster', agent);
-    agent.attackBoosters++;
-  }
+  if (agent.markers == 0)
+    return pick(agent);
+  if (gameState.markers *3 >= gameState.decks.deck.display[0].value)
+    return pick(agent);
+  if (distanceFromStraight(agent) < 1)
+    return pick(agent);
+  return pay(agent);
 };
