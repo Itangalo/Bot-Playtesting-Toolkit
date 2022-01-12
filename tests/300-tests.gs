@@ -21,7 +21,9 @@ function runTests() {
     }
   }
   if (errors.length)
-    log('First error for each test suite: \r\n' + errors.join('\r\n'));
+    log('First error for each test suite: \r\n' + errors.join('\r\n'), 'tests');
+  else
+    log('ALL OK: Tests ran without fails.', 'tests');
 }
 
 var tests = {};
