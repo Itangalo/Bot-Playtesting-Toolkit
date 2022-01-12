@@ -4,7 +4,19 @@ This repository contains a toolkit for simulating board games with Google spread
 
 The project is under active development. A bit more information can be found at https://creatingboardgames.wordpress.com/2021/12/18/a-framework-for-having-bots-playing-your-board-game/
 
-## The idea
+## The idea, in two images
+
+Sometimes images are better than words. Below are examples of when the Bot Playtesting Toolkit plays "No Thanks!".
+
+![Part of log for simulation of No Thanks. Note the time (in milliseconds) in each log message.](https://user-images.githubusercontent.com/262940/149214836-3688fd09-8981-4a74-b6a9-c9fcaa9c5dc1.png)
+
+Time stamps in the log messages show elapsed time in milliseconds.
+
+![Statistics for 10,000 games of No Thanks, played according to a given strategy.](https://user-images.githubusercontent.com/262940/149214937-8b13ddd1-7a1c-4e96-8355-c2dce2bf0359.png)
+
+Statistics for 10,000 games of No Thanks, played according to a given strategy.
+
+## The idea, in words
 
 You're building a board game. At some point you get interested in getting quantitative data: How often does X occur? How often will strategy A win over strategy B? Will changing a card or a rule in a particular way shorten the game, and if so, by how much?
 
