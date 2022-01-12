@@ -16,13 +16,9 @@ Statistics for 10,000 games of No Thanks, played according to a given strategy.
 
 You're building a board game. At some point you get interested in getting quantitative data: How often does X occur? Will strategy A generally win over strategy B? Will changing a card or a rule in a particular way shorten the game, and if so, by how much?
 
-These questions could be answered by playtesters, but it would take a lot of sessions to get reliable data. And the results will often lead to tweaking numbers in the game, to get things balanced in the way you want. Which will require even more playtesting. Playtesting that could be better spent on getting feedback on how the game feels, what parts are more or less engaging, what the players want more of, and things like that.
+These questions could be answered by playtesters, but it would take a lot of sessions to get reliable data. And the results will often lead to tweaking numbers in the game, to get things balanced in the way you want. Which will require even more playtesting. Playtesting that could be better spent on getting feedback on how the game feels, what parts are more or less engaging, what makes the players laugh or grit their teeth, and things like that.
 
-This project helps coding board game bots for playing your game. A lot. You will need to write some code, but the Bot Playtesting Toolkit has a lot of pre-made functions and an overall framework that saves you a lot of time and gives more structure to your work.
-
-The idea is to have bot playtesting complementing human playtesting. Human time is precious. Computer clock cycles are cheap. Use human playtesters for the things computers can't do.
-
-The Bot Playtesting Toolkit is written as a script for Google spreadsheet. This brings some limitations (such as maximum 30 seconds execution time), but lowers the threshold for getting started. You combine data in a spreadsheet with custom code, and can either get game statistics in the script log or output to the spreadsheet.
+The idea behind the Bot Playtesting Toolkit is that human time is precious, while computer clock cycles are cheap. Use human playtesters for the things computers can't do.
 
 ## How do I use the Bot Playtesting Toolkit?
 
