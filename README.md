@@ -24,7 +24,7 @@ The idea is to have bot playtesting complementing human playtesting. Human time 
 
 ## How do I use the Bot Playtesting Toolkit?
 
-Check out [the wiki](wiki).
+Check out [the wiki](https://github.com/Itangalo/Bot-Playtesting-Toolkit/wiki).
 
 The Bot Playtesting Toolkit is written as a script for Google spreadsheet. This brings some limitations (such as maximum 30 seconds execution time), but lowers the threshold for getting started. You combine data in a spreadsheet with custom code, and can either get game statistics in the script log or output to the spreadsheet.
 
