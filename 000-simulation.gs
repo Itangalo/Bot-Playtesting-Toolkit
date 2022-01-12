@@ -33,7 +33,7 @@ function simulate(iterations = false, mod = false) {
     iterations = global.defaults.iterations;
   for (let iteration = 1; iteration <= iterations; iteration++) {
     log('Starting iteration ' + iteration, 'system');
-    gameState = copy(gameStateSeed); // Short-hand for game state.
+    gameState = copy(gameStateSeed);
 
     /**
      * Set up each game.

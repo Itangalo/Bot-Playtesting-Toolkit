@@ -4,7 +4,7 @@
 
 // Used for testing the simulation.
 function noThanks() {
-  simulate(100, 'noThanks');
+  simulate(10, 'noThanks');
 }
 
 // Returns the number of cards between the displayed card and any of the cards held by the agent.
@@ -18,8 +18,10 @@ function distanceFromStraight(agent) {
 
 // Used when an agent picks a card from the shared deck.
 function pick(agent) {
-  agent.deck.display.push(gameState.decks.deck.pickFromDisplay());
+  let card = gameState.decks.deck.pickFromDisplay()
+  agent.deck.display.push(card);
   agent.trackChange('markers', gameState.markers);
+  log('Turn ' + gameState.round + ': ' + agent.id + ' picks up card ' + card.value + ' along with ' + gameState.markers + ' markers. ' + agent.id + ' now has ' + agent.markers + '.', 'pick');
   gameState.markers = 0;
   agent.picks++;
   return 'pick';
@@ -31,8 +33,10 @@ function pay(agent) {
   if (agent.markers <= 0)
     throw('Agent ' + agent.id + ' tried to pay a marker, but has none.');
 
+  let card = gameState.decks.deck.display[0];
   agent.trackChange('markers', -1);
   gameState.markers++;
   agent.payments++;
+  log('Turn ' + gameState.round + ': ' + agent.id + ' puts a marker on card ' + card.value + '. There are now ' + gameState.markers + ' markers on the card. ' + agent.id + ' has ' + agent.markers + ' left.', 'pay');
   return 'pay';
 }

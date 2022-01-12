@@ -15,13 +15,14 @@ modules.noThanks.agentStrategies.default = {};
 /**
  * Add strategy callbacks.
  */
+
 // This is a dummy strategy. It uses a 1/n chance of picking up the card, where
 // n is the number of markers the agent has.
 modules.noThanks.agentStrategies.random.pickOrPay = function(agent) {
   if (Math.random() < (1 / agent.markers))
-    pick(agent);
+    return pick(agent);
   else
-    pay(agent);
+    return pay(agent);
 };
 
 // Picks up the card if the number of markers is at least 1/3 of the card value,

@@ -38,6 +38,8 @@ modules.noThanks.buildInitialData = function() {
     // Only message types set to true will be printed in the log.
     // Feel free to add more categories.
     categories: {
+      pay: true,
+      pick: true,
       rounds: true,
       notice: true,
       example: true,
