@@ -143,6 +143,7 @@ function sortByProperty(objArray, property, ascending = true) {
     objArray.sort((a, b) => a[property] > b[property] ? 1 : -1);
   else
     objArray.sort((a, b) => b[property] > a[property] ? 1 : -1);
+  return objArray;
 }
 
 // Used for sorting an array of objects by a sub property.
@@ -151,6 +152,7 @@ function sortBySubProperty(objArray, property, subProperty, ascending = true) {
     objArray.sort((a, b) => a[property][subProperty] > b[property][subProperty] ? 1 : -1);
   else
     objArray.sort((a, b) => b[property][subProperty] > a[property][subProperty] ? 1 : -1);
+  return objArray;
 }
 
 // Shuffles an array.
@@ -174,7 +176,7 @@ function shuffle(array) {
   return array;
 }
 
-// Returns first element from an array where property == value
+// Returns first object in an array where property == value
 // or false if no match is found.
 function pickFromArray(objectArray, property, value) {
   if (objectArray.length == 0)
@@ -335,8 +337,9 @@ function getAgentById(id) {
   return pickFromArray(gameState.agents, 'id', id);
 }
 
-// Selects a random element from an array. If property is set, the
-// property value will be used for weighting probabily.
+// Selects a and returns a random element from an array. If the array consists of
+// objects, 'property' can be set to a property name in order to use the property
+// values for weighting probability.
 function selectRandom(arr, property = false) {
   let l = arr.length;
   if (!property) {
@@ -418,6 +421,10 @@ function getHighestProperty(obj) {
   if (properties.length == 0) return false;
   return selectRandom(properties);
 }
+
+/**
+ * Internally used helper functions.
+ */
 
 /**
  * Processes arguments object into an array, skipping the number of specified first items.
