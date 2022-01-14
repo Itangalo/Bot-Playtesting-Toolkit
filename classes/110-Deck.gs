@@ -19,9 +19,9 @@ class Deck {
    *  - resolver (string): Name of method in modules[module].resolvers.cards. Called from card.resolver().
    */
   constructor(deckData, cardDataArray = false) {
-    // Add default settings.
-    Object.assign(this, global.defaults.deck);
-    // Build basic data and verify required properties.
+    // Add default settings, overwrite with provided data.
+    Object.assign(this, applyDefaults(global.defaults.deck, deckData));
+    // Verify that an ID is present.
     Object.assign(this, deckData);
     if (this.id === undefined)
       throw('Decks must have an id property set.');

@@ -27,7 +27,7 @@ class DiceRoll {
   }
 
   /**
-   * Treats die results as if only the n first dice are present, until
+   * Treats dice results as if only the n first dice are present, until
    * 'unlock' function is called.
    * @return The DiceRoll object.
    */
@@ -88,8 +88,8 @@ class DiceRoll {
   }
 
   /**
-   * Returns an array of all straighst in the dice results, optionally only counting
-   * results between 'lowest' and 'highest'. Result is on the form [[1, 2], [5, 6]].
+   * Returns an array of all straights in the dice results, optionally only counting
+   * results between 'lowest' and 'highest'. Return is on the form [[1, 2], [5, 6]].
    */
   getStraights(lowest, highest) {
     return getStraights(this.result, lowest, highest);
@@ -106,11 +106,11 @@ class DiceRoll {
   /**
    * Returns the highest number of equal dice with value above 'threshold'.
    */
-  countEquals(threshold = Number.NEGATIVE_INFINITY) {
+  getHighestFrequency(threshold = false) {
     let distribution = getFrequencies(this.result);
     let max = 0;
     for (let i in distribution) {
-      if (i >= threshold && distribution[i] > max)
+      if (distribution[i] > max && (threshold === false || i >= threshold))
         max = distribution[i];
     }
     return max;

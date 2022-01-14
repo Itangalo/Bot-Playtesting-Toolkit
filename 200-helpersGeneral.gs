@@ -482,6 +482,18 @@ function getHighestProperty(obj) {
  */
 
 /**
+ * Combines default values and overwrite values, bypassing problems with empty strings.
+ */
+function applyDefaults(defaults, overwrites) {
+  let result = {};
+  Object.assign(result, defaults);
+  Object.assign(result, overwrites);
+  for (let i in defaults)
+    if (result[i] === '') result[i] = defaults[i];
+  return result;
+}
+
+/**
  * Processes arguments object into an array, skipping the number of specified first items.
  */
 function parseArguments(args, skip = 0) {

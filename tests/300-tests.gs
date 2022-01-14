@@ -395,7 +395,12 @@ tests.diceRoll.theLot = function() {
   d.result = [1, 2, 3, 4, 4];
   if (d.sum() != 14)
     return 'Dice sum does not work correctly.';
-  if (d.countEquals(4) != 2)
-    return 'countEquals does not work correctly.';
+  d.result = [1, 1, 1, 2, 3, 4, 4, 'a', 'a', 'a', 'a'];
+  if (d.getHighestFrequency() != 4)
+    return 'countEquals does not count non-numeric results.';
+  if (d.getHighestFrequency(0) != 3)
+    return 'countEquals does not exclude non-numeric results when a threshold is set.';
+  if (d.getHighestFrequency(4) != 2)
+    return 'countEquals does not apply threshold correctly.';
   
 }

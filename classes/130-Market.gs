@@ -31,10 +31,9 @@
 // @TODO: Consider a way to track agents' increase/decrease in resources when buying.
 class Market {
   constructor(marketData, goodsDataArray = false) {
-    // Add default settings.
-    Object.assign(this, global.defaults.market);
-    // Build basic data and verify required properties.
-    Object.assign(this, marketData);
+    // Add default settings, overwrite with provided data.
+    Object.assign(this, applyDefaults(global.defaults.market, marketData));
+    // Verify that an ID is present.
     if (this.id === undefined)
       throw('Markets must have an id property set.');
 
@@ -303,8 +302,7 @@ class Goods {
     if (!market instanceof Market)
       throw('Goods must be added to a proper market.');
     // Add default settings, overwrite with provided data.
-    Object.assign(this, global.defaults.goods);
-    Object.assign(this, goodsData);
+    Object.assign(this, applyDefaults(global.defaults.goods, goodsData));
 
     if (this.id === undefined)
       throw('Goods must have an id property set.');

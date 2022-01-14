@@ -23,10 +23,9 @@
  */
 class Track {
   constructor(trackData, spacesDataArray = false) {
-    // Add default settings.
-    Object.assign(this, global.defaults.track);
-    // Build basic data and verify required properties.
-    Object.assign(this, trackData);
+    // Add default settings, overwrite with provided data.
+    let o = Object.assign(this, applyDefaults(global.defaults.track, trackData));
+    // Verify that an ID is present.
     if (this.id === undefined)
       throw('Tracks must have an id property set.');
     
@@ -46,7 +45,6 @@ class Track {
         this.constructSpace(s);
       }
     }
-
     // Build a graph of how the spaces connect, if advanced movement is used.
     if (this.gridMovement)
       this.buildGraph();
@@ -55,7 +53,6 @@ class Track {
     this.spaceMapping = {};
     for (let i in this.spaces)
       this.spaceMapping[this.spaces[i].id] = i;
-
     // Object used to track where on the track pawns are or are going.
     this.pawnIndices = {};
   }
