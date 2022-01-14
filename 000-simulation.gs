@@ -30,6 +30,10 @@ var global = {
     market: {
       restockOnlyIncreases: true,
     },
+    goods: {
+      quantity: Number.POSITIVE_INFINITY,
+      maxQuantity: Number.POSITIVE_INFINITY,
+    },
     diceRoll: {
       quantity: 3,
       numberOfSides: 6,
