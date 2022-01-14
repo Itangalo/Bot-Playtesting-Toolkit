@@ -176,24 +176,79 @@ function shuffle(array) {
   return array;
 }
 
-// Returns first object in an array where property == value
-// or false if no match is found.
-function pickFromArray(objectArray, property, value) {
+/**
+ * Returns first object in an array matching property:value or false if no match is found.
+ * 
+ * @param property: The property name to search in, or an array of property names if multiple
+ *    property:values pairs should be matched.
+ * @param value: The value to match, or an array of values if multiple property:value pairs
+ *    should be matched.
+ * @param {boolean} remove: Whether to also remove the object from the array. Defaults to true.
+ */
+function pickFromObjectArray(objectArray, property, value, remove = true) {
   if (objectArray.length == 0)
     return false;
-  for (let o of objectArray) {
-    if (o[property] == value)
-      return o;
+  // Turn single-value search criteria into arrays.
+  if (typeof property != 'object')
+    property = [property];
+  if (typeof value != 'object')
+    value = [value];
+  if (property.length != value.length)
+    throw('The number of values to search for must match the number of properties.');
+
+  // Find the first matching object.
+  for (let i in objectArray) {
+    let match = true;
+    for (let j in property) {
+      if (objectArray[i][property[j]] != value[j])
+        match = false;
+    }
+    if (match) {
+      if (remove)
+        return objectArray.splice(i, 1);
+      else
+        return objectArray[i];
+    }
   }
   return false;
 }
 
-// Returns an array with all elements in an array where property == value.
-function pickAllFromArray(objectArray, property, value) {
+/**
+ * Returns an array with all objects matching property:value in the search array.
+ * 
+ * @param property: The property name to search in, or an array of property names if multiple
+ *    property:values pairs should be matched.
+ * @param value: The value to match, or an array of values if multiple property:value pairs
+ *    should be matched.
+ * @param {boolean} remove: Whether to also remove the objects from the array. Defaults to true.
+ */
+function pickAllFromObjectArray(objectArray, property, value, remove = true) {
   let result = [];
-  for (let o of objectArray) {
-    if (o[property] == value)
-      result.push(o);
+  if (objectArray.length == 0)
+    return result;
+  // Turn single-value search criteria into arrays.
+  if (typeof property != 'object')
+    property = [property];
+  if (typeof value != 'object')
+    value = [value];
+  if (property.length != value.length)
+    throw('The number of values to search for must match the number of properties.');
+
+  // Find matching objects.
+  for (let i = 0; i < objectArray.length; i++) {
+    let match = true;
+    for (let j in property) {
+      if (objectArray[i][property[j]] != value[j])
+        match = false;
+    }
+    if (match) {
+      if (remove) {
+        result.push(objectArray.splice(i, 1));
+        i--; // The indices are shifted, so we move back one step.
+      }
+      else
+        result.push(objectArray[i]);
+    }
   }
   return result;
 }
@@ -334,7 +389,7 @@ function isIterable(obj) {
 function getAgentById(id) {
   if (!gameState.agents)
     return false;
-  return pickFromArray(gameState.agents, 'id', id);
+  return pickFromObjectArray(gameState.agents, 'id', id, false);
 }
 
 // Selects a and returns a random element from an array. If the array consists of

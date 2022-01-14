@@ -24,7 +24,7 @@
 class Track {
   constructor(trackData, spacesDataArray = false) {
     // Add default settings.
-    Object.assign(this. global.defaults.track);
+    Object.assign(this, global.defaults.track);
     // Build basic data and verify required properties.
     Object.assign(this, trackData);
     if (this.id === undefined)
@@ -71,7 +71,7 @@ class Track {
       this.graph.push([]);
     for (let s of this.spaces) {
       for (let c of s.connectsTo) {
-        let target = pickFromArray(this.spaces, 'id', c);
+        let target = pickFromObjectArray(this.spaces, 'id', c, false);
         this.graph[s.index][target.index] = 1;
         if (this.symmetricConnections)
           this.graph[target.index][s.index] = 1;
@@ -313,10 +313,10 @@ class Space {
   constructor(spaceData, track) {
     if (!track instanceof Track)
       throw('Spaces must be added to a proper track.');
-    if (this.id === undefined)
-      throw('Spaces must have an id property set.');
 
     Object.assign(this, spaceData);
+    if (this.id === undefined)
+      throw('Spaces must have an id property set.');
     this.track = track;
 
     if (this.track.gridMovement) {

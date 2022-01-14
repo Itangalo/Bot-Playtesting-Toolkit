@@ -20,7 +20,7 @@ class Deck {
    */
   constructor(deckData, cardDataArray = false) {
     // Add default settings.
-    Object.assign(this. global.defaults.deck);
+    Object.assign(this, global.defaults.deck);
     // Build basic data and verify required properties.
     Object.assign(this, deckData);
     if (this.id === undefined)

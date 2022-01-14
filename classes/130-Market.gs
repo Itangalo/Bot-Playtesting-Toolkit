@@ -32,7 +32,7 @@
 class Market {
   constructor(marketData, goodsDataArray = false) {
     // Add default settings.
-    Object.assign(this. global.defaults.market);
+    Object.assign(this, global.defaults.market);
     // Build basic data and verify required properties.
     Object.assign(this, marketData);
     if (this.id === undefined)

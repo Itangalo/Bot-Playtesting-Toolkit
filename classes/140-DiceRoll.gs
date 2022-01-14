@@ -4,7 +4,7 @@
 class DiceRoll {
   constructor(quantity = false, numberOfSides = false, customSides = false) {
     // Add default settings, then override by any provided arguments.
-    Object.assign(this. global.defaults.diceRoll);
+    Object.assign(this, global.defaults.diceRoll);
     if (quantity) this.quantity = quantity;
     if (numberOfSides) this.numberOfSides = numberOfSides;
     if (customSides) this.customSides = customSides;
