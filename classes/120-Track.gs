@@ -91,6 +91,13 @@ class Track {
     return s;
   }
 
+  // Returns the index for the start space.
+  getStartSpaceIndex() {
+    if (this.startSpaceId !== false)
+      return this.spaceMapping[this.startSpaceId];
+    return 0;
+  }
+
   /**
    * Returns the index for the space where the pawn is, or -1 if
    * pawn is missing (and should not be assumed to start at 0).
@@ -100,8 +107,8 @@ class Track {
       return this.pawnIndices[pawnId];
     }
     if (this.assumePresent) {
-      this.pawnIndices[pawnId] = 0;
-      return 0;
+      this.pawnIndices[pawnId] = this.getStartSpaceIndex();
+      return this.getStartSpaceIndex();
     }
     return -1;
   }
@@ -171,7 +178,7 @@ class Track {
    * Moves the pawn to the first space. Creates pawn if necessary.
    */
   movePawnToStart(pawnId) {
-    this.pawnIndices[pawnId] = 0;
+    this.pawnIndices[pawnId] = this.getStartSpaceIndex();
   }
 
   /**
@@ -185,14 +192,14 @@ class Track {
    * Tells whether the pawn is at the first space.
    */
   isAtStart(pawnId) {
-    return (this.pawnIndices[pawnId] == 0);
+    return (this.pawnIndices[pawnId] === this.getStartSpaceIndex());
   }
 
   /**
    * Tells whether the pawn is at the last space.
    */
   isAtEnd(pawnId) {
-    return (this.pawnIndices[pawnId] == this.spaces.length - 1);
+    return (this.pawnIndices[pawnId] === this.spaces.length - 1);
   }
 
   /**
@@ -253,8 +260,8 @@ class Track {
   }
 
   /**
-   * Builds a paths for the given pawn to the given space.
-   * Returns true if the path could be built, otherwise false. The pawn path is only
+   * Builds a path for the given pawn to the given space.
+   * Returns true if the path could be built, otherwise false. The path path is only
    * updated if the path could be built -- otherwise it is left untouched.
    */
   buildPath(pawnId, goalSpaceId) {

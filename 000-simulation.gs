@@ -22,6 +22,7 @@ var global = {
     },
     track: {
       assumePresent: true,
+      startSpaceId: false,
       loop: false,
       gridMovement: false,
       symmetricConnections: true,
