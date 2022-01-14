@@ -202,7 +202,7 @@ class Track {
   getSpace(property, value) {
     if (property == 'id')
       return this.spaces[this.spaceMapping[value]];
-    return pickFromArray(this.spaces, property, value);
+    return pickAllFromObjectArray(this.spaces, property, value, false);
   }
 
   /**
