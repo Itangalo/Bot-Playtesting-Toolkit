@@ -205,7 +205,7 @@ function pickFromObjectArray(objectArray, property, value, remove = true) {
     }
     if (match) {
       if (remove)
-        return objectArray.splice(i, 1);
+        return objectArray.splice(i, 1)[0];
       else
         return objectArray[i];
     }

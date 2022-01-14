@@ -125,32 +125,21 @@ class Deck {
 
   /**
    * Picks the first card found matching property:value, or false if none is found.
+   * If multiple property:value pairs should be matched, provide them as arrays.
    */
   pick(property, value) {
-    for (let i in this.cards) {
-      if (this.cards[i][property] == value) {
-        let c = this.cards[i];
-        this.cards.splice(i, 1);
-        return c;
-      }
-    }
-    log('Could not find any card where ' + property + ' is ' + value + ' in deck ' + this.id + '.', 'notice');
-    return false;
+    let result = pickAllFromObjectArray(this.cards, property, value);
+    if (!result)
+      log('Could not find any card where ' + property + ' is ' + value + ' in deck ' + this.id + '.', 'notice');
+    return result;
   }
 
   /**
    * Picks all cards matching property:value, returned in an array (can be empty).
+   * If multiple property:value pairs should be matched, provide them as arrays.
    */
   pickAll(property, value) {
-    let picked = [];
-    for (let i = this.cards.length - 1; i >= 0; i--) {
-      if (this.cards[i][property] == value) {
-        let c = this.cards[i];
-        this.cards.splice(i, 1);
-        picked.push(c);
-      }
-    }
-    return picked;
+    return pickAllFromObjectArray(this.cards, property, value);
   }
 
   /**
@@ -199,33 +188,27 @@ class Deck {
 
   /**
    * Picks the first card found matching property:value from the display, or false if none is found.
+   * If multiple property:value pairs should be matched, provide them as arrays.
    * If no property or value is provided, the first card in the display will be returned.
    */
   pickFromDisplay(property, value) {
     // If no property is provided, take the first card.
+    let c = false;
     if (property === undefined) {
       if (!this.display.length) {
         log('Tried to pick the first card in the display of deck ' + this.id + ', but the display is empty.', 'error');
         return false;
       }
-      let c = this.display.shift();
-      if (this.autoFillDisplay)
-        this.fillDisplay();
-      return c;
+      c = this.display.shift();
     }
-
-    // Search for a card matching property:value.
-    for (let i in this.display) {
-      if (this.display[i][property] == value) {
-        let c = this.display[i];
-        this.display.splice(i, 1);
-        if (this.autoFillDisplay)
-          this.fillDisplay();
-        return c;
-      }
+    else {
+      c = pickFromObjectArray(this.display, property, value);
+      if (!c)
+        log('Could not find any card where ' + property + ' is ' + value + ' in display of deck ' + this.id + '.', 'error');
     }
-    log('Could not find any card where ' + property + ' is ' + value + ' in display of deck ' + this.id + '.', 'error');
-    return false;
+    if (this.autoFillDisplay)
+      this.fillDisplay();
+    return c;
   }
 }
 
