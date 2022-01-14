@@ -11,7 +11,26 @@
  */
 
 // Initiate some global variables.
-var global = {defaults: {module: 'example1'}}; // Further populated by buildInitialData().
+var global = {
+  defaults: {
+    module: 'example1',
+    deck: {
+      shuffleWhenCreated: true,
+      addDiscardWhenShuffling: true,
+      displaySize: 0,
+      autoFillDisplay: true,
+    },
+    track: {
+      assumePresent: true,
+      loop: false,
+      gridMovement: false,
+      symmetricConnections: true,
+    },
+    market: {
+      restockOnlyIncreases: true,
+    },
+  },
+}; // Further populated by buildInitialData().
 var modules = {}; // Populated by custom code.
 var module = global.defaults.module;
 var gameState = {};

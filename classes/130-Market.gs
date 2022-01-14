@@ -9,7 +9,7 @@
  * the market object. Some special properties:
  *    - id: The identifier for the market. Required.
  *    - resources: An array with IDs for resources the market consumes. Required.
- *    - restockOnlyIncreases: If true, restocking never decreases quantity.
+ *    - restockOnlyIncreases: If true, restocking never decreases quantity. Defaults to true.
  * 
  *
  * @param {Array} goodsDataArray: An array with one object for each goods type that
@@ -31,6 +31,8 @@
 // @TODO: Consider a way to track agents' increase/decrease in resources when buying.
 class Market {
   constructor(marketData, goodsDataArray = false) {
+    // Add default settings.
+    Object.assign(this. global.defaults.market);
     // Build basic data and verify required properties.
     Object.assign(this, marketData);
     if (this.id === undefined)

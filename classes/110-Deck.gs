@@ -10,15 +10,17 @@ class Deck {
    * @param {object} deckData: Data with properties for the deck. Special properties:
    *  - id (string): The unique identifier of the deck. Required.
    *  - shuffleWhenCreated (boolean): Whether to shuffle after constructed. Defaults to true.
-   *  - addDiscardWhenShuffling (boolean): Whether to add the discard pile when shuffling. Defaults to false.
-   *  - displaySize (integer): Used if there should be a common display drawn from the deck.
-   *  - autoFillDisplay (boolean): Whether to always fill the display to its intended size. Defaults to false.
-   * 
+   *  - addDiscardWhenShuffling (boolean): Whether to add the discard pile when shuffling. Defaults to true.
+   *  - displaySize (integer): Used if there should be a common display drawn from the deck. Defaults to 0.
+   *  - autoFillDisplay (boolean): Whether to always fill the display to its intended size. Defaults to true.
+   *
    * @param {Array} cardDataArray: An array of objects which will be used to create cards.
    * Optional. Special properties used for cards:
-   *  - resolver (string): Name of method in global cardResolvers object. Called from card.resolver().
+   *  - resolver (string): Name of method in modules[module].resolvers.cards. Called from card.resolver().
    */
   constructor(deckData, cardDataArray = false) {
+    // Add default settings.
+    Object.assign(this. global.defaults.deck);
     // Build basic data and verify required properties.
     Object.assign(this, deckData);
     if (this.id === undefined)
@@ -42,7 +44,7 @@ class Deck {
         this.constructCard(c);
       }
     }
-    if (this.shuffleWhenCreated || this.shuffleWhenCreated === undefined)
+    if (this.shuffleWhenCreated)
       this.shuffle();
     if (this.autoFillDisplay)
       this.fillDisplay();

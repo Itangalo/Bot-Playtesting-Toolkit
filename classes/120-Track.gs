@@ -8,16 +8,23 @@
  * @param {Object} trackData: An object with properties to set to the
  * track. Some special properties:
  *    - id: The unique id for the track. Required.
- *    - assumePresent: If true, missing pawns start on the first space.
- *    - loop: If true, the last space is followed by the first.
- * 
+ *    - assumePresent: If true, missing pawns start on the first space. Defaults to true.
+ *    - loop: If true, the last space is followed by the first. Defaults to false.
+ *    - gridMovement: If true, possible movement is defined through connections on spaces. Defaults to false.
+ *    - symmetricConnections: If true, any connections between spaces are assumed to go both ways.
+ *      Only relevant if gridMovement is true. Defaults to true.
+ *
  * @param {Array} spacesDataArray: An array of objects describing each
  * space on the track. Some special properties:
  *    - resolver: Name of a method in the spaceResolver object. Called
  *      through track.resolve(pawnId).
+ *    - connectsTo: A space ID or an array of IDs, to which the space connects. Only relevant if
+ *      the track.gridMovement is true.
  */
 class Track {
   constructor(trackData, spacesDataArray = false) {
+    // Add default settings.
+    Object.assign(this. global.defaults.track);
     // Build basic data and verify required properties.
     Object.assign(this, trackData);
     if (this.id === undefined)
@@ -306,6 +313,8 @@ class Space {
   constructor(spaceData, track) {
     if (!track instanceof Track)
       throw('Spaces must be added to a proper track.');
+    if (this.id === undefined)
+      throw('Spaces must have an id property set.');
 
     Object.assign(this, spaceData);
     this.track = track;
