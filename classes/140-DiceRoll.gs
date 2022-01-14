@@ -3,28 +3,14 @@
  */
 class DiceRoll {
   constructor(quantity = false, numberOfSides = false, customSides = false) {
-    let defaults = {
-      quantity: 3,
-      numberOfSides: 6,
-      customSides: false,
-    };
-    if (global.defaults.diceRoll)
-      Object.assign(defaults, global.defaults.diceRoll);
-
-    // Use default values, if called for.
-    if (!quantity)
-      quantity = defaults.quantity;
-    if (!numberOfSides)
-      numberOfSides = defaults.numberOfSides;
-    if (!customSides && defaults.customSides)
-      customSides = defaults.customSides;
-    this.quantity = quantity;
-    this.numberOfSides = numberOfSides;
-    this.customSides = customSides;
+    // Add default settings, then override by any provided arguments.
+    Object.assign(this. global.defaults.diceRoll);
+    if (quantity) this.quantity = quantity;
+    if (numberOfSides) this.numberOfSides = numberOfSides;
+    if (customSides) this.customSides = customSides;
 
     // Roll the dice
     this.result = [];
-
     for (let i = 0; i < quantity; i++) {
       this.result.push(this.rollSingle());
     }
@@ -61,6 +47,9 @@ class DiceRoll {
   unlock() {
     if (!this.fullResult)
       return this;
+    // The dice might have changed while being restricted. Overwrite the original result, just in case.
+    for (let i in this.result)
+      this.fullResult[i] = this.result[i];
     this.result = this.fullResult;
     this.fullResult = [];
     return this;
@@ -78,9 +67,10 @@ class DiceRoll {
 
   /**
    * Returns the sum of the rolled dice, plus any provided modifier.
+   * If 'compareAgainst' is set, the difference against this result is returned.
    */
-  sum(modifier = 0) {
-    return this.result.reduce((a, b) => a + b) + modifier;
+  sum(modifier = 0, compareAgainst = 0) {
+    return this.result.reduce((a, b) => a + b) + modifier - compareAgainst;
   }
 
   /**

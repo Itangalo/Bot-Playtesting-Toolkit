@@ -29,6 +29,11 @@ var global = {
     market: {
       restockOnlyIncreases: true,
     },
+    diceRoll: {
+      quantity: 3,
+      numberOfSides: 6,
+      customSides: false,
+    },
   },
 }; // Further populated by buildInitialData().
 var modules = {}; // Populated by custom code.
