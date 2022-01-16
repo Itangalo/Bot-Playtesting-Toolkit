@@ -8,23 +8,22 @@
  * @param {Object} trackData: An object with properties to set to the
  * track. Some special properties:
  *    - id: The unique id for the track. Required.
- *    - assumePresent: If true, missing pawns start on the first space. Defaults to true.
+ *    - startSpaceId: Sets which space to use for starting space. Defaults to the first added space.
+ *    - assumePresent: If true, missing pawns are created when calling getPawn(pawnId). Defaults to true.
  *    - loop: If true, the last space is followed by the first. Defaults to false.
  *    - gridMovement: If true, possible movement is defined through connections on spaces. Defaults to false.
  *    - symmetricConnections: If true, any connections between spaces are assumed to go both ways.
  *      Only relevant if gridMovement is true. Defaults to true.
  *
- * @param {Array} spacesDataArray: An array of objects describing each
- * space on the track. Some special properties:
- *    - resolver: Name of a method in the spaceResolver object. Called
- *      through track.resolve(pawnId).
- *    - connectsTo: A space ID or an array of IDs, to which the space connects. Only relevant if
- *      the track.gridMovement is true.
+ * @param {Array} spacesDataArray: An array of objects describing each space on the track.
+ * See Space class for details.
+ * @param {Array} pawnsDataArray: An array of objects describing each pawn present on the track
+ * from start. See Pawn class for details.
  */
 class Track {
-  constructor(trackData, spacesDataArray = false) {
+  constructor(trackData, spacesDataArray = false, pawnsDataArray = false) {
     // Add default settings, overwrite with provided data.
-    let o = Object.assign(this, applyDefaults(global.defaults.track, trackData));
+    Object.assign(this, applyDefaults(global.defaults.track, trackData));
     // Verify that an ID is present.
     if (this.id === undefined)
       throw('Tracks must have an id property set.');
@@ -38,165 +37,75 @@ class Track {
       agent.track = this;
     }
 
-    // Additional processing just for decks.
+    // Additional processing just for tracks.
     this.spaces = [];
     if (spacesDataArray) {
       for (let s of spacesDataArray) {
         this.constructSpace(s);
       }
     }
-    // Build a graph of how the spaces connect, if advanced movement is used.
-    if (this.gridMovement)
-      this.buildGraph();
+    this.rebuild();
 
-    // Used for quickly finding the right space based on its ID.
-    this.spaceMapping = {};
-    for (let i in this.spaces)
-      this.spaceMapping[this.spaces[i].id] = i;
-    // Object used to track where on the track pawns are or are going.
-    this.pawnIndices = {};
+    if (pawnsDataArray) {
+      for (let p of pawnsDataArray)
+        this.constructPawn(p);
+    }
   }
 
   /**
-   * Builds (or rebuilds) a graph of nodes in the track.
-   *
-   * Data used by the a-star algorithm, to find paths in the grid.
+   * Rebuilds track data. Needed when new spaces are added.
    */
-  buildGraph() {
-    this.graph = [];
-    for (let i = 0; i < this.spaces.length; i++)
-      this.graph.push([]);
-    for (let s of this.spaces) {
-      for (let c of s.connectsTo) {
-        let target = pickFromObjectArray(this.spaces, 'id', c, false);
-        this.graph[s.index][target.index] = 1;
-        if (this.symmetricConnections)
-          this.graph[target.index][s.index] = 1;
+  rebuild() {
+    // Build a graph of how the spaces connect, if advanced movement is used.
+    // Data used by the a-star algorithm, to find paths in the grid.
+    if (this.gridMovement) {
+      this.graph = [];
+      for (let i = 0; i < this.spaces.length; i++)
+        this.graph.push([]);
+      for (let s of this.spaces) {
+        for (let c of s.connectsTo) {
+          let target = pickFromObjectArray(this.spaces, 'id', c, false);
+          this.graph[s.index][target.index] = 1;
+          if (this.symmetricConnections)
+            this.graph[target.index][s.index] = 1;
+        }
       }
+      let row = Array(this.graph.length).fill(1);
+      this.heuristic = Array(this.graph.length).fill(row);
+      this.pawnPaths = {};
     }
-    let row = Array(this.graph.length).fill(1);
-    this.heuristic = Array(this.graph.length).fill(row);
-    this.pawnPaths = {};
+
+    // Map space IDs to indices, for quicker reference. And update space indices.
+    this.spaceMapping = {};
+    for (let i in this.spaces) {
+      this.spaceMapping[this.spaces[i].id] = i;
+      this.spaces[i].index = i;
+    }
   }
 
   /**
    * Creates a space object and adds last on the track.
-   * @param {Object} spaceData: An object with any sets of property:value pairs.
+   * @param {Object} spaceData: An object with property:value pairs. id is required.
    */
   constructSpace(spaceData) {
     let s = new Space(spaceData, this);
     return s;
   }
 
-  // Returns the index for the start space.
-  getStartSpaceIndex() {
-    if (this.startSpaceId !== false)
-      return this.spaceMapping[this.startSpaceId];
-    return 0;
+  /**
+   * Creates a pawn object and puts it on the track.
+   * @param {Object} pawnData: An object with property:value pairs. id is required.
+   */
+  constructPawn(pawnData) {
+    let p = new Pawn(pawnData, this);
+    return p;
   }
 
-  /**
-   * Returns the index for the space where the pawn is, or -1 if
-   * pawn is missing (and should not be assumed to start at 0).
-   */
-  getPawnIndex(pawnId) {
-    if (!isNaN(this.pawnIndices[pawnId])) {
-      return this.pawnIndices[pawnId];
-    }
-    if (this.assumePresent) {
-      this.pawnIndices[pawnId] = this.getStartSpaceIndex();
-      return this.getStartSpaceIndex();
-    }
-    return -1;
-  }
-
-  /**
-   * Returns the space object where the pawn is.
-   */
-  getPawnSpace(pawnId) {
-    let i = this.getPawnIndex(pawnId);
-    if (i < 0) {
-      log('Pawn ' + pawnId + ' is not present on track ' + this.id + '. Cannot return space.', 'error');
-      return false;
-    }
-    return this.spaces[i];
-  }
-
-  /**
-   * Sets the pawn on the given space and returns the space.
-   */
-  setPawnSpace(pawnId, spaceId) {
-    let index = this.getSpaceIndex('id', spaceId);
-    this.pawnIndices[pawnId] = index;
-    return this.spaces[index];
-  }
-
-  /**
-   * Moves a pawn a number of steps on the track. Returns the resulting space.
-   * Uses movement in grid, towards a set goal space, if grid movement is enabled.
-   */
-  movePawn(pawnId, steps = 1) {
-    // The one-dimensional plain movement.
-    if (!this.gridMovement) {
-      let i = this.getPawnIndex(pawnId);
-      if (i < 0)
-        throw('Cannot move pawn ' + pawnId + ' on track ' + this.id + '. Pawn is not present.');
-
-      // Move up or down the track, but not beyond its edges.
-      if (this.loop) {
-        // A bit awkward computation here, to bypass negative remainders.
-        steps = steps % this.spaces.length + this.spaces.length;
-        i = (i + steps) % this.spaces.length;
-      }
-      else 
-        i = Math.max(0, Math.min(i + steps, this.spaces.length - 1));
-      this.pawnIndices[pawnId] = i;
-      return this.spaces[i];
-    }
-    // Movement in grid.
-    else {
-      if (!this.pawnPaths[pawnId] || !this.pawnPaths[pawnId].length) {        
-        log('Tried to move pawn ' + pawnId + ' in a grid, but no path was set.', 'error');
-        return false;
-      }
-      let j = 0;
-      let s = false;
-      while (this.pawnPaths[pawnId].length && j < steps) {
-        j++;
-        s = this.pawnPaths[pawnId].shift();
-      }
-      if (s)
-        this.pawnIndices[pawnId] = s.index;
-      return s;
-    }
-  }
-
-  /**
-   * Moves the pawn to the first space. Creates pawn if necessary.
-   */
-  movePawnToStart(pawnId) {
-    this.pawnIndices[pawnId] = this.getStartSpaceIndex();
-  }
-
-  /**
-   * Moves the pawn to the last space. Creates pawn if necessary.
-   */
-  movePawnToEnd(pawnId) {
-    this.pawnIndices[pawnId] = this.spaces.length - 1;
-  }
-
-  /**
-   * Tells whether the pawn is at the first space.
-   */
-  isAtStart(pawnId) {
-    return (this.pawnIndices[pawnId] === this.getStartSpaceIndex());
-  }
-
-  /**
-   * Tells whether the pawn is at the last space.
-   */
-  isAtEnd(pawnId) {
-    return (this.pawnIndices[pawnId] === this.spaces.length - 1);
+  // Returns the start space for the track, defaulting to the first space.
+  getStartSpace() {
+    if (!this.startSpaceId)
+      return this.spaces[this.spaceMapping[this.startSpaceId]];
+    return this.spaces[0];
   }
 
   /**
@@ -204,105 +113,46 @@ class Track {
    * false if none is found.
    */
   getSpace(property, value) {
-    if (property == 'id')
+    if (property == 'id') {
+      if (this.spaceMapping[value] === undefined) {
+        throw('Tried to get space with id ' + value + ' but no such space exist on track + ' + this.id + '.');
+      }
       return this.spaces[this.spaceMapping[value]];
-    return pickAllFromObjectArray(this.spaces, property, value, false);
-  }
-
-  /**
-   * Returns the track index for the first space matching the
-   * given property:value, or false if none is found.
-   */
-  getSpaceIndex(property, value) {
-    for (let i in this.spaces) {
-      if (this.spaces[i][property] == value)
-        return i;
     }
-    return false;
+    return pickFromObjectArray(this.spaces, property, value, false);
   }
 
   /**
-   * Returns an array of all pawn IDs at a given track index.
+   * Gets the pawn with the specified ID. Creates the pawn if myTrack.assumePresent is true.
    */
-  getPawnsAtIndex(index) {
-    let pawnIds = [];
-    for (let p in this.pawnIndices) {
-      if (this.pawnIndices[p] == index)
-        pawnIds.push(p);
+  getPawn(pawnId) {
+    if (this.pawns[pawnId] === undefined) {
+      if (this.assumePresent) {
+        return new Pawn({id: pawnId}, this);
+      }
+      throw('Tried to get pawn ' + pawnId + ' but no such pawn exist on track + ' + this.id + '.');
     }
-    return pawnIds;
+    return this.pawns[pawnId];
   }
 
   /**
-   * Moves a pawn to the first space matching property:value. Creates
-   * the pawn if necessary.
+   * Returns an array with the shortest path from start to goal space, excluding start space.
+   * Returns false if the path could be built.
    */
-  moveToSpace(pawnId, property, value) {
-    let i = this.getSpaceIndex(property, value);
-    if (i < 0)
-      throw('Cannot move ' + pawnId + ' to a space matching ' + property + ':' + value + '. No such space.');
-    this.pawnIndices[pawnId] = i;
-  }
-
-  /**
-   * Moves a pawn a number of steps towards a space. Populates path for the pawn if necessary.
-   * Returns the new space for the pawn.
-   */
-  moveTowards(pawnId, goalSpaceId, steps = 1) {
-    if (!this.gridMovement)
-      throw('Cannot use "moveTowards" on track ' + this.id + '. It does not have grid movement enabled.');
-    if (this.buildPath(pawnId, goalSpaceId))
-      return this.movePawn(pawnId, steps);
-    return false;
-  }
-
-  /**
-   * Builds a path for the given pawn to the given space.
-   * Returns true if the path could be built, otherwise false. The path path is only
-   * updated if the path could be built -- otherwise it is left untouched.
-   */
-  buildPath(pawnId, goalSpaceId) {
+  buildPath(startSpaceId, goalSpaceId) {
     if (!this.gridMovement)
       throw('Cannot use "buildPath" on track ' + this.id + '. It does not have grid movement enabled.');
-    let path = this.pawnPaths[pawnId] || [];
-    // Check if the current path already is set to the given goal.
-    if (path.length && path[path.length - 1].id == goalSpaceId)
-      return true;
-    // Check if the goal is somewhere inside the given path.
-    for (let i in path) {
-      if (path[i].id == goalSpaceId) {
-        path.splice(i + 1);
-        this.pawnPaths[pawnId] = path;
-        return true;
-      }
-    }
+    let path = [];
 
-    let startSpaceIndex = this.getPawnSpace(pawnId).index;
-    let goalSpaceIndex = this.getSpace('id', goalSpaceId).index;
+    let startSpaceIndex = this.spaceMapping[startSpaceId];
+    let goalSpaceIndex = this.spaceMapping[goalSpaceId];
     path = aStar(this.graph, this.heuristic, startSpaceIndex, goalSpaceIndex);
     if (!path)
       return false;
-    path.shift(); // The first space is where the pawn currently is.
+    path.shift(); // The first space is the starting space.
     for (let i in path)
       path[i] = this.spaces[path[i]];
-    this.pawnPaths[pawnId] = path;
-    return true;
-  }
-
-  /**
-   * Calls any resolver set for the pawn's space.
-   * Any arguments after the pawn ID will be sent to the resolver.
-   * The space needs to have a the property 'resolver' set and a corresponding
-   * method must be placed in modules[module].resolvers.spaces.
-   * Note that resolver also can be called from space.resolve().
-   */
-  resolve(pawnId) {
-    let space = this.getPawnSpace(pawnId);
-    if (!space)
-      return false;
-
-    let args = parseArguments(arguments, 1);
-    return callResolver('spaces', space.resolver, ...args);
+    return path;
   }
 }
 
@@ -311,8 +161,13 @@ class Track {
  */
 class Space {
   /**
-   * @param {Object} spaceData: Any propery:value pairs that should be added to the card.
+   * @param {Object} spaceData: Any propery:value pairs that should be added to the space.
    * @param {Track} track: A track object, to which the space should be added.
+   * Some special properties for spaceData:
+   *    - connectsTo: A space ID or an array of IDs, to which the space connects. Only relevant if
+   *      the track.gridMovement is true.
+   *    - resolver: Name of a method in the spaceResolver object. Called
+   *      through track.resolve(pawnId).
    */
   constructor(spaceData, track) {
     if (!track instanceof Track)
@@ -335,11 +190,174 @@ class Space {
   }
 
   /**
+   * Returns an array of all pawns (objects) at the space.
+   */
+  getAllPawns() {
+    let pawns = [];
+    for (let i in this.track.pawns) {
+      if (this.track.pawns[i].space && this.track.pawns[i].space.id == this.id)
+        pawns.push(this.track.pawns[i]);
+    }
+    return pawns;
+  }
+
+  /**
    * Passes on work to any resolver function declared for the space, along
    * with any parameters. Spaces needs to have a the property 'resolver' set
    * and a corresponding method must be placed in modules[module].resolvers.spaces.
    */
   resolve() {
     return callResolver('spaces', this.resolver, ...arguments);
+  }
+}
+
+/**
+ * Class for managing pawns on tracks.
+ */
+class Pawn {
+  /**
+   * @param {Object} pawnData: Any propery:value pairs that should be added to the pawn.
+   * @param {Track} track: A track object, to which the pawn should be added.
+   * Some special properties for pawnData:
+   *    - startSpaceId: The ID for the space where the pawn should start. Defaults to the
+   *      track's starting space.
+   */
+  constructor(pawnData, track) {
+    if (!track instanceof Track)
+      throw('Pawns must be added to a proper track.');
+
+    Object.assign(this, spaceData);
+    if (this.id === undefined)
+      throw('Pawns must have an id property set.');
+    // Add the track name + pawn to any agent matching the pawn id.
+    for (let a of gameState.agents) {
+      if (this.id == a.id)
+        a[track.id].pawn = this;
+    }
+
+    this.track = track;
+    this.track.pawns[this.id] = this;
+
+    if (!this.startSpaceId && this.startSpaceId !== 0) {
+      this.startSpaceId = this.track.getStartSpace().id;
+    }
+    this.startSpace = this.track.getSpace('id', this.startSpaceId);
+    this.space = this.startSpace;
+    this.path = [];
+  }
+
+  /**
+   * Sets the pawn on the given space and returns the space.
+   */
+  setSpace(spaceId) {
+    let space = this.track.getSpace('id', spaceId);
+    this.space = space;
+    return space;
+  }
+
+  /**
+   * Moves the pawn to its start space.
+   */
+  moveToStart() {
+    this.space = this.startSpace;
+  }
+
+  /**
+   * Moves the pawn to the last space.
+   */
+  moveToEnd(pawnId) {
+    this.space = this.track.spaces[this.track.spaces.length - 1];
+  }
+
+  /**
+   * Tells whether the pawn is at the first space.
+   */
+  isAtStart() {
+    return (this.space.id === this.startSpace.id);
+  }
+
+  /**
+   * Tells whether the pawn is at the last space.
+   */
+  isAtEnd() {
+    return (this.space.index === this.track.spaces.length - 1);
+  }
+
+  /**
+   * Moves the pawn a number of steps on the track. Returns the resulting space.
+   * If grid movement is enabled, the pawn moves towards the set goal space, .
+   */
+  move(steps = 1) {
+    // The one-dimensional plain movement.
+    if (!this.gridMovement) {
+      let i = this.space.index;
+      // Move up or down the track, but not beyond its edges.
+      if (this.loop) {
+        // A bit awkward computation here, to bypass negative remainders.
+        steps = steps % this.spaces.length + this.spaces.length;
+        i = (i + steps) % this.spaces.length;
+      }
+      else 
+        i = Math.max(0, Math.min(i + steps, this.spaces.length - 1));
+      this.space = this.track.spaces[i];
+      return this.space;
+    }
+    // Movement in grid.
+    else {
+      if (!this.path || !this.path.length) {        
+        log('Tried to move pawn ' + pawnId + ' in a grid, but no path was set.', 'error');
+        return false;
+      }
+      let i = 0;
+      while (this.path.length && i < steps) {
+        i++;
+        this.space = this.path.shift();
+      }
+      return this.space;
+    }
+  }
+
+  /**
+   * Moves a pawn a number of steps towards a space. Populates path for the pawn if necessary.
+   * Returns the new space for the pawn. Can only be used when grid movement is active.
+   */
+  moveTowards(goalSpaceId, steps = 1) {
+    if (!this.track.gridMovement)
+      throw('Cannot use "moveTowards" on track ' + this.track.id + '. It does not have grid movement enabled.');
+
+    // Check if the current path already is set to the given goal.
+    let pathFound = false;
+    if (this.path.length && this.path[this.path.length - 1].id == goalSpaceId) {
+      pathFound = true;
+    }
+    // Check if the goal is somewhere inside the given path.
+    for (let i in this.path) {
+      if (this.path[i].id == goalSpaceId) {
+        this.path.splice(i + 1);
+        pathFound = true;
+      }
+    }
+
+    // Build a new path, if necessary. (Note that this is an expensive call.)
+    if (!pathFound) {
+      let path = this.track.buildPath(this.space.id, goalSpaceId);
+      if (path)
+        this.path = path;
+      else
+        return false;
+    }
+    return this.move(steps);
+  }
+
+  /**
+   * Calls any resolver set for the pawn's space. Any arguments will be sent to the resolver.
+   * The space needs to have a the property 'resolver' set and a corresponding method must
+   * be placed in modules[module].resolvers.spaces. Note that resolver also can be called from
+   * space.resolve().
+   */
+  resolve() {
+    if (!this.space)
+      return false;
+    return this.space.resove(...arguments);
   }
 }
