@@ -1,6 +1,14 @@
 # Using the Bot Playtesting Toolkit
 
-The Bot Playtesting Toolkit (BPT) is built as scripts to run with [Google spreadsheets](https://sheets.google.com/). Any large amount of data used by your game, for example data for cards, player stats, and board/map layout, can be kept in spreadsheets. This is complemented by code, written in the coding environment that comes with Google spreadsheets. The Bot Playtesting Toolkit consists of a framework and number of pre-made tools to use. You complement this by writing a so-called _module_, that BPT calls when simulating games. You will have to write quite a bit of code, depending on how complex your game is, but you will also note that BPT saves you a lot of time and also helps you keep the code well structured.
+If you model a board game with a computer program you will have to keep track of a lot of data describing how things in the game evolve – often called the **game state**. The program also has to know the **game rules**, such as how turn order works, when players are allowed to draw cards and how to determine when the game is over. In many cases it is also useful to talk about **game content**, such as effects of special cards and tiles, particular things that happen on certain spaces on the board, and things like that. (One could argue that game content from a theoretical point of view is just an extension of the game rules, but when modeling a board game it is useful to separate the two.)
+
+Moreover: If your model should approximate humans playing the game in some realistic way, you need to have some kind of playing **strategy** implemented in the program. The rules tell how the game state ticks forward, but it does not tell what choices the players make.
+
+Writing all this code can be fun and inspiring, but it also has potential to take a lot of time and cause frustration. The **Bot Playtesting Tookit** helps reducing the things you need to code, and also helps keeping a nice structure on the code you write.
+
+The Bot Playtesting Toolkit (BPT) is built as scripts to run with [Google spreadsheets](https://sheets.google.com/). A lot of data for the game content can be kept and managed in spreadsheets, for example data for cards and player stats. Some of the data-heavy rules can also go into the spreadsheets, such as and board/map layout and data for game resources and things you can buy or build with them. This is complemented by code describing the game rules, written in the coding environment that comes with Google spreadsheets. The toolkit has designated functionality for writing player strategies, which is done in a way that makes it easy to swap one strategy for another. On top of that, the Bot Playtesting Toolkit gives you some nice functionality for logging messages and also takes care of some things outside the game model such as running a lot of game iterations plus storing and displaying statistics from the games.
+
+The game-specific code is kept in a so-called _module_, making it easier to update the Bot Playtesting Toolkit without having to rewrite your own code.
 
 ## Getting started
 
@@ -18,16 +26,16 @@ If you like the Bot Playtesting Toolkit, and are used to working with version co
 The Bot Playtesting Toolkit follows the overall flow described below when simulating games. At each step it calls some particular functions that hold the code that is specific for your game.
 
 1. Some global variables are set up, mostly being empty. Which module (game) to use is determined, as well as how many iterations to run.
-2. A 'seed' for the initial game state is stored. The seed is built by the function `buildInitialData()`, to a large degree by reading information from the spreadsheet. The function can also store any information that does not change within or between games in the global variables.
-3. A first game session is prepared. Some parts of the initial game state seed are processed automatically, and any extra preparations are done by the function `preIteration()`. After this, the global variable `gameState` holds all the information of the game.
-4. The function `gameOver()` is called. If it returns false, the toolkit notes that a new round starts and calls `playRound()`. Then it runs step 4 in this list again, until the game is over.
-5. When the game is finished, `buildStatistics()` is called. This returns any data from `gameState` that should be used for statistics over all the games.
-6. If the required number of game iterations has not yet been reached, the toolkit goes back to step 3 in this list.
-7. When all game iterations are done, the stored data is processed and displayed.
+2. A 'seed' for the initial game state is stored. The seed is built by the function `buildInitialData()`, to a large degree by reading information from the spreadsheet. The function can also store any information that does not change within or between games in the `global` variable.
+3. A first game session is prepared. Some parts of the initial game state seed are processed automatically, and any extra preparations are done by the function `preIteration()`. After this, the global variable `gameState` holds all the information of the game. The content of this object will be read and changed throughout the game iteration, representing how the game changes.
+4. The function `gameOver()` is called.
+  * If it returns `false`, the game is _on_. The toolkit notes that a new round starts and calls `playRound()`, which is responsible for all the things happening to the game state while the game goes on. Then step 4 is run again.
+  * If `gameOver()` returns `true`, this game iteration is finished.
+7. When the game is over, `buildStatistics()` is called. This processes and collects any data from `gameState` that should be used for statistics over all the games, and returns it to the toolkit.
+8. If the required number of game iterations has not yet been reached, the toolkit goes back to step 3 in this list.
+9. When all game iterations are done, the stored data is processed and displayed with averages, selected percentiles and also the percentile where values go above zero.
 
-The code you write to run your game is stored in a _module_. This has two points. One is that the toolkit itself can be updated and changed without you having to rewrite your code, and the other is that it makes it possible to quickly switch between two versions of your game if you want to compare them.
-
-The module needs the following.
+The code you write to run your game is stored in a _module_. The module needs the following.
 
 * An entry in the module object, for example `modules.example1 = {}`.
 * An entry in the actual module for each of the functions mentioned above, such as `modules.example1.buildInitialData = function() {...}`.
@@ -38,4 +46,4 @@ Which module to use is set when calling the `simulate` function. Calling `simula
 
 ## Why Google spreadsheet?
 
-Building BPT on Google spreadsheet brings some limitations, not least a maximum 30 seconds execution time. But it lowers the threshold for getting started. There might be a future version of BPT written in Python (or something else) and is run locally on your computer, allowing long execution times and both reading and saving data to files.
+Building BPT on Google spreadsheet brings some limitations, not least a maximum 30 seconds execution time. But it lowers the threshold for getting started. There might be a future version of BPT written in Python (or something else) and is run locally on your computer, allowing long execution times and more flexibility in how to read and output data.
