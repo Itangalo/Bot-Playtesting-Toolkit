@@ -29,16 +29,16 @@ The Bot Playtesting Toolkit follows the overall flow described below when simula
 2. A 'seed' for the initial game state is stored. The seed is built by the function `buildInitialData()`, to a large degree by reading information from the spreadsheet. The function can also store any information that does not change within or between games in the `global` variable.
 3. A first game session is prepared. Some parts of the initial game state seed are processed automatically, and any extra preparations are done by the function `preIteration()`. After this, the global variable `gameState` holds all the information of the game. The content of this object will be read and changed throughout the game iteration, representing how the game changes.
 4. The function `gameOver()` is called. If it returns `false`, the game is _on_. The toolkit notes that a new round starts and calls `playRound()`, which is responsible for all the things happening to the game state while the game goes on. Then step 4 is run again. If `gameOver()` returns `true`, this game iteration is finished.
-7. When the game is over, `buildStatistics()` is called. This processes and collects any data from `gameState` that should be used for statistics over all the games, and returns it to the toolkit.
+7. When the game is over, `buildStatistics()` is called. This function processes and collects any data from the game state that should be used for statistics, and returns it to the toolkit.
 8. If the required number of game iterations has not yet been reached, the toolkit goes back to step 3 in this list.
 9. When all game iterations are done, the stored data is processed and displayed with averages, selected percentiles and also the percentile where values go above zero.
 
 The code you write to run your game is stored in a _module_. The module needs the following.
 
-* An entry in the module object, for example `modules.example1 = {}`.
-* An entry in the actual module for each of the functions mentioned above, such as `modules.example1.buildInitialData = function() {...}`.
+* An entry in the module object, for example `modules.myModule = {}`.
+* An entry in the actual module for each of the functions mentioned above, such as `modules.myModule.buildInitialData = function() {...}`.
 
-BPT comes with (currently) two example modules, which help show how modules can be built and stored in a number of files to help navigating the code even when it grows. You could copy the files from one of these examples as a starting point.
+The Bot Playtesting Toolkit currently comes with two example modules, which help show how modules can be built and stored in a number of files to help navigating the code even when it grows. You could copy the files from one of these examples as a starting point.
 
 Which module to use is set when calling the `simulate` function. Calling `simulate('myModule', 1000)`, for example, will run 1000 simulations of the game in `myModule`. If the simulate function is called from the spreadsheet, the result is output in the spreadsheet. If it is called from the coding environment, the result and log messages are displayed in the log window.
 
