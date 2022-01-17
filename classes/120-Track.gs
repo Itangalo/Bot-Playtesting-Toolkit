@@ -46,6 +46,7 @@ class Track {
     }
     this.rebuild();
 
+    this.pawns = {};
     if (pawnsDataArray) {
       for (let p of pawnsDataArray)
         this.constructPawn(p);
@@ -79,7 +80,7 @@ class Track {
     this.spaceMapping = {};
     for (let i in this.spaces) {
       this.spaceMapping[this.spaces[i].id] = i;
-      this.spaces[i].index = i;
+      this.spaces[i].index = parseInt(i);
     }
   }
 
@@ -103,16 +104,20 @@ class Track {
 
   // Returns the start space for the track, defaulting to the first space.
   getStartSpace() {
-    if (!this.startSpaceId)
+    if (this.startSpaceId)
       return this.spaces[this.spaceMapping[this.startSpaceId]];
     return this.spaces[0];
   }
 
   /**
    * Returns the first space matching the given property:value, or
-   * false if none is found.
+   * false if none is found. If only one argument is provided, it is assumed to be ID.
    */
   getSpace(property, value) {
+    if (value === undefined) {
+      value = property;
+      property = 'id';
+    }
     if (property == 'id') {
       if (this.spaceMapping[value] === undefined) {
         throw('Tried to get space with id ' + value + ' but no such space exist on track + ' + this.id + '.');
@@ -144,8 +149,8 @@ class Track {
       throw('Cannot use "buildPath" on track ' + this.id + '. It does not have grid movement enabled.');
     let path = [];
 
-    let startSpaceIndex = this.spaceMapping[startSpaceId];
-    let goalSpaceIndex = this.spaceMapping[goalSpaceId];
+    let startSpaceIndex = parseInt(this.spaceMapping[startSpaceId]);
+    let goalSpaceIndex = parseInt(this.spaceMapping[goalSpaceId]);
     path = aStar(this.graph, this.heuristic, startSpaceIndex, goalSpaceIndex);
     if (!path)
       return false;
@@ -185,7 +190,7 @@ class Space {
         this.connectsTo = [this.connectsTo];
     }
 
-    this.index = track.spaces.length;
+    this.index = track.spaces.length || 0;
     track.spaces.push(this);
   }
 
@@ -226,7 +231,7 @@ class Pawn {
     if (!track instanceof Track)
       throw('Pawns must be added to a proper track.');
 
-    Object.assign(this, spaceData);
+    Object.assign(this, pawnData);
     if (this.id === undefined)
       throw('Pawns must have an id property set.');
     // Add the track name + pawn to any agent matching the pawn id.
@@ -289,16 +294,20 @@ class Pawn {
    */
   move(steps = 1) {
     // The one-dimensional plain movement.
-    if (!this.gridMovement) {
-      let i = this.space.index;
-      // Move up or down the track, but not beyond its edges.
-      if (this.loop) {
-        // A bit awkward computation here, to bypass negative remainders.
-        steps = steps % this.spaces.length + this.spaces.length;
-        i = (i + steps) % this.spaces.length;
+    if (!this.track.gridMovement) {
+      let i = this.space.index + steps;
+      while (i < 0) {
+        if (this.track.loop)
+          i += this.track.spaces.length;
+        else
+          i = 0;
       }
-      else 
-        i = Math.max(0, Math.min(i + steps, this.spaces.length - 1));
+      while (i >= this.track.spaces.length) {
+        if (this.track.loop)
+          i -= this.track.spaces.length;
+        else
+          i = this.track.spaces.length - 1;
+      }
       this.space = this.track.spaces[i];
       return this.space;
     }

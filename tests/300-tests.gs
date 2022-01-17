@@ -6,6 +6,7 @@
  */
 
 function runTests() {
+  global.testRunning = true;
   let errors = [];
   log('== TEST RESULTS ==', 'tests');
   for (let i in tests) {
@@ -253,35 +254,52 @@ tests.track.basic = function() {
   let track = new Track(tData, sData);
 
   let ok = false;
-  let space = {};
-  try {space = track.movePawn('test');} // This should fail.
+  let pawn = false;
+  try {pawn = track.getPawn('pawn1');} // This should fail.
   catch (error) {ok = true;}
   finally {
     if (!ok) return 'Pawns are incorrectly assumed to be present on the track.';
   }
   track.assumePresent = true;
-  space = track.movePawn('test');
-  if (space.index != 1)
-    return 'Setting assumePresent does not work correctly.';
-  space = track.movePawn('test', 10);
-  if (space.index != 11)
-    return 'Moving multiple steps does not work correctly.';
-  space = track.movePawn('test', 100);
-  if (space.index != 60)
+  pawn = track.getPawn('pawn1');
+  if (pawn.space.index != 0) {
+    return 'Pawn is not set on start space when created.';
+  }
+  pawn.move();
+  if (pawn.space.index != 1)
+    return 'Default movement on tracks does not work properly.';
+  pawn.move(2);
+  if (pawn.space.index != 3)
+    return 'Multi-step movement on tracks does not work properly.';
+  pawn.move(-1);
+  if (pawn.space.index != 2)
+    return 'Moving backwards on the track does not work properly.';
+  pawn.move(100);
+  if (pawn.space.index != 60)
     return 'Pawn does not stop at end of track correctly.';
-  space = track.movePawn('test', -1);
-  if (space.index != 59)
-    return 'Pawn does not move backwards correctly.';
-  space = track.movePawn('test', -100);
-  if (space.index != 0)
+  pawn.move(-100);
+  if (pawn.space.index != 0)
     return 'Pawn does not stop at start of track correctly.';
   track.loop = true;
-  space = track.movePawn('test', 62);
-  if (space.index != 1)
+  pawn.move(62);
+  if (pawn.space.index != 1)
     return 'Pawn does not loop correctly.';
-  space = track.movePawn('test', -2);
-  if (space.index != 60)
+  pawn.move(-2)
+  if (pawn.space.index != 60)
     return 'Pawn does not loop backwards correctly.';
+  track.startSpaceId = '5x5';
+  pawn = track.getPawn('pawn2');
+  if (pawn.space.id != '5x5')
+    return 'Pawn start space is not inherited from track correctly.';
+  pawn = track.constructPawn({id: 'pawn3', startSpaceId: '9x1'});
+  if (pawn.space.id != '9x1')
+    return 'Pawn start space is not taken from pawnData correctly.';
+  pawn.setSpace('5x5');
+  let space = track.getSpace('5x5');
+  if (space.id != '5x5')
+    return 'getSpace fails.';
+  if (space.getAllPawns().length != 2)
+    return 'getAllPawns does not pick up all pawns on the space.';
 };
 tests.track.gridMovement = function() {
   let tData = buildObjectFromLine('testData', 'K6:K8');
@@ -294,23 +312,24 @@ tests.track.gridMovement = function() {
   if (track.graph[1][0] != 1)
     return 'Symmetric connections are not created correctly.';
   
-  track.setPawnSpace('test', '5x1');
-  track.buildPath('test', '5x5');
-  if (track.pawnPaths['test'].length != 7)
+  let pawn = track.getPawn('test');
+  pawn.setSpace('5x1');
+  pawn.path = track.buildPath(pawn.space.id, '5x5');
+  if (pawn.path.length != 7)
     return 'Paths are not built correctly.';
-  let space = track.movePawn('test', 2);
-  if (space.id != '5x3')
+  pawn.move(2);
+  if (pawn.space.id != '5x3')
     return 'Movements do not return new pawn space correctly.';
-  if (track.pawnPaths['test'].length != 5)
+  if (pawn.path.length != 5)
     return 'Movements do not shorten the paths correctly.';
-  space = track.movePawn('test', 10);
-  if (space.id != '5x5')
+  pawn.move(10);
+  if (pawn.space.id != '5x5')
     return 'Movements do not stop on the end of the path correctly.';
-  space = track.moveTowards('test', '1x1', 3);
-  if (space.id != '4x4' || track.pawnPaths['test'].length != 5)
+  pawn.moveTowards('1x1', 3);
+  if (pawn.space.id != '4x4' || pawn.path.length != 5)
     return 'MoveTowards does not update path correctly.'
-  space = track.moveTowards('test', '5x7', 3);
-  if (space !== false || track.pawnPaths['test'].length != 5)
+  let path = pawn.moveTowards('5x7', 3);
+  if (path !== false || pawn.path.length != 5)
     return 'Unreachable targets updates path, which it should not.';
 };
 
