@@ -1,3 +1,5 @@
+# Functions a module must include
+
 Modules, containing any specific code to run for a game, are added to the object `modules`, for example `modules.myModule = {}`.
 
 The Bot Playtesting Toolkit expects some functions in a module. These functions should be added to the individual module objects, for example `modules.myModule.buildInitialData = function() {...}`.
