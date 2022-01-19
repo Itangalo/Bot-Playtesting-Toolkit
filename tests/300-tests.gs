@@ -354,6 +354,10 @@ tests.track.gridMovement = function() {
   spaces = space.getSpacesWithinRange(2, true, 'other');
   if (spaces[3] != 39)
     return 'getSpacesWithinRange does not return space index when told to.';
+  space = track.getSpace('5x7');
+  spaces = space.getSpacesWithinRange(Number.POSITIVE_INFINITY, true);
+  if (spaces.length != 1)
+    return 'getSpacesWithinRange does not terminate when the search rim is empty.';
 };
 
 tests.market = {};

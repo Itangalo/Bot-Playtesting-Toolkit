@@ -227,12 +227,13 @@ class Space {
     // Build a list of the spaces at the rim of the search, and a list of all found spaces.
     let spaces = [[this.index]];
     let allSpaces = [this.index];
+    let spacesToAdd = [true];
 
     let i = 0;
-    while (i < steps) {
+    while (i < steps && spacesToAdd.length) {
       // Check spaces at the rim of the search.
       let spacesToCheck = spaces[spaces.length - 1];
-      let spacesToAdd = [];
+      spacesToAdd = [];
       for (let s of spacesToCheck) {
         for (let newSpace in this.track.graph[s]) {
           // Only include connected spaces, and only those that have not already been visited.
