@@ -135,6 +135,8 @@ class Track {
       if (this.assumePresent) {
         return new Pawn({id: pawnId}, this);
       }
+      if (global.debugRunning)
+        return false;
       throw('Tried to get pawn ' + pawnId + ' but no such pawn exist on track + ' + this.id + '.');
     }
     return this.pawns[pawnId];
@@ -204,6 +206,60 @@ class Space {
         pawns.push(this.track.pawns[i]);
     }
     return pawns;
+  }
+
+  /**
+   * Returns all spaces within distance 'steps' from a space. Only used in grid tracks.
+   * The 'flat' return is an array with all spaces. The unflat return is an array with
+   * spaces keyed by their distance to the space, eg. [[30], [31], [22, 39]]. Note that
+   * the unflattened return can be used to get all spaces on a certain distance, eg.
+   * getSpacesWithinRange(2)[2] contains all spaces 2 steps from the starting space.
+   * 
+   * @param {Number} steps: The range to search within. Starting space is on distance 0.
+   *    Defaults to 1.
+   * @param {boolean} flatten: Whether to flatten the return array or not. Defaults to false.
+   * @param {string} returnType: How the returned spaces should be represented – 'object',
+   *    'id' or 'index'. Defaults to 'object'.
+   */
+  getSpacesWithinRange(steps = 1, flatten = false, returnType = 'object') {
+    if (!this.track.gridMovement)
+      throw('Cannot use search for spaces within range on track ' + this.id + '. It does not have grid movement enabled.');
+    // Build a list of the spaces at the rim of the search, and a list of all found spaces.
+    let spaces = [[this.index]];
+    let allSpaces = [this.index];
+
+    let i = 0;
+    while (i < steps) {
+      // Check spaces at the rim of the search.
+      let spacesToCheck = spaces[spaces.length - 1];
+      let spacesToAdd = [];
+      for (let s of spacesToCheck) {
+        for (let newSpace in this.track.graph[s]) {
+          // Only include connected spaces, and only those that have not already been visited.
+          if (this.track.graph[s][newSpace] && !allSpaces.includes(parseInt(newSpace)))
+            spacesToAdd.push(parseInt(newSpace));
+        }
+      }
+      // Add a new rim to the search. Take another step.
+      spaces.push(spacesToAdd);
+      allSpaces.push(...spacesToAdd);
+      i++;
+    }
+
+    // Process the indices to return the proper results.
+    if (flatten) {
+      if (returnType == 'object')
+        return allSpaces.map(s => this.track.spaces[s]);
+      if (returnType == 'id')
+        return allSpaces.map(s => this.track.spaces[s].id);
+      return allSpaces;
+    }
+    let output = [];
+    if (returnType == 'object')
+      for (let i of spaces) output.push(i.map(s => this.track.spaces[s]));
+    if (returnType == 'id')
+      for (let i of spaces) output.push(i.map(s => this.track.spaces[s].id));
+    return output;
   }
 
   /**

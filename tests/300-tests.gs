@@ -5,6 +5,12 @@
  * going slowly it _might_ help to delete this file.
  */
 
+// Wrapper to allow skipping some intentional errors when debugging.
+function debugTests() {
+  global.debugRunning = true;
+  runTests();
+}
+
 function runTests() {
   global.testRunning = true;
   setInitialDefaults();
@@ -260,7 +266,7 @@ tests.track.basic = function() {
   try {pawn = track.getPawn('pawn1');} // This should fail.
   catch (error) {ok = true;}
   finally {
-    if (!ok) return 'Pawns are incorrectly assumed to be present on the track.';
+    if (!ok && !global.debugRunning) return 'Pawns are incorrectly assumed to be present on the track.';
   }
   track.assumePresent = true;
   pawn = track.getPawn('pawn1');
@@ -335,6 +341,19 @@ tests.track.gridMovement = function() {
   let path = pawn.moveTowards('5x7', 3);
   if (path !== false || pawn.path.length != 5)
     return 'Unreachable targets updates path, which it should not.';
+  
+  space = track.getSpace('5x5');
+  let spaces = space.getSpacesWithinRange(2);
+  if (spaces.length != 3 || spaces[2].length != 2)
+    return 'getSpacesWithinRange does not find spaces correctly.';
+  spaces = space.getSpacesWithinRange(2, true, 'id');
+  if (spaces.length != 4)
+    return 'getSpacesWithinRange does not flatten spaces list correctly.';
+  if (spaces[3] != '6x5')
+    return 'getSpacesWithinRange does not return ids when told to.';
+  spaces = space.getSpacesWithinRange(2, true, 'other');
+  if (spaces[3] != 39)
+    return 'getSpacesWithinRange does not return space index when told to.';
 };
 
 tests.market = {};
