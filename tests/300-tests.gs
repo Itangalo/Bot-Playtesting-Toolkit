@@ -325,6 +325,8 @@ tests.track.gridMovement = function() {
   pawn.move(10);
   if (pawn.space.id != '5x5')
     return 'Movements do not stop on the end of the path correctly.';
+  if (pawn.move(-1) !== false)
+    return 'Backwards movement are not blocked in grid tracks.';
   pawn.moveTowards('1x1', 3);
   if (pawn.space.id != '4x4' || pawn.path.length != 5)
     return 'MoveTowards does not update path correctly.'

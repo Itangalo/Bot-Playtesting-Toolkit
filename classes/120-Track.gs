@@ -236,8 +236,11 @@ class Pawn {
       throw('Pawns must have an id property set.');
     // Add the track name + pawn to any agent matching the pawn id.
     for (let a of gameState.agents) {
-      if (this.id == a.id)
+      if (this.id == a.id) {
+        if (a[track.id] === undefined)
+          a[track.id] = {};
         a[track.id].pawn = this;
+      }
     }
 
     this.track = track;
@@ -314,7 +317,11 @@ class Pawn {
     // Movement in grid.
     else {
       if (!this.path || !this.path.length) {        
-        log('Tried to move pawn ' + pawnId + ' in a grid, but no path was set.', 'error');
+        log('Tried to move pawn ' + this.id + ' in a grid, but no path was set.', 'error');
+        return false;
+      }
+      if (steps < 0) {
+        log('Tried to move pawn ' + pawnId + ' ' + steps + ' steps, but backwards movement in grid is not possible.', 'error');
         return false;
       }
       let i = 0;
