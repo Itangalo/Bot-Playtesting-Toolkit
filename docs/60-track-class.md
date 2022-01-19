@@ -138,6 +138,16 @@ Gets the pawn with the specified ID. Creates the pawn if `myTrack.assumePresent 
 
 Returns an _array_ of all pawns (objects) at the space.
 
+### mySpace.getSpacesWithinRange()
+
+`mySpace.getSpacesWithinRange(steps, flatten = false, returnType = 'object')`
+
+**Only used in grid tracks.** Returns all spaces within distance `steps` from a space. The 'flat' return is an array with all spaces. The unflat return is an array with spaces keyed by their distance to the space, eg. `[[30], [31], [22, 39]]`. Note that the unflattened return can be used to get all spaces on a certain distance, eg. `getSpacesWithinRange(2)[2]` are all spaces 2 steps from the starting space.
+
+The search distance is given by `steps`, defaulting to 1.
+The `flatten` argument tells whether to flatten the return array or not. Defaults to false.
+The `returnType` argument tells how the returned spaces should be represented: 'object' gives them as Space objects (default), 'id' gives them as IDs, and 'index' (or anything else) gives the index numbers as used in `myTrack.spaces`.
+
 ### mySpace.resolve()
 
 `mySpace.resolve(...arguments)`
