@@ -11,67 +11,19 @@
  */
 
 // Initiate some global variables.
-var global = {
-  defaults: {
-    module: 'example1',
-    iterations: 100,
-    logging : {
-      categories: {
-        rounds: true,
-        notice: true,
-        example: true,
-        statistics: true,
-        tests: true,
-        system: true,
-        errors: true,
-      },
-      showTimestamps: true,
-    },
-    statistics: {
-      percentiles: [0, .05, .15, .50, .85, .95, 1],
-    },
-    deck: {
-      shuffleWhenCreated: true,
-      addDiscardWhenShuffling: true,
-      displaySize: 0,
-      autoFillDisplay: true,
-    },
-    track: {
-      assumePresent: true,
-      startSpaceId: false,
-      loop: false,
-      gridMovement: false,
-      symmetricConnections: true,
-    },
-    market: {
-      restockOnlyIncreases: true,
-    },
-    goods: {
-      quantity: Number.POSITIVE_INFINITY,
-      maxQuantity: Number.POSITIVE_INFINITY,
-    },
-    diceRoll: {
-      quantity: 3,
-      numberOfSides: 6,
-      customSides: false,
-    },
-  },
-}; // Further populated by buildInitialData().
+var global = {}; // Further populated by buildInitialData().
 var modules = {}; // Populated by custom code.
-var module = global.defaults.module;
+var module;
 var gameState = {};
 global.startTime = Date.now();
 
 function simulate(iterations = false, mod = false) {
+  // Set global default values.
+  setInitialDefaults();
+
   // Set which module (game simulation) to run.
   if (mod !== false)
     module = mod;
-
-  // Apply default settings for logging and statistics.
-  Object.assign(global.defaults.logging, global.logging);
-  global.logging = global.defaults.logging;
-  Object.assign(global.defaults.statistics, global.statistics);
-  global.statistics = global.defaults.statistics;
 
   log('Starting to build initial data.', 'system');
   let gameStateSeed = modules[module].buildInitialData();

@@ -7,10 +7,7 @@
 
 function runTests() {
   global.testRunning = true;
-  Object.assign(global.defaults.logging, global.logging);
-  global.logging = global.defaults.logging;
-  Object.assign(global.defaults.statistics, global.statistics);
-  global.statistics = global.defaults.statistics;
+  setInitialDefaults();
 
   let errors = [];
   log('== TEST RESULTS ==', 'tests');
