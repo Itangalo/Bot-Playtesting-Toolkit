@@ -28,25 +28,6 @@ modules.example1.buildInitialData = function() {
    * or something else that does not change in or between games.
    */
 
-  // These properties are used by the board game scripting tools.
-  // They may be changed, but not removed.
-  global.defaults.iterations = 100;
-  global.logging = {
-    // Only message types set to true will be printed in the log.
-    // Feel free to add more categories.
-    categories: {
-      rounds: true,
-      notice: true,
-      example: true,
-      statistics: true,
-      tests: true,
-      system: true,
-      errors: true,
-    },
-    // If true, log messages will also show how long time has passed since the script started.
-    showTimestamps: true,
-  };
-  global.percentilesForStatistics = [0, .05, .15, .50, .85, .95, 1];
 
   /**
    * Build object describing initial game state.

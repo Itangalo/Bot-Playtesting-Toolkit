@@ -14,6 +14,22 @@
 var global = {
   defaults: {
     module: 'example1',
+    iterations: 100,
+    logging : {
+      categories: {
+        rounds: true,
+        notice: true,
+        example: true,
+        statistics: true,
+        tests: true,
+        system: true,
+        errors: true,
+      },
+      showTimestamps: true,
+    },
+    statistics: {
+      percentiles: [0, .05, .15, .50, .85, .95, 1],
+    },
     deck: {
       shuffleWhenCreated: true,
       addDiscardWhenShuffling: true,
@@ -50,6 +66,12 @@ function simulate(iterations = false, mod = false) {
   // Set which module (game simulation) to run.
   if (mod !== false)
     module = mod;
+
+  // Apply default settings for logging and statistics.
+  Object.assign(global.defaults.logging, global.logging);
+  global.logging = global.defaults.logging;
+  Object.assign(global.defaults.statistics, global.statistics);
+  global.statistics = global.defaults.statistics;
 
   log('Starting to build initial data.', 'system');
   let gameStateSeed = modules[module].buildInitialData();
