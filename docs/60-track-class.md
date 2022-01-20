@@ -128,11 +128,33 @@ Returns the first space matching `property:value`, or `false` if none is found. 
 
 Gets the pawn with the specified ID. Creates the pawn if `myTrack.assumePresent == true` and the pawn does not already exist.
 
+### myTrack.convertSpaceData()
+
+`myTrack.convertSpaceData(spaceData, inputFormat = 'index', outputFormat = 'object')`
+
+Takes an array with space data and returns the spaces converted to another format.
+
+`spaceData`: The array with space data.
+`inputFormat`: The type of data in spaceData. Either 'index' (default), 'id' or 'object'.
+`outputFormat`: The type of data to output. Either 'object' to return the full Space objects, or the name of a property (also 'id' and 'index') to return the values of that property. Defaults to 'object'.
+
 ### myTrack.buildPath()
 
 `myTrack.buildPath(startSpaceId, goalSpaceId)`
 
 **Only used in grid movement.** Builds the shortest path from startSpaceId to goalSpaceId and returns it as an array of spaces starting from the space _after_ the given space and ending on the goal space. Returns `false` if a path could not be found.
+
+### myTrack.getSpacesWithinRange()
+
+`myTrack.getSpacesWithinRange(originSpaceIndices, steps = 1, flatten = false, returnType = 'object', requirement = false)`
+
+**Only used in grid movement.** Returns all spaces within distance `steps` from some given origin spaces. The `flat` return is an array with all spaces. The unflat return is an array with spaces keyed by their distance to the space, eg. `[['A'], ['B'], ['C', 'D']]` where 'A' is origin space, 'B' adjacent to 'A' and 'C' & 'D' two steps from 'A'. Note that the unflattened return can be used to get all spaces on a certain distance, eg. myTrack.getSpacesWithinRange(2)[2] contains all spaces 2 steps from the origin spaces.
+
+`originSpaces`: The spaces to start the search from. An array of _indexes_ for these spaces, as used in myTrack.spaces.
+`steps`: The range to search within. Origin spaces are on distance 0. Defaults to 1.
+`flatten`: Whether to flatten the return array or not. Defaults to false.
+`returnType`: How the returned spaces should be represented – 'object', 'id' or 'index', or a name of a property on the spaces. Defaults to 'object'.
+`requirement`: Any requirement set here on the format {property:myProperty, value:requiredValue} will restrict the searched spaces. Defaults to false (no restriction).
 
 ### mySpace.getAllPawns()
 
@@ -140,13 +162,29 @@ Returns an _array_ of all pawns (objects) at the space.
 
 ### mySpace.getSpacesWithinRange()
 
-`mySpace.getSpacesWithinRange(steps, flatten = false, returnType = 'object')`
+`mySpace.getSpacesWithinRange(steps = 1, flatten = false, returnType = 'object', requirement = false)`
 
-**Only used in grid tracks.** Returns all spaces within distance `steps` from a space. The 'flat' return is an array with all spaces. The unflat return is an array with spaces keyed by their distance to the space, eg. `[[30], [31], [22, 39]]`. Note that the unflattened return can be used to get all spaces on a certain distance, eg. `getSpacesWithinRange(2)[2]` are all spaces 2 steps from the starting space.
+**Only used in grid tracks.** Returns all spaces within distance `steps` from a space. The 'flat' return is an array with all spaces. The unflat return is an array with spaces keyed by their distance to the space, eg. `[['A'], ['B'], ['C', 'D']]` where 'A' is origin space, 'B' adjacent to 'A' and 'C' & 'D' two steps from 'A'. Note that the unflattened return can be used to get all spaces on a certain distance, eg. `getSpacesWithinRange(2)[2]` are all spaces 2 steps from the starting space. The `requirement` argument can be set to {property:myProperty, value:requiredValue} to restrict the searched spaces.
+
+See also `mySpace.getMatchingSpacesWithinRange()` and `myTrack.getSpacesWithinRange()`.
 
 The search distance is given by `steps`, defaulting to 1.
 The `flatten` argument tells whether to flatten the return array or not. Defaults to false.
-The `returnType` argument tells how the returned spaces should be represented: 'object' gives them as Space objects (default), 'id' gives them as IDs, and 'index' (or anything else) gives the index numbers as used in `myTrack.spaces`.
+The `returnType` argument tells how the returned spaces should be represented: 'object' gives them as Space objects (default), 'id' gives them as IDs, and 'index'  gives the index numbers as used in `myTrack.spaces`. Can also be set to any property on the spaces to return the property values.
+
+### mySpace.getMatchingSpacesWithinRange()
+
+`mySpace.getMatchingSpacesWithinRange(property, value, steps = Number.POSITIVE_INFINITY, flatten = true, returnType = 'object')`
+
+An alias for `mySpace.getSpacesWithinRange()` to make it easier to return all connected spaces with a certain property value. Note that the initial space is returned regardless of match.
+
+See `mySpace.getSpacesWithinRange()` for a closer description.
+
+`property`: The property on the space objects to put requirement on.
+`value`: The value to match in the selected property.
+`steps`: Any restriction on the distance. Defaults to infinity.
+`flatten`: Whether to return a flat array or an array keyed by distance. Defaults to true (flat array).
+`returnType`: How the returned spaces should be represented – 'object', 'id' or 'index', or a name of a property on the spaces. Defaults to 'object'.
 
 ### mySpace.resolve()
 
