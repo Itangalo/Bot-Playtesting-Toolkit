@@ -31,7 +31,7 @@ function processResults(results) {
   // Header row
   let message = 'DISTRIBUTION: average (percentile ';
   let values = [];
-  for (let p of global.percentilesForStatistics) {
+  for (let p of global.statistics.percentiles) {
     values.push(p);
   }
   message += values.join(' | ') + ')\r\n---\r\n';
@@ -40,7 +40,7 @@ function processResults(results) {
     message += i + ': ';
     message += average(sortedResults[i]).toFixed(2) + ' (';
     values = [];
-    for (let p of global.percentilesForStatistics) {
+    for (let p of global.statistics.percentiles) {
       values.push(percentile(sortedResults[i], p).toFixed(2));
     }
     message += values.join(' | ') + ') Non-zero at ';
@@ -67,7 +67,7 @@ function processResults(results) {
     output[2].push(getNonZeroThreshold(sortedResults[i]));
   }
   // Percentiles
-  for (let p of global.percentilesForStatistics) {
+  for (let p of global.statistics.percentiles) {
     let line = ['percentile ' + p];
     for (let i in sortedResults) {
       line.push(percentile(sortedResults[i], p));

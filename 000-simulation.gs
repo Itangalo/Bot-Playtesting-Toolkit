@@ -11,42 +11,16 @@
  */
 
 // Initiate some global variables.
-var global = {
-  defaults: {
-    module: 'example1',
-    deck: {
-      shuffleWhenCreated: true,
-      addDiscardWhenShuffling: true,
-      displaySize: 0,
-      autoFillDisplay: true,
-    },
-    track: {
-      assumePresent: true,
-      startSpaceId: false,
-      loop: false,
-      gridMovement: false,
-      symmetricConnections: true,
-    },
-    market: {
-      restockOnlyIncreases: true,
-    },
-    goods: {
-      quantity: Number.POSITIVE_INFINITY,
-      maxQuantity: Number.POSITIVE_INFINITY,
-    },
-    diceRoll: {
-      quantity: 3,
-      numberOfSides: 6,
-      customSides: false,
-    },
-  },
-}; // Further populated by buildInitialData().
+var global = {}; // Further populated by buildInitialData().
 var modules = {}; // Populated by custom code.
-var module = global.defaults.module;
+var module;
 var gameState = {};
 global.startTime = Date.now();
 
 function simulate(iterations = false, mod = false) {
+  // Set global default values.
+  setInitialDefaults();
+
   // Set which module (game simulation) to run.
   if (mod !== false)
     module = mod;
@@ -55,18 +29,18 @@ function simulate(iterations = false, mod = false) {
   let gameStateSeed = modules[module].buildInitialData();
   log('Initial data complete.', 'system');
 
-  // Variable used to save data from each game iteration.
-  let results = [];
-  // Start iterating game plays.
+  /**
+   * Start iterating game plays.
+   */
+  let results = []; // Variable used to save data from each game iteration.
   if (!iterations)
     iterations = global.defaults.iterations;
   for (let iteration = 1; iteration <= iterations; iteration++) {
-    log('Starting iteration ' + iteration, 'system');
-    gameState = copy(gameStateSeed);
-
     /**
      * Set up each game.
      */
+    log('Starting iteration ' + iteration, 'system');
+    gameState = copy(gameStateSeed);
     // Set up agents, if any. Note that these are stored in an array,
     // not keyed by id, to allow setting and changing order.
     if (gameState.agents) {
@@ -85,7 +59,7 @@ function simulate(iterations = false, mod = false) {
     if (gameState.tracks) {
       delete (gameState.tracks);
       for (let o of gameStateSeed.tracks) {
-        new Track(o.track, o.spaces);
+        new Track(o.track, o.spaces, o.pawns);
       }
     }
     if (gameState.markets) {
@@ -98,7 +72,9 @@ function simulate(iterations = false, mod = false) {
     // Make any customized additional processing of the game state.
     modules[module].preIteration();
 
-    // Play the game until it is over.
+    /**
+     * Play the game until it is over.
+     */
     gameState.round = 0;
     log('Starting first round in iteration ' + iteration, 'system');
     while (!modules[module].gameOver()) {
@@ -113,5 +89,8 @@ function simulate(iterations = false, mod = false) {
     results.push(modules[module].buildStatistics());
   }
 
+  /**
+   * Display the processed results.
+   */
   return processResults(results);
 }

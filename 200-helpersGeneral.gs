@@ -477,6 +477,20 @@ function getHighestProperty(obj) {
   return selectRandom(properties);
 }
 
+// Returns the cartesian distance between point A and B, using the coordinates provided
+// in the 'coordinates' array. If B is false, distance to the origin (0) will be returned.
+function getDistance(pointA, pointB = false, coordinates) {
+  if (!pointB) {
+    pointB = {};
+    for (let c in coordinates)
+      pointB[c] = 0;
+  }
+  let a = 0;
+  for (let c of coordinates)
+    a += Math.pow(pointA[c] - pointB[c], 2);
+  return Math.sqrt(a);
+}
+
 /**
  * Internally used helper functions.
  */

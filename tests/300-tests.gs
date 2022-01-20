@@ -5,7 +5,16 @@
  * going slowly it _might_ help to delete this file.
  */
 
+// Wrapper to allow skipping some intentional errors when debugging.
+function debugTests() {
+  global.debugRunning = true;
+  runTests();
+}
+
 function runTests() {
+  global.testRunning = true;
+  setInitialDefaults();
+
   let errors = [];
   log('== TEST RESULTS ==', 'tests');
   for (let i in tests) {
@@ -253,39 +262,73 @@ tests.track.basic = function() {
   let track = new Track(tData, sData);
 
   let ok = false;
-  let space = {};
-  try {space = track.movePawn('test');} // This should fail.
+  let pawn = false;
+  try {pawn = track.getPawn('pawn1');} // This should fail.
   catch (error) {ok = true;}
   finally {
-    if (!ok) return 'Pawns are incorrectly assumed to be present on the track.';
+    if (!ok && !global.debugRunning) return 'Pawns are incorrectly assumed to be present on the track.';
   }
   track.assumePresent = true;
-  space = track.movePawn('test');
-  if (space.index != 1)
-    return 'Setting assumePresent does not work correctly.';
-  space = track.movePawn('test', 10);
-  if (space.index != 11)
-    return 'Moving multiple steps does not work correctly.';
-  space = track.movePawn('test', 100);
-  if (space.index != 60)
+  pawn = track.getPawn('pawn1');
+  if (pawn.space.index != 0) {
+    return 'Pawn is not set on start space when created.';
+  }
+  pawn.move();
+  if (pawn.space.index != 1)
+    return 'Default movement on tracks does not work properly.';
+  pawn.move(2);
+  if (pawn.space.index != 3)
+    return 'Multi-step movement on tracks does not work properly.';
+  pawn.move(-1);
+  if (pawn.space.index != 2)
+    return 'Moving backwards on the track does not work properly.';
+  pawn.move(100);
+  if (pawn.space.index != 60)
     return 'Pawn does not stop at end of track correctly.';
-  space = track.movePawn('test', -1);
-  if (space.index != 59)
-    return 'Pawn does not move backwards correctly.';
-  space = track.movePawn('test', -100);
-  if (space.index != 0)
+  pawn.move(-100);
+  if (pawn.space.index != 0)
     return 'Pawn does not stop at start of track correctly.';
   track.loop = true;
-  space = track.movePawn('test', 62);
-  if (space.index != 1)
+  pawn.move(62);
+  if (pawn.space.index != 1)
     return 'Pawn does not loop correctly.';
-  space = track.movePawn('test', -2);
-  if (space.index != 60)
+  pawn.move(-2)
+  if (pawn.space.index != 60)
     return 'Pawn does not loop backwards correctly.';
+  track.startSpaceId = '5x5';
+  pawn = track.getPawn('pawn2');
+  if (pawn.space.id != '5x5')
+    return 'Pawn start space is not inherited from track correctly.';
+  pawn = track.constructPawn({id: 'pawn3', startSpaceId: '9x1'});
+  if (pawn.space.id != '9x1')
+    return 'Pawn start space is not taken from pawnData correctly.';
+  pawn.setSpace('5x5');
+  let space = track.getSpace('5x5');
+  if (space.id != '5x5')
+    return 'getSpace fails.';
+  if (space.getAllPawns().length != 2)
+    return 'getAllPawns does not pick up all pawns on the space.';
+};
+tests.track.convertions = function() {
+  let tData = buildObjectFromLine('testData', 'K6:K8');
+  let sData = buildObjectArrayFromRows('testData', 'L2:N63');
+  let track = new Track(tData, sData);
+  let spaces = [0, 1, 2, 3];
+  spaces = track.convertSpaceData(spaces);
+  if (spaces.length != 4)
+    return 'convertSpaceData returns wrong number of spaces.';
+  if (spaces[0].index != 0)
+    return 'convertSpaceData does not by default convert from index to object.';
+  spaces = track.convertSpaceData(spaces, 'object', 'id');
+  if (spaces[0] != '1x1')
+    return 'convertSpaceData does not convert to id correctly.';
+  spaces = track.convertSpaceData(spaces, 'id', 'region');
+  if (spaces[0] != 'woodland')
+    return 'convertSpaceData does not convert to property values correctly.';
 };
 tests.track.gridMovement = function() {
   let tData = buildObjectFromLine('testData', 'K6:K8');
-  let sData = buildObjectArrayFromRows('testData', 'L2:M63');
+  let sData = buildObjectArrayFromRows('testData', 'L2:N63');
   let track = new Track(tData, sData);
   if (track.spaces[0].connectsTo[0] != '1x2')
     return 'Space connections are not properly turned into arrays.';
@@ -294,24 +337,83 @@ tests.track.gridMovement = function() {
   if (track.graph[1][0] != 1)
     return 'Symmetric connections are not created correctly.';
   
-  track.setPawnSpace('test', '5x1');
-  track.buildPath('test', '5x5');
-  if (track.pawnPaths['test'].length != 7)
+  let pawn = track.getPawn('test');
+  pawn.setSpace('5x1');
+  pawn.path = track.buildPath(pawn.space.id, '5x5');
+  if (pawn.path.length != 7)
     return 'Paths are not built correctly.';
-  let space = track.movePawn('test', 2);
-  if (space.id != '5x3')
+  pawn.move(2);
+  if (pawn.space.id != '5x3')
     return 'Movements do not return new pawn space correctly.';
-  if (track.pawnPaths['test'].length != 5)
+  if (pawn.path.length != 5)
     return 'Movements do not shorten the paths correctly.';
-  space = track.movePawn('test', 10);
-  if (space.id != '5x5')
+  pawn.move(10);
+  if (pawn.space.id != '5x5')
     return 'Movements do not stop on the end of the path correctly.';
-  space = track.moveTowards('test', '1x1', 3);
-  if (space.id != '4x4' || track.pawnPaths['test'].length != 5)
+  if (pawn.move(-1) !== false)
+    return 'Backwards movement are not blocked in grid tracks.';
+  pawn.moveTowards('1x1', 3);
+  if (pawn.space.id != '4x4' || pawn.path.length != 5)
     return 'MoveTowards does not update path correctly.'
-  space = track.moveTowards('test', '5x7', 3);
-  if (space !== false || track.pawnPaths['test'].length != 5)
+  let path = pawn.moveTowards('5x7', 3);
+  if (path !== false || pawn.path.length != 5)
     return 'Unreachable targets updates path, which it should not.';
+  
+  space = track.getSpace('5x5');
+  let spaces = space.getSpacesWithinRange(2);
+  if (spaces.length != 3 || spaces[2].length != 2)
+    return 'getSpacesWithinRange does not find spaces correctly.';
+  spaces = space.getSpacesWithinRange(2, true, 'id');
+  if (spaces.length != 4)
+    return 'getSpacesWithinRange does not flatten spaces list correctly.';
+  if (spaces[3] != '6x5')
+    return 'getSpacesWithinRange does not return ids when told to.';
+  spaces = space.getSpacesWithinRange(2, true, 'index');
+  if (spaces[3] != 39)
+    return 'getSpacesWithinRange does not return space index when told to.';
+  space = track.getSpace('5x7');
+  spaces = space.getSpacesWithinRange(Number.POSITIVE_INFINITY, true);
+  if (spaces.length != 1)
+    return 'getSpacesWithinRange does not terminate when the search rim is empty.';
+  space = track.getSpace('1x1');
+  spaces = space.getSpacesWithinRange(Number.POSITIVE_INFINITY, true, 'object', {property:'region', value:'woodland'});
+  if (spaces.length != 12)
+    return 'Search restrictions do not work properly on getSpacesWithinRange';
+  spaces = space.getMatchingSpacesWithinRange('region', 'woodland');
+  if (spaces.length != 12)
+    return 'getMatchingSpacesWithinRange does not work properly.';
+  space = track.getSpace('3x4');
+  spaces = space.getMatchingSpacesWithinRange('region', 'city');
+  if (spaces.length != 8)
+    return 'getMatchingSpacesWithinRange does not include first space regardless of restrictions.';
+};
+tests.track.lineOfSight = function() {
+  let tData = buildObjectFromLine('testData', 'K66:K71');
+  let sData = buildObjectArrayFromRows('testData', 'L65:O73');
+  let track = new Track(tData, sData);
+  let spaceA = track.getSpace('1x1');
+  let spaceB = track.getSpace('3x1');
+  if (track.lineOfSight(spaceA, spaceB) === false)
+    return 'lineOfSight says false for trivial line of sights.';
+  spaceB = track.getSpace('3x3');
+  if (track.lineOfSight(spaceA, spaceB) === true)
+    return 'lineOfSight says true when sight is fully blocked.';
+  spaceB = track.getSpace('1x3');
+  let points = track.pointHalfCircleDistribution(spaceA, spaceB);
+  if (!compareObjects(points[0][2], {x:1, y:1.5}))
+    return 'pointHalfCircleDistribution are not directed from A to B.';
+  if (!compareObjects(points[1][2], {x:1, y:2.5}))
+    return 'pointHalfCircleDistribution are not directed from B to A.';
+  spaceB = track.getSpace('3x2');
+  if (track.lineOfSight(spaceA, spaceB) === true)
+    return 'lineOfSight says true when checking only center points, and these are blocked.';
+  points = track.pointHalfCircleDistribution(spaceA, spaceB);
+  if (track.lineOfSight(spaceA, spaceB, points) === false)
+    return 'lineOfSight does not detect lines going from space edges.';
+  spaceA = track.getSpace('1x2');
+  points = track.pointHalfCircleDistribution(spaceA, spaceB);
+  if (track.lineOfSight(spaceA, spaceB) === true)
+    return 'lineOfSight says true when checking lines from space edges that should be blocked.';
 };
 
 tests.market = {};
