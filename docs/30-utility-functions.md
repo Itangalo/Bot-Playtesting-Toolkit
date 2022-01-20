@@ -147,3 +147,9 @@ If `lowest` and `highest` are set, only values between these limits are included
 `getHighestProperty(obj)`
 
 Looks through all numerical properties of an object and returns the property with the highest numerical value. If several have the highest value, a random of these are returned. Note that it is the property _name_ that is returned, not the value.
+
+### getDistance()
+
+`getDistance(pointA, pointB = false, coordinates)`
+
+Returns the distance between point A and B using the coordinates provided in the 'coordinates' array, eg. `['x', 'y']`. If B is omitted, distance to the origin (0) will be returned. The points should be objects on the form `{x: 1, y: 3}` but could have other properties too.
