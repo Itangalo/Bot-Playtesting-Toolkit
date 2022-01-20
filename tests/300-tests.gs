@@ -399,7 +399,7 @@ tests.track.lineOfSight = function() {
   if (track.lineOfSight(spaceA, spaceB) === true)
     return 'lineOfSight says true when sight is fully blocked.';
   spaceB = track.getSpace('1x3');
-  let points = pointHalfCircleDistribution(spaceA, spaceB);
+  let points = track.pointHalfCircleDistribution(spaceA, spaceB);
   if (!compareObjects(points[0][2], {x:1, y:1.5}))
     return 'pointHalfCircleDistribution are not directed from A to B.';
   if (!compareObjects(points[1][2], {x:1, y:2.5}))
@@ -407,11 +407,11 @@ tests.track.lineOfSight = function() {
   spaceB = track.getSpace('3x2');
   if (track.lineOfSight(spaceA, spaceB) === true)
     return 'lineOfSight says true when checking only center points, and these are blocked.';
-  points = pointHalfCircleDistribution(spaceA, spaceB);
+  points = track.pointHalfCircleDistribution(spaceA, spaceB);
   if (track.lineOfSight(spaceA, spaceB, points) === false)
     return 'lineOfSight does not detect lines going from space edges.';
   spaceA = track.getSpace('1x2');
-  points = pointHalfCircleDistribution(spaceA, spaceB);
+  points = track.pointHalfCircleDistribution(spaceA, spaceB);
   if (track.lineOfSight(spaceA, spaceB) === true)
     return 'lineOfSight says true when checking lines from space edges that should be blocked.';
 };

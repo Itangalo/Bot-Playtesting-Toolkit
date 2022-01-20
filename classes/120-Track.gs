@@ -260,10 +260,12 @@ class Track {
    * a circle just encompassing the space. Spaces must also have coordinates matching the properties
    * specified in myTrack.coordinates.
    * 
-   * @param {Space} spaceA: The space in which pointA is located.
-   * @param {Space} spaceB: The space in which pointB is located.
-   * @param {object} pointA: Object with coordinates for point A, for example {x: 1, y: 1}.
-   * @param {object} pointB: Object with coordinates for point B.
+   * @param {Space} spaceA: The origin space for the line of sight.
+   * @param {Space} spaceB: The target space for the line of sight.
+   * @param {array} points: If provided, listed points will be used instead of center points in spaces.
+   *    Should be on the form [pointsA, pointsB] where each entry is an array on the form [{x: 1, y: 3}, ...]
+   *    (with the coordinate names used by the track). PointsA should describe points within the origin
+   *    space while pointsB describes points within the target space. @see pointHalfCircleDistribution().
    */
   lineOfSight(spaceA, spaceB, points = false) {
     let pointsA = [];
@@ -325,6 +327,47 @@ class Track {
         }
       }
     }
+  }
+
+  /**
+   * Returns a number of points inside spaces, distributed on a half circle. Used for line of sight.
+   * 
+   * The spaces must have the property rInner, describing the radius of circle that fits inside the space.
+   * The returned points are distributed on such a half-circle inside each space, and rotated so the
+   * half circle is facing the other space. Only works in two dimensions.
+   * 
+   * @param {Space} spaceA: The first space to create points within.
+   * @param {Space} spaceB: The second space to create points within.
+   * @param {Number} numberOfPoints: The number of points to plot. At least 2, defaults to 5.
+   * 
+   * @return An array on the form [pointsA, pointsB], where each entry in itself is an array of
+   *    points on the form {x: 1, y: 3}, depending on names of track coordinates.
+   */
+  pointHalfCircleDistribution(spaceA, spaceB, numberOfPoints = 5) {
+    if (this.coordinates.length != 2)
+      throw('pointHalfCircleDistribution can only be used on two-dimensional tracks.');
+
+    numberOfPoints = Math.max(2, numberOfPoints);
+    let x = this.coordinates[0];
+    let y = this.coordinates[1];
+    let ray = {};
+    ray[x] = spaceB[x] - spaceA[x];
+    ray[y] = spaceB[y] - spaceA[y];
+    let angle = Math.atan2(ray[y], ray[x]);
+
+    let pointsA = [];
+    let pointsB = [];
+    for (let n = -.5; n <= .5; n += 1/(numberOfPoints-1)) {
+      let point1 = {};
+      point1[x] = spaceA[x] + spaceA.rInner * Math.cos(angle + Math.PI*n);
+      point1[y] = spaceA[y] + spaceA.rInner * Math.sin(angle + Math.PI*n);
+      pointsA.push(point1);
+      let point2 = {};
+      point2[x] = spaceB[x] - spaceB.rInner * Math.cos(angle + Math.PI*n);
+      point2[y] = spaceB[y] - spaceB.rInner * Math.sin(angle + Math.PI*n);
+      pointsB.push(point2);
+    }
+    return [pointsA, pointsB];
   }
 }
 
