@@ -14,7 +14,7 @@ The game-specific code is kept in a so-called _module_, making it easier to upda
 
 If you want to try out BPT, these are good steps:
 
-1. Make a [copy of the BPT spreadsheet template](https://docs.google.com/spreadsheets/d/1th2cLbP2dsRSXDcuKXcXCbjZoqWsHN50OytRchdzmls/copy). It includes all the scripts for BPT, as well as two example modules.
+1. Make a [copy of the BPT spreadsheet template (v. 1.1)](https://docs.google.com/spreadsheets/d/1wcwaAObd1OWYRdVYv3rwrDhSMPyVNb9Pysy7xcBsOws/copy). It includes all the scripts for BPT, as well as two example modules.
 2. In the _extensions_ menu, click _apps script_ to open the coding environment. You will now see a lot of files in the left sidebar and some JavaScript code in the main window.
 3. In the first file (already selected), click the _run_ button. This will run a simulation of the game _example1_, but more importantly it will open a dialogue where you can approve that the script reads from your Google spreadsheets. (This is required to be able to read from data from the spreadsheet, and there was no way of restricting access to only the current sheet. Sorry.)
 4. Start experimenting. You will want to look in the examples files, as well as in the documentation here in the wiki.
