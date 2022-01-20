@@ -64,6 +64,12 @@ If the property `gridMovement` is set to `true`, the track will not be treated a
 
 If the property `symmetricConnections` is set to `true`, any connections between spaces are assumed to go both ways. This will reduce how much data needed for building the track/space information. The setting is only relevant for tracks using grid movement. Defaults to `true`.
 
+The property `coordinates` can be set to an array of strings, such as `['x', 'y']` to tell Bot Playtesting Toolkit what space properties hold coordinates for the space. (Such coordinates are assumed to describe the _center_ of the space.) Coordinates can be used for checking distances and also line of sight.
+
+The properties `rInner` and `rOuter` are used when checking line of sight between spaces. They can be set to describe radii of circles _fitting within_ (rInner) or _enclosing_ (rOuter) spaces. These properties are inherited by spaces and may be overridden on individual spaces.
+
+The property `lineOfSightStepFraction` is used when checking line of sight between spaces. It can be set to a value greater than 0 and no bigger than 1, to tell `lineOfSight()` how large steps to take when tracking a line between points. The fraction defaults to `.1` and will be multiplied by `rOuter` when applied.
+
 `myTrack.spaces` contains an array of all spaces on the track.
 
 `myTrack.pawns` contains an object with all pawns on the track, keyed by their id.
@@ -155,6 +161,30 @@ Takes an array with space data and returns the spaces converted to another forma
 `flatten`: Whether to flatten the return array or not. Defaults to false.
 `returnType`: How the returned spaces should be represented – 'object', 'id' or 'index', or a name of a property on the spaces. Defaults to 'object'.
 `requirement`: Any requirement set here on the format {property:myProperty, value:requiredValue} will restrict the searched spaces. Defaults to false (no restriction).
+
+### myTrack.lineOfSight()
+
+`myTrack.lineOfSight(spaceA, spaceB, points = false)`
+
+Does an estimation of whether there is a line of sight between two spaces, returning `true` if there is a line and otherwise `false`. By default, center coordinates for the spaces are used. These can be overridden by the `points` argument, which should be on the form `[pointsA, pointsB]`, where each entry in itself is an array of points on the form `{x: 1, y: 3}` (or some other coordinates the track is using). PointsA should describe points within the origin space while pointsB describes points within the target space. If multiple points are provided, `lineOfSight` will check if _any combination_ of A and B points has a valid line of sight. Providing a lot of points can thus slow down execution.
+
+This function requires that spaces have coordinates set with names matching `myTrack.coordinates`, and also the property `rOuter`.
+
+See also `myTrack.pointHalfCircleDistribution()`.
+
+### myTrack.pointHalfCircleDistribution()
+
+`myTrack.pointHalfCircleDistribution(spaceA, spaceB, numberOfPoints = 5)`
+
+Used for line of sight. Returns a number of points inside space A and B, distributed on a half circle.
+
+The spaces must have the property `rInner`, describing the radius of circle that fits inside the space. The returned points are distributed on such a half-circle inside each space, and also rotated so the half circle is facing the other space. Only works in two dimensions.
+
+`spaceA`: The first space (object) to create points within. Represents the origin for the line of sight.
+`spaceB`: The second space (object) to create points within. Represents the target for the line of sight.
+`numberOfPoints`: The number of points to plot on the half circle. At least 2, defaults to 5.
+
+The return value is an array on the form `[pointsA, pointsB]`, where each entry in itself is an array of points on the form {x: 1, y: 3}, depending on names of track coordinates. The points can be fed to `myTrack.lineOfSight()`.
 
 ### mySpace.getAllPawns()
 
