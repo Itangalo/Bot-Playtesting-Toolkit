@@ -309,9 +309,26 @@ tests.track.basic = function() {
   if (space.getAllPawns().length != 2)
     return 'getAllPawns does not pick up all pawns on the space.';
 };
+tests.track.convertions = function() {
+  let tData = buildObjectFromLine('testData', 'K6:K8');
+  let sData = buildObjectArrayFromRows('testData', 'L2:N63');
+  let track = new Track(tData, sData);
+  let spaces = [0, 1, 2, 3];
+  spaces = track.convertSpaceData(spaces);
+  if (spaces.length != 4)
+    return 'convertSpaceData returns wrong number of spaces.';
+  if (spaces[0].index != 0)
+    return 'convertSpaceData does not by default convert from index to object.';
+  spaces = track.convertSpaceData(spaces, 'object', 'id');
+  if (spaces[0] != '1x1')
+    return 'convertSpaceData does not convert to id correctly.';
+  spaces = track.convertSpaceData(spaces, 'id', 'region');
+  if (spaces[0] != 'woodland')
+    return 'convertSpaceData does not convert to property values correctly.';
+};
 tests.track.gridMovement = function() {
   let tData = buildObjectFromLine('testData', 'K6:K8');
-  let sData = buildObjectArrayFromRows('testData', 'L2:M63');
+  let sData = buildObjectArrayFromRows('testData', 'L2:N63');
   let track = new Track(tData, sData);
   if (track.spaces[0].connectsTo[0] != '1x2')
     return 'Space connections are not properly turned into arrays.';
@@ -351,13 +368,24 @@ tests.track.gridMovement = function() {
     return 'getSpacesWithinRange does not flatten spaces list correctly.';
   if (spaces[3] != '6x5')
     return 'getSpacesWithinRange does not return ids when told to.';
-  spaces = space.getSpacesWithinRange(2, true, 'other');
+  spaces = space.getSpacesWithinRange(2, true, 'index');
   if (spaces[3] != 39)
     return 'getSpacesWithinRange does not return space index when told to.';
   space = track.getSpace('5x7');
   spaces = space.getSpacesWithinRange(Number.POSITIVE_INFINITY, true);
   if (spaces.length != 1)
     return 'getSpacesWithinRange does not terminate when the search rim is empty.';
+  space = track.getSpace('1x1');
+  spaces = space.getSpacesWithinRange(Number.POSITIVE_INFINITY, true, 'object', {property:'region', value:'woodland'});
+  if (spaces.length != 12)
+    return 'Search restrictions do not work properly on getSpacesWithinRange';
+  spaces = space.getMatchingSpacesWithinRange('region', 'woodland');
+  if (spaces.length != 12)
+    return 'getMatchingSpacesWithinRange does not work properly.';
+  space = track.getSpace('3x4');
+  spaces = space.getMatchingSpacesWithinRange('region', 'city');
+  if (spaces.length != 8)
+    return 'getMatchingSpacesWithinRange does not include first space regardless of restrictions.';
 };
 
 tests.market = {};

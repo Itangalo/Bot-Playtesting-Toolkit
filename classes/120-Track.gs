@@ -143,6 +143,39 @@ class Track {
   }
 
   /**
+   * Takes an array with space data and converts it to another format.
+   * 
+   * @param {array} spaceData: The array with space data.
+   * @param {string} inputFormat: The type of data in spaceData. Either 'index' (default)
+   *    'id' or 'object'.
+   * @param {string} outputFormat: The type of data to output. Either 'object' to return
+   *    the full space objects, or the name of a property (also 'id' and 'index') to return
+   *    that property value. Defaults to 'object'.
+   */
+  convertSpaceData(spaceData, inputFormat = 'index', outputFormat = 'object') {
+    // Validate input format.
+    if (!['index', 'id', 'object'].includes(inputFormat))
+      throw('Cannot convert space data. ' + inputFormat + ' is not a valid input format.');
+
+    // Two special cases that are handled quicker than the general case.
+    if (inputFormat == outputFormat)
+      return spaceData;
+    if (inputFormat == 'id' && outputFormat == 'index') {
+      return spaceData.map(x => this.spaceMapping[x]);
+    }
+    // Convert the input data to the space objects.
+    let output = spaceData;
+    if (inputFormat == 'index')
+      output = spaceData.map(x => this.spaces[x]);
+    if (inputFormat == 'id')
+      output = spaceData.map(x => this.spaces[this.spaceMapping[x]]);
+    // Return the selected property, or the full object.
+    if (outputFormat == 'object')
+      return output;
+    return output.map(x => x[outputFormat]);
+  }
+
+  /**
    * Returns an array with the shortest path from start to goal space, excluding start space.
    * Returns false if the path could be built.
    */
@@ -160,6 +193,60 @@ class Track {
     for (let i in path)
       path[i] = this.spaces[path[i]];
     return path;
+  }
+
+  /**
+   * Returns all spaces within distance 'steps' from some given origin spaces. Only used in grid
+   * tracks. The 'flat' return is an array with all spaces. The unflat return is an array with
+   * spaces keyed by their distance to the space, eg. [['A'], ['B'], ['C', 'D']] where 'A'
+   * is origin space, 'B' adjacent to 'A' and 'C' & 'D' two steps from 'A'. Note that
+   * the unflattened return can be used to get all spaces on a certain distance, eg.
+   * getSpacesWithinRange(2)[2] contains all spaces 2 steps from the origin spaces.
+   * 
+   * @param {array} originSpaces: The spaces to start the search from. An array of _indexes_
+   *    for these spaces, as used in myTrack.spaces.
+   * @param {Number} steps: The range to search within. Origin spaces are on distance 0.
+   *    Defaults to 1.
+   * @param {boolean} flatten: Whether to flatten the return array or not. Defaults to false.
+   * @param {string} returnType: How the returned spaces should be represented – 'object',
+   *    'id' or 'index', or a name of a property on the spaces. Defaults to 'object'.
+   * @param {object} requirement: Any requirement set here on the format
+   *    {property:myProperty, value:requiredValue} will restrict the searched spaces.
+   *    Defaults to false (no restriction). @see getMatchingSpacesWithinRange().
+   */
+  getSpacesWithinRange(originSpaceIndices, steps = 1, flatten = false, returnType = 'object', requirement = false) {
+    if (!this.gridMovement)
+      throw('Cannot use search for spaces within range on track ' + this.id + '. It does not have grid movement enabled.');
+    // Build a list of the spaces at the rim of the search, and a list of all found spaces.
+    let spaces = [originSpaceIndices];
+    let allSpaces = originSpaceIndices;
+    let spacesToAdd = originSpaceIndices;
+
+    let i = 0;
+    while (i < steps && spacesToAdd.length) {
+      // Check spaces at the rim of the search.
+      let spacesToCheck = spaces[spaces.length - 1];
+      spacesToAdd = [];
+      for (let s of spacesToCheck) {
+        for (let newSpace in this.graph[s]) {
+          // Only include connected spaces, and only those that have not already been checked.
+          if (this.graph[s][newSpace] && !allSpaces.includes(parseInt(newSpace)) && !spacesToAdd.includes(parseInt(newSpace))) {
+            if (!requirement || this.spaces[newSpace][requirement.property] == requirement.value)
+              spacesToAdd.push(parseInt(newSpace));
+          }
+        }
+      }
+      // Add a new rim to the search. Take another step.
+      spaces.push(spacesToAdd);
+      allSpaces.push(...spacesToAdd);
+      i++;
+    }
+
+    // Return flat or non-flat results, in the proper format.
+    if (flatten) {
+      return this.convertSpaceData(allSpaces, 'index', returnType);
+    }
+    return spaces.map(x => this.convertSpaceData(x, 'index', returnType));
   }
 }
 
@@ -209,58 +296,40 @@ class Space {
   }
 
   /**
-   * Returns all spaces within distance 'steps' from a space. Only used in grid tracks.
+   * Returns all spaces within distance 'steps' from the space. Only used in grid tracks.
    * The 'flat' return is an array with all spaces. The unflat return is an array with
-   * spaces keyed by their distance to the space, eg. [[30], [31], [22, 39]]. Note that
+   * spaces keyed by their distance to the space, eg. [['A'], ['B'], ['C', 'D']] where 'A'
+   * is origin space, 'B' adjacent to 'A' and 'C' & 'D' two steps from 'A'. Note that
    * the unflattened return can be used to get all spaces on a certain distance, eg.
    * getSpacesWithinRange(2)[2] contains all spaces 2 steps from the starting space.
    * 
-   * @param {Number} steps: The range to search within. Starting space is on distance 0.
+   * @param {Number} steps: The range to search within. Origin space is on distance 0.
    *    Defaults to 1.
    * @param {boolean} flatten: Whether to flatten the return array or not. Defaults to false.
    * @param {string} returnType: How the returned spaces should be represented – 'object',
-   *    'id' or 'index'. Defaults to 'object'.
+   *    'id' or 'index', or a name of a property on the spaces. Defaults to 'object'.
+   * @param {object} requirement: Any requirement set here on the format
+   *    {property:myProperty, value:requiredValue} will restrict the searched spaces.
+   *    Defaults to false (no restriction). @see also getMatchingSpacesWithinRange().
    */
-  getSpacesWithinRange(steps = 1, flatten = false, returnType = 'object') {
-    if (!this.track.gridMovement)
-      throw('Cannot use search for spaces within range on track ' + this.id + '. It does not have grid movement enabled.');
-    // Build a list of the spaces at the rim of the search, and a list of all found spaces.
-    let spaces = [[this.index]];
-    let allSpaces = [this.index];
-    let spacesToAdd = [true];
+  getSpacesWithinRange(steps = 1, flatten = false, returnType = 'object', requirement = false) {
+    return this.track.getSpacesWithinRange([this.index], steps, flatten, returnType, requirement);
+  }
 
-    let i = 0;
-    while (i < steps && spacesToAdd.length) {
-      // Check spaces at the rim of the search.
-      let spacesToCheck = spaces[spaces.length - 1];
-      spacesToAdd = [];
-      for (let s of spacesToCheck) {
-        for (let newSpace in this.track.graph[s]) {
-          // Only include connected spaces, and only those that have not already been visited.
-          if (this.track.graph[s][newSpace] && !allSpaces.includes(parseInt(newSpace)))
-            spacesToAdd.push(parseInt(newSpace));
-        }
-      }
-      // Add a new rim to the search. Take another step.
-      spaces.push(spacesToAdd);
-      allSpaces.push(...spacesToAdd);
-      i++;
-    }
-
-    // Process the indices to return the proper results.
-    if (flatten) {
-      if (returnType == 'object')
-        return allSpaces.map(s => this.track.spaces[s]);
-      if (returnType == 'id')
-        return allSpaces.map(s => this.track.spaces[s].id);
-      return allSpaces;
-    }
-    let output = [];
-    if (returnType == 'object')
-      for (let i of spaces) output.push(i.map(s => this.track.spaces[s]));
-    if (returnType == 'id')
-      for (let i of spaces) output.push(i.map(s => this.track.spaces[s].id));
-    return output;
+  /**
+   * Returns an array with all spaces matching property:value connecting directly or
+   * indirectly to the space. Note that the initial space is returned regardless of match.
+   *
+   * @param {string} property: The property on the space objects to put requirement on.
+   * @param value: The value to match in the selected property.
+   * @param {Number} steps: Any restriction on the distance. Defaults to infinity.
+   * @param {boolean} flatten: Whether to return a flat array or an array keyed by distance.
+   *    Defaults to true (flat array). @see also getSpacesWithinRange();
+   * @param {string} returnType: How the returned spaces should be represented – 'object',
+   *    'id' or 'index', or a name of a property on the spaces. Defaults to 'object'.
+   */
+  getMatchingSpacesWithinRange(property, value, steps = Number.POSITIVE_INFINITY, flatten = true, returnType = 'object') {
+    return this.track.getSpacesWithinRange([this.index], steps, flatten, returnType, {property:property, value:value});
   }
 
   /**
