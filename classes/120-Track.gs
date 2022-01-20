@@ -265,51 +265,65 @@ class Track {
    * @param {object} pointA: Object with coordinates for point A, for example {x: 1, y: 1}.
    * @param {object} pointB: Object with coordinates for point B.
    */
-  lineOfSight(spaceA, spaceB, pointA = false, pointB = false) {
-    // Set default coordinates, if necessary.
-    if (!pointA) {
-      pointA = {};
+  lineOfSight(spaceA, spaceB, points = false) {
+    let pointsA = [];
+    let pointsB = [];
+    // Create default points, if necessary.
+    if (!points) {
+      let pointA = {};
       for (let c of this.coordinates)
-        pointA[c] = spaceA[c]
+        pointA[c] = spaceA[c];
+      pointsA.push(pointA);
+      let pointB = {};
+      for (let c of this.coordinates)
+        pointB[c] = spaceB[c];
+      pointsB.push(pointB);
     }
-    if (!pointB) {
-      pointB = {};
-      for (let c of this.coordinates)
-        pointB[c] = spaceB[c]
+    else {
+      pointsA = points[0];
+      pointsB = points[1];
     }
 
-    // Build a 'fat' path between spaceA and spaceB, including spaces the line of sight may cross.
+    // Build a 'fat' path between spaceA and spaceB. These are spaces the line of sight may cross.
     let spaces = this.buildPath(spaceA.id, spaceB.id, 'index');
     spaces.pop();
     spaces = this.getSpacesWithinRange(spaces, 1, true);
 
-    // Get the step size and direction to use when going from A to B.
-    let totalLength = getDistance(pointA, pointB, this.coordinates);
-    if (totalLength < spaceA.rOuter)
-      return true;
-    let delta = {};
-    for (let c of this.coordinates)
-      delta[c] = (pointB[c] - pointA[c]);
-    for (let c of this.coordinates)
-      delta[c] = delta[c] / totalLength * spaceA.rOuter * this.lineOfSightStepFraction;
-    
-    // Go in a straight line from A to B and check that points on the line fall within
-    // the outer radius of any listed space.
-    let pointToCheck = copy(pointA);
-    while (true) {
-      let ok = false;
-      for (let s of spaces) {
-        if (getDistance(pointToCheck, s, this.coordinates) < s.rOuter) {
-          if (s.id == spaceB.id)
-            return true;
-          ok = true;
-          break;
+    // Try line of sights between all combinations of the listed points for A and B.
+    for (let pointA of pointsA) {
+      for (let pointB of pointsB) {
+
+        // Get the step size and direction to use when going from A to B.
+        let totalLength = getDistance(pointA, pointB, this.coordinates);
+        if (totalLength < spaceA.rOuter)
+          return true;
+        let delta = {};
+        for (let c of this.coordinates)
+          delta[c] = (pointB[c] - pointA[c]);
+        for (let c of this.coordinates)
+          delta[c] = delta[c] / totalLength * spaceA.rOuter * this.lineOfSightStepFraction;
+        
+        // Go in a straight line from A to B and check that points on the line fall within
+        // the outer radius of at least one listed space.
+        let pointToCheck = copy(pointA);
+        let keepStepping = true;
+        while (keepStepping) {
+          keepStepping = true;
+          let ok = false;
+          for (let s of spaces) {
+            if (getDistance(pointToCheck, s, this.coordinates) <= s.rOuter) {
+              if (s.id == spaceB.id)
+                return true;
+              ok = true;
+              break;
+            }
+          }
+          if (!ok)
+            keepStepping = false;
+          for (let c of this.coordinates)
+            pointToCheck[c] += delta[c];
         }
       }
-      if (!ok)
-        return false;
-      for (let c of this.coordinates)
-        pointToCheck[c] += delta[c];
     }
   }
 }
@@ -343,6 +357,8 @@ class Space {
         this.connectsTo = [this.connectsTo];
       if (!this.rOuter)
         this.rOuter = this.track.rOuter;
+      if (!this.rInner)
+        this.rInner = this.track.rInner;
     }
 
     this.index = track.spaces.length || 0;

@@ -388,7 +388,7 @@ tests.track.gridMovement = function() {
     return 'getMatchingSpacesWithinRange does not include first space regardless of restrictions.';
 };
 tests.track.lineOfSight = function() {
-  let tData = buildObjectFromLine('testData', 'K66:K70');
+  let tData = buildObjectFromLine('testData', 'K66:K71');
   let sData = buildObjectArrayFromRows('testData', 'L65:O73');
   let track = new Track(tData, sData);
   let spaceA = track.getSpace('1x1');
@@ -398,7 +398,22 @@ tests.track.lineOfSight = function() {
   spaceB = track.getSpace('3x3');
   if (track.lineOfSight(spaceA, spaceB) === true)
     return 'lineOfSight says true when sight is fully blocked.';
-  debugger
+  spaceB = track.getSpace('1x3');
+  let points = pointHalfCircleDistribution(spaceA, spaceB);
+  if (!compareObjects(points[0][2], {x:1, y:1.5}))
+    return 'pointHalfCircleDistribution are not directed from A to B.';
+  if (!compareObjects(points[1][2], {x:1, y:2.5}))
+    return 'pointHalfCircleDistribution are not directed from B to A.';
+  spaceB = track.getSpace('3x2');
+  if (track.lineOfSight(spaceA, spaceB) === true)
+    return 'lineOfSight says true when checking only center points, and these are blocked.';
+  points = pointHalfCircleDistribution(spaceA, spaceB);
+  if (track.lineOfSight(spaceA, spaceB, points) === false)
+    return 'lineOfSight does not detect lines going from space edges.';
+  spaceA = track.getSpace('1x2');
+  points = pointHalfCircleDistribution(spaceA, spaceB);
+  if (track.lineOfSight(spaceA, spaceB) === true)
+    return 'lineOfSight says true when checking lines from space edges that should be blocked.';
 };
 
 tests.market = {};
