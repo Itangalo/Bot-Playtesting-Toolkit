@@ -33,6 +33,7 @@ function setInitialDefaults() {
       loop: false,
       gridMovement: false,
       symmetricConnections: true,
+      lineOfSightStepFraction: .1,
     },
     market: {
       restockOnlyIncreases: true,

@@ -143,13 +143,13 @@ class Track {
   }
 
   /**
-   * Takes an array with space data and converts it to another format.
+   * Takes an array with space data and returns the spaces converted to another format.
    * 
    * @param {array} spaceData: The array with space data.
    * @param {string} inputFormat: The type of data in spaceData. Either 'index' (default)
    *    'id' or 'object'.
    * @param {string} outputFormat: The type of data to output. Either 'object' to return
-   *    the full space objects, or the name of a property (also 'id' and 'index') to return
+   *    the full Space objects, or the name of a property (also 'id' and 'index') to return
    *    that property value. Defaults to 'object'.
    */
   convertSpaceData(spaceData, inputFormat = 'index', outputFormat = 'object') {
@@ -178,8 +178,11 @@ class Track {
   /**
    * Returns an array with the shortest path from start to goal space, excluding start space.
    * Returns false if the path could be built.
+   * 
+   * @param {string} returnType: How the returned spaces should be represented – 'object',
+   *    'id' or 'index', or a name of a property on the spaces. Defaults to 'object'.
    */
-  buildPath(startSpaceId, goalSpaceId) {
+  buildPath(startSpaceId, goalSpaceId, returnType = 'object') {
     if (!this.gridMovement)
       throw('Cannot use "buildPath" on track ' + this.id + '. It does not have grid movement enabled.');
     let path = [];
@@ -192,7 +195,7 @@ class Track {
     path.shift(); // The first space is the starting space.
     for (let i in path)
       path[i] = this.spaces[path[i]];
-    return path;
+    return this.convertSpaceData(path, 'object', returnType);
   }
 
   /**
@@ -212,7 +215,7 @@ class Track {
    *    'id' or 'index', or a name of a property on the spaces. Defaults to 'object'.
    * @param {object} requirement: Any requirement set here on the format
    *    {property:myProperty, value:requiredValue} will restrict the searched spaces.
-   *    Defaults to false (no restriction). @see getMatchingSpacesWithinRange().
+   *    Defaults to false (no restriction).
    */
   getSpacesWithinRange(originSpaceIndices, steps = 1, flatten = false, returnType = 'object', requirement = false) {
     if (!this.gridMovement)
@@ -248,6 +251,67 @@ class Track {
     }
     return spaces.map(x => this.convertSpaceData(x, 'index', returnType));
   }
+
+  /**
+   * Does an estimation of whether there is a line of sight between two spaces. If point coordinates
+   * are provided, these will be used instead of spaces' coordinates.
+   * 
+   * The function requires that spaces have the property rOuter set, describing the radius of
+   * a circle just encompassing the space. Spaces must also have coordinates matching the properties
+   * specified in myTrack.coordinates.
+   * 
+   * @param {Space} spaceA: The space in which pointA is located.
+   * @param {Space} spaceB: The space in which pointB is located.
+   * @param {object} pointA: Object with coordinates for point A, for example {x: 1, y: 1}.
+   * @param {object} pointB: Object with coordinates for point B.
+   */
+  lineOfSight(spaceA, spaceB, pointA = false, pointB = false) {
+    // Set default coordinates, if necessary.
+    if (!pointA) {
+      pointA = {};
+      for (let c of this.coordinates)
+        pointA[c] = spaceA[c]
+    }
+    if (!pointB) {
+      pointB = {};
+      for (let c of this.coordinates)
+        pointB[c] = spaceB[c]
+    }
+
+    // Build a 'fat' path between spaceA and spaceB, including spaces the line of sight may cross.
+    let spaces = this.buildPath(spaceA.id, spaceB.id, 'index');
+    spaces.pop();
+    spaces = this.getSpacesWithinRange(spaces, 1, true);
+
+    // Get the step size and direction to use when going from A to B.
+    let totalLength = getDistance(pointA, pointB, this.coordinates);
+    if (totalLength < spaceA.rOuter)
+      return true;
+    let delta = {};
+    for (let c of this.coordinates)
+      delta[c] = (pointB[c] - pointA[c]);
+    for (let c of this.coordinates)
+      delta[c] = delta[c] / totalLength * spaceA.rOuter * this.lineOfSightStepFraction;
+    
+    // Go in a straight line from A to B and check that points on the line fall within
+    // the outer radius of any listed space.
+    let pointToCheck = copy(pointA);
+    while (true) {
+      let ok = false;
+      for (let s of spaces) {
+        if (getDistance(pointToCheck, s, this.coordinates) < s.rOuter) {
+          if (s.id == spaceB.id)
+            return true;
+          ok = true;
+          break;
+        }
+      }
+      if (!ok)
+        return false;
+      for (let c of this.coordinates)
+        pointToCheck[c] += delta[c];
+    }
+  }
 }
 
 /**
@@ -277,6 +341,8 @@ class Space {
         this.connectsTo = [];
       if (typeof(this.connectsTo) !== 'object')
         this.connectsTo = [this.connectsTo];
+      if (!this.rOuter)
+        this.rOuter = this.track.rOuter;
     }
 
     this.index = track.spaces.length || 0;
@@ -319,12 +385,13 @@ class Space {
   /**
    * Returns an array with all spaces matching property:value connecting directly or
    * indirectly to the space. Note that the initial space is returned regardless of match.
+   * @see also getSpacesWithinRange()
    *
    * @param {string} property: The property on the space objects to put requirement on.
    * @param value: The value to match in the selected property.
    * @param {Number} steps: Any restriction on the distance. Defaults to infinity.
    * @param {boolean} flatten: Whether to return a flat array or an array keyed by distance.
-   *    Defaults to true (flat array). @see also getSpacesWithinRange();
+   *    Defaults to true (flat array).
    * @param {string} returnType: How the returned spaces should be represented – 'object',
    *    'id' or 'index', or a name of a property on the spaces. Defaults to 'object'.
    */

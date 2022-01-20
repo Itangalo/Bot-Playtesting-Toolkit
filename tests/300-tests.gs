@@ -387,6 +387,19 @@ tests.track.gridMovement = function() {
   if (spaces.length != 8)
     return 'getMatchingSpacesWithinRange does not include first space regardless of restrictions.';
 };
+tests.track.lineOfSight = function() {
+  let tData = buildObjectFromLine('testData', 'K66:K70');
+  let sData = buildObjectArrayFromRows('testData', 'L65:O73');
+  let track = new Track(tData, sData);
+  let spaceA = track.getSpace('1x1');
+  let spaceB = track.getSpace('3x1');
+  if (track.lineOfSight(spaceA, spaceB) === false)
+    return 'lineOfSight says false for trivial line of sights.';
+  spaceB = track.getSpace('3x3');
+  if (track.lineOfSight(spaceA, spaceB) === true)
+    return 'lineOfSight says true when sight is fully blocked.';
+  debugger
+};
 
 tests.market = {};
 tests.market.theLot = function() {
