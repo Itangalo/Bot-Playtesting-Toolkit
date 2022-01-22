@@ -43,8 +43,8 @@ function processResults(results) {
     for (let p of global.statistics.percentiles) {
       values.push(percentile(sortedResults[i], p).toFixed(2));
     }
-    message += values.join(' | ') + ') Non-zero at ';
-    message += getNonZeroThreshold(sortedResults[i]).toFixed(2) + '\r\n';
+    message += values.join(' | ') + ') Positive at ';
+    message += getPositiveThreshold(sortedResults[i]).toFixed(2) + '\r\n';
   }
   log(message, 'statistics');
 
@@ -62,9 +62,9 @@ function processResults(results) {
     output[1].push(average(sortedResults[i]));
   }
   // First percentile where value is non-zero
-  output.push(['Non-zero at']);
+  output.push(['Positive at']);
   for (let i in sortedResults) {
-    output[2].push(getNonZeroThreshold(sortedResults[i]));
+    output[2].push(getPositiveThreshold(sortedResults[i]));
   }
   // Percentiles
   for (let p of global.statistics.percentiles) {

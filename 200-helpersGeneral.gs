@@ -355,12 +355,12 @@ function percentile(arr, p) {
 }
 
 // Returns the percentile (as a decimal) where the array value first
-// becomes non-zero. Assumes that the array is sorted.
-function getNonZeroThreshold(arr) {
+// becomes positive. Assumes that the array is sorted.
+function getPositiveThreshold(arr) {
   if (!arr.length)
     throw('Cannot get non-zero threshold: provided variable is not array or empty.');
   for (let i in arr) {
-    if (arr[i] != 0)
+    if (arr[i] > 0)
       return i/arr.length;
   }
   return 1;
