@@ -42,26 +42,40 @@ class ObjectFilter {
   applyOnObject(obj) {
     // Check AND conditions.
     for (let c of this.andConditions)
-      for (let p in c)
-        if (!this.valueMathces(obj[p], c[p])) return false;
+      if (c instanceof ObjectFilter && c.applyOnObject(obj) === false)
+        return false;
+      else {
+        for (let p in c)
+          if (!this.valueMathces(obj[p], c[p])) return false;
+      }
     // Check NOT conditions.
     for (let c of this.notConditions)
-      for (let p in c)
-        if (this.valueMathces(obj[p], c[p])) return false;
-
+      if (c instanceof ObjectFilter && c.applyOnObject(obj) === true)
+        return false;
+      else {
+        for (let p in c)
+          if (this.valueMathces(obj[p], c[p])) return false;
+      }
     // All AND checks passed. If no OR checks exist, we are done.
     if (this.orConditions.length == 0 && this.notOrConditions.length == 0)
       return true;
 
     // Check OR conditions.
     for (let c of this.orConditions)
-      for (let p in c)
-        if (this.valueMathces(obj[p], c[p])) return true;
+      if (c instanceof ObjectFilter && c.applyOnObject(obj) === true)
+        return true;
+      else {
+        for (let p in c)
+          if (this.valueMathces(obj[p], c[p])) return true;
+      }
     // Check NOT OR conditions.
     for (let c of this.notOrConditions)
-      for (let p in c)
-        if (!this.valueMathces(obj[p], c[p])) return true;
-
+      if (c instanceof ObjectFilter && c.applyOnObject(obj) === false)
+        return true;
+      else {
+        for (let p in c)
+          if (!this.valueMathces(obj[p], c[p])) return true;
+      }
     // No OR conditions fulfilled if we reach this line.
     return false;
   }
@@ -93,12 +107,4 @@ class ObjectFilter {
     }
     return output;
   }
-}
-
-
-function tmp2() {
-  let a = ['a', 'b'];
-  Logger.log(typeof(a.includes));
-  a = {a: 1, b: 2};
-  Logger.log(typeof(a.includes));
 }
