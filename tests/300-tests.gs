@@ -142,13 +142,13 @@ tests.helpersGeneral.arrayManagement = function() {
 }
 tests.helpersGeneral.getNonZeroThreshold = function() {
   let a = [0, 0, 0, 0];
-  if (getNonZeroThreshold(a) != 1)
+  if (getPositiveThreshold(a) != 1)
     return 'getNonZeroThreshold does not work properly for zero-arrays.';
   a.push(1);
-  if (getNonZeroThreshold(a) != .8)
+  if (getPositiveThreshold(a) != .8)
     return 'getNonZeroThreshold does not work properly.';
   a.unshift(1);
-  if (getNonZeroThreshold(a) != 0)
+  if (getPositiveThreshold(a) != 0)
     return 'getNonZeroThreshold does not work properly for percentile 0.';
 }
 tests.helpersGeneral.getHighestProperty = function() {
@@ -164,6 +164,48 @@ tests.helpersGeneral.getHighestProperty = function() {
 }
 // @TODO: Write tests for sortByProperty, sortBySubProperty, getMax, getMin,
 // getSum and getAverage. Perhaps also selectRandom and percentile.
+
+tests.objectFilter = {};
+tests.objectFilter.theLot = function () {
+  let arr = [
+    {a: 1, b: 1},
+    {a: 1, b: 2},
+    {a: 1, b: 3},
+    {a: 1, b: 3, c: 0},
+    {a: 2, b: 2, c: 1},
+    {a: 3, b: 2},
+  ];
+  let t = new ObjectFilter();
+  if (t.applyOnObject(arr[0]) !== true)
+    return 'ObjectFilter does not return true when filters are empty.';
+  if (t.applyOnArray(arr).length != arr.length)
+    return 'ObjectFilter does filter object arrays properly.';
+  let a = t.removeFromArray(arr);
+  if (a.length != 6 || arr.length != 0)
+    return 'ObjectFilter does not splice object arrays properly.';
+  t.addAndCondition({a: 1});
+  if (t.applyOnObject(a[0] !== true) || t.applyOnObject(a[4]) !== false)
+    return 'ObjectFilter does not apply single AND condition properly.';
+  t.addAndCondition({b: 2});
+  if (t.applyOnObject(a[1] !== true) || t.applyOnObject(a[0]) !== false)
+    return 'ObjectFilter does not apply multiple AND condition properly.';
+  t.addOrCondition({c: 0});
+  if (t.applyOnObject(a[1]) === true)
+    return 'ObjectFilter does not apply single OR condition properly.';
+  t = new ObjectFilter().addOrCondition({a: 1}).addOrCondition({a: 2});
+  arr = t.removeFromArray(a);
+  if (arr.length != 5 || a.length != 1)
+    return 'ObjectFilter does not apply multiple OR conditions properly.';
+  t.addNotCondition({c: undefined});
+  if (t.applyOnArray(arr).length != 2)
+    return 'ObjectFilter does not apply NOT condition on undefined properties correctly.';
+  t.addNotOrCondition({a: 1}).addNotOrCondition({b: 2});
+  if (t.applyOnArray(arr).length != 2)
+    return 'ObjectFilter does not apply multiple NOT OR conditions properly.';
+
+
+  debugger
+};
 
 tests.agents = {};
 tests.agents.properties = function() {
