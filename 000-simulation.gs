@@ -1,7 +1,7 @@
 /**
  * Bot Playtesting Toolkit
  *
- * See https://github.com/Itangalo/Board-game-scripting-tools for details,
+ * See https://github.com/Itangalo/Bot-Playtesting-Toolkit for details,
  * including license (GNU GPL version 3) and issue queue.
  */
 
