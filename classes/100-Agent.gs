@@ -5,7 +5,7 @@
  * special properties:
  *    - id: The unique id for the agent. Required.
  *    - strategy: Any strategy used by the agent, and called from
- *      agent.consultStragety(method, arguments...). Methods must be
+ *      agent.consultStrategy(method, arguments...). Methods must be
  *      added to agentStrategies[module].
  *      
  */
