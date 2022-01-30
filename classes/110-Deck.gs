@@ -215,7 +215,7 @@ class Deck {
     else {
       let condition = {};
       condition[property] = value;
-      c = new ObjectFilter(condition).removeFromArray(this.display, 1)[0];
+      c = new ObjectFilter(condition).removeFirstFromArray(this.display);
 
       if (!c)
         log('Could not find any card where ' + property + ' is ' + value + ' in display of deck ' + this.id + '.', 'error');

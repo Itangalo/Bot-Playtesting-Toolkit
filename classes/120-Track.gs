@@ -112,6 +112,7 @@ class Track {
   /**
    * Returns the first space matching the given property:value, or
    * false if none is found. If only one argument is provided, it is assumed to be ID.
+   * For more complex conditions, see ObjectFilter.
    */
   getSpace(property, value) {
     if (value === undefined) {
@@ -124,7 +125,9 @@ class Track {
       }
       return this.spaces[this.spaceMapping[value]];
     }
-    return pickFromObjectArray(this.spaces, property, value, false);
+    let condition = {};
+    condition[property] = value;
+    return new ObjectFilter(condition).findFirstInArray(this.spaces);
   }
 
   /**
@@ -213,32 +216,30 @@ class Track {
    * @param {boolean} flatten: Whether to flatten the return array or not. Defaults to false.
    * @param {string} returnType: How the returned spaces should be represented – 'object',
    *    'id' or 'index', or a name of a property on the spaces. Defaults to 'object'.
-   * @param {object} requirement: Any requirement set here on the format
-   *    {property:myProperty, value:requiredValue} will restrict the searched spaces.
-   *    Defaults to false (no restriction).
+   * @param {object} filter: If set to an ObjectFilter, only matching spaces will be traversed.
    */
-  getSpacesWithinRange(originSpaceIndices, steps = 1, flatten = false, returnType = 'object', requirement = false) {
+  getSpacesWithinRange(originSpaceIndices, steps = 1, flatten = false, returnType = 'object', filter = true) {
     if (!this.gridMovement)
       throw('Cannot use search for spaces within range on track ' + this.id + '. It does not have grid movement enabled.');
     // Build a list of the spaces at the rim of the search, and a list of all found spaces.
     let spaces = [copy(originSpaceIndices)];
     let allSpaces = copy(originSpaceIndices);
     let spacesToAdd = copy(originSpaceIndices);
+    if (filter !== true && !(filter instanceof ObjectFilter))
+      throw('Only ObjectFilter objects can be used as filters.');
 
     let i = 0;
     while (i < steps && spacesToAdd.length) {
       // Check spaces at the rim of the search.
       let spacesToCheck = spaces[spaces.length - 1];
       spacesToAdd = [];
-      for (let s of spacesToCheck) {
-        for (let newSpace in this.graph[s]) {
+      for (let s of spacesToCheck)
+        for (let newSpace in this.graph[s])
           // Only include connected spaces, and only those that have not already been checked.
-          if (this.graph[s][newSpace] && !allSpaces.includes(parseInt(newSpace)) && !spacesToAdd.includes(parseInt(newSpace))) {
-            if (!requirement || this.spaces[newSpace][requirement.property] == requirement.value)
+          if (this.graph[s][newSpace] && !allSpaces.includes(parseInt(newSpace)) && !spacesToAdd.includes(parseInt(newSpace)))
+            if (filter === true || filter.applyOnObject(this.spaces[newSpace]))
               spacesToAdd.push(parseInt(newSpace));
-          }
-        }
-      }
+
       // Add a new rim to the search. Take another step.
       spaces.push(spacesToAdd);
       allSpaces.push(...spacesToAdd);
@@ -433,29 +434,27 @@ class Space {
    * @param {boolean} flatten: Whether to flatten the return array or not. Defaults to false.
    * @param {string} returnType: How the returned spaces should be represented – 'object',
    *    'id' or 'index', or a name of a property on the spaces. Defaults to 'object'.
-   * @param {object} requirement: Any requirement set here on the format
-   *    {property:myProperty, value:requiredValue} will restrict the searched spaces.
-   *    Defaults to false (no restriction). @see also getMatchingSpacesWithinRange().
+   * @param {object} filter: If set to an ObjectFilter, only matching spaces will be traversed.
+   *    @see also getMatchingSpacesWithinRange().
    */
-  getSpacesWithinRange(steps = 1, flatten = false, returnType = 'object', requirement = false) {
-    return this.track.getSpacesWithinRange([this.index], steps, flatten, returnType, requirement);
+  getSpacesWithinRange(steps = 1, flatten = false, returnType = 'object', filter = true) {
+    return this.track.getSpacesWithinRange([this.index], steps, flatten, returnType, filter);
   }
 
   /**
-   * Returns an array with all spaces matching property:value connecting directly or
+   * Returns an array with all spaces matching the set filter, connecting directly or
    * indirectly to the space. Note that the initial space is returned regardless of match.
    * @see also getSpacesWithinRange()
    *
-   * @param {string} property: The property on the space objects to put requirement on.
-   * @param value: The value to match in the selected property.
+   * @param {ObjectFilter} filter: An ObjectFilter describing the conditions for the area.
    * @param {Number} steps: Any restriction on the distance. Defaults to infinity.
    * @param {boolean} flatten: Whether to return a flat array or an array keyed by distance.
    *    Defaults to true (flat array).
    * @param {string} returnType: How the returned spaces should be represented – 'object',
    *    'id' or 'index', or a name of a property on the spaces. Defaults to 'object'.
    */
-  getMatchingSpacesWithinRange(property, value, steps = Number.POSITIVE_INFINITY, flatten = true, returnType = 'object') {
-    return this.track.getSpacesWithinRange([this.index], steps, flatten, returnType, {property:property, value:value});
+  getMatchingSpacesWithinRange(filter, steps = Number.POSITIVE_INFINITY, flatten = true, returnType = 'object') {
+    return this.track.getSpacesWithinRange([this.index], steps, flatten, returnType, filter);
   }
 
   /**

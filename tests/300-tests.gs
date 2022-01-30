@@ -439,14 +439,16 @@ tests.track.gridMovement = function() {
   if (spaces.length != 1)
     return 'getSpacesWithinRange does not terminate when the search rim is empty.';
   space = track.getSpace('1x1');
-  spaces = space.getSpacesWithinRange(Number.POSITIVE_INFINITY, true, 'object', {property:'region', value:'woodland'});
+  let filter = new ObjectFilter({region: 'woodland'});
+  spaces = space.getSpacesWithinRange(Number.POSITIVE_INFINITY, true, 'object', filter);
   if (spaces.length != 12)
     return 'Search restrictions do not work properly on getSpacesWithinRange';
-  spaces = space.getMatchingSpacesWithinRange('region', 'woodland');
+  spaces = space.getMatchingSpacesWithinRange(filter);
   if (spaces.length != 12)
     return 'getMatchingSpacesWithinRange does not work properly.';
   space = track.getSpace('3x4');
-  spaces = space.getMatchingSpacesWithinRange('region', 'city');
+  filter = new ObjectFilter({region: 'city'});
+  spaces = space.getMatchingSpacesWithinRange(filter);
   if (spaces.length != 8)
     return 'getMatchingSpacesWithinRange does not include first space regardless of restrictions.';
 };

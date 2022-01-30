@@ -119,6 +119,25 @@ class ObjectFilter {
   }
 
   /**
+   * Returns the first object in an array matching the condition, or false if none is found.
+   */
+  findFirstInArray(objectArray) {
+    for (let o of objectArray)
+      if (this.applyOnObject(o)) return o;
+    return false;
+  }
+
+  /**
+   * Removes the first matching object from an array and returns it, or false if none is found.
+   */
+  removeFirstFromArray(objectArray) {
+    let output = this.removeFromArray(objectArray, 1);
+    if (!output.length)
+      return false;
+    return output[0];
+  }
+
+  /**
    * Applies the filter on an array of objects. Removes and returns the matching objects.
    * 
    * @param {number} maxNumber: If set, at most this number of objects are removed.
