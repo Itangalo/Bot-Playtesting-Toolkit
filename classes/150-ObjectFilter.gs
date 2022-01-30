@@ -120,11 +120,13 @@ class ObjectFilter {
 
   /**
    * Applies the filter on an array of objects. Removes and returns the matching objects.
+   * 
+   * @param {number} maxNumber: If set, at most this number of objects are removed.
    */
-  removeFromArray(objectArray) {
+  removeFromArray(objectArray, maxNumber = Number.POSITIVE_INFINITY) {
     let output = [];
     let i = 0;
-    while (i < objectArray.length) {
+    while (i < objectArray.length && output.length < maxNumber) {
       if (this.applyOnObject(objectArray[i]))
         output.push(objectArray.splice(i, 1)[0]);
       else

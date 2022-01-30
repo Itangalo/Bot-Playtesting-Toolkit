@@ -202,6 +202,13 @@ tests.objectFilter.individualConditions = function () {
   t.addNotOrCondition({a: 1}).addNotOrCondition({b: 2});
   if (t.applyOnArray(arr).length != 2)
     return 'ObjectFilter does not apply multiple NOT OR conditions properly.';
+  t = new ObjectFilter({a: 1});
+  t.removeFromArray(arr, 1);
+  if (arr.length != 4)
+    return 'ObjectFilter does not restrict the number of objects to remove (n=1).';
+  t.removeFromArray(arr, 2);
+  if (arr.length != 2)
+    return 'ObjectFilter does not restrict the number of objects to remove (n=2).';
 };
 tests.objectFilter.complexFilter = function() {
   let t = new ObjectFilter();
