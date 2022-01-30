@@ -166,7 +166,7 @@ tests.helpersGeneral.getHighestProperty = function() {
 // getSum and getAverage. Perhaps also selectRandom and percentile.
 
 tests.objectFilter = {};
-tests.objectFilter.theLot = function () {
+tests.objectFilter.individualConditions = function () {
   let arr = [
     {a: 1, b: 1},
     {a: 1, b: 2},
@@ -202,7 +202,23 @@ tests.objectFilter.theLot = function () {
   t.addNotOrCondition({a: 1}).addNotOrCondition({b: 2});
   if (t.applyOnArray(arr).length != 2)
     return 'ObjectFilter does not apply multiple NOT OR conditions properly.';
-
+};
+tests.objectFilter.complexFilter = function() {
+  let t = new ObjectFilter();
+  let arr = [
+    {a: 1, b: 1},
+    {a: 1, b: 2},
+    {a: 1, b: 3},
+    {a: 1, b: 3, c: 0},
+    {a: 2, b: 2, c: 1},
+    {a: 3, b: 2},
+  ];
+  t.addAndCondition({a: [1, 2]});
+  if (t.applyOnArray(arr).length != 5)
+    return 'ObjectFilter does not handle arrayed filter values correctly.';
+  t = new ObjectFilter().addOrCondition({b: 2}).addOrCondition({b: 3}).addAndCondition({a: 3});
+  if (!compareObjects(t.applyOnArray(arr)[0], {a: 3, b: 2}))
+    return 'ObjectFilter does not handle combined AND and OR conditions correctly.';
 };
 
 tests.agents = {};
