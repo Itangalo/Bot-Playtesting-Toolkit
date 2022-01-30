@@ -203,8 +203,6 @@ tests.objectFilter.theLot = function () {
   if (t.applyOnArray(arr).length != 2)
     return 'ObjectFilter does not apply multiple NOT OR conditions properly.';
 
-
-  debugger
 };
 
 tests.agents = {};

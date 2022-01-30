@@ -221,9 +221,9 @@ class Track {
     if (!this.gridMovement)
       throw('Cannot use search for spaces within range on track ' + this.id + '. It does not have grid movement enabled.');
     // Build a list of the spaces at the rim of the search, and a list of all found spaces.
-    let spaces = [originSpaceIndices];
-    let allSpaces = originSpaceIndices;
-    let spacesToAdd = originSpaceIndices;
+    let spaces = [copy(originSpaceIndices)];
+    let allSpaces = copy(originSpaceIndices);
+    let spacesToAdd = copy(originSpaceIndices);
 
     let i = 0;
     while (i < steps && spacesToAdd.length) {
