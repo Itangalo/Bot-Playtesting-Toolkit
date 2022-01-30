@@ -65,7 +65,7 @@ class Track {
         this.graph.push([]);
       for (let s of this.spaces) {
         for (let c of s.connectsTo) {
-          let target = pickFromObjectArray(this.spaces, 'id', c, false);
+          let target = new ObjectFilter({id: c}).findFirstInArray(this.spaces);
           this.graph[s.index][target.index] = 1;
           if (this.symmetricConnections)
             this.graph[target.index][s.index] = 1;
