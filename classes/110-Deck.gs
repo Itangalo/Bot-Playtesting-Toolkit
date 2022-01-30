@@ -124,26 +124,37 @@ class Deck {
   }
 
   /**
-   * Picks the first card found matching property:value, or false if none is found.
-   * If multiple property:value pairs should be matched, provide them as arrays.
+   * Returns the first card found matching property:value, or false if none is found.
+   * The card is removed from the deck.
+   * 
+   * For more complex conditions, see ObjectFilter.
    */
   pick(property, value) {
-    let result = pickAllFromObjectArray(this.cards, property, value);
-    if (!result)
+    let condition = {};
+    condition[property] = value;
+    let output = new ObjectFilter(condition).removeFromArray(this.cards, 1);
+    if (output.length) {
       log('Could not find any card where ' + property + ' is ' + value + ' in deck ' + this.id + '.', 'notice');
-    return result;
+      return false;
+    }
+    return output[0];
   }
 
   /**
-   * Picks all cards matching property:value, returned in an array (can be empty).
-   * If multiple property:value pairs should be matched, provide them as arrays.
+   * Returns all cards matching property:value in an array (which could be empty).
+   * The cards are removed from the deck.
+   * 
+   * For more complex conditions, see ObjectFilter.
    */
   pickAll(property, value) {
-    return pickAllFromObjectArray(this.cards, property, value);
+    let condition = {};
+    condition[property] = value;
+    return new ObjectFilter(condition).removeFromArray(this.cards);
   }
 
   /**
    * Counts how many cards matching property:value are in the deck.
+   * For more complex conditions, see ObjectFilter.
    */
   countOccurances(property, value) {
     let occurances = 0;
@@ -188,8 +199,8 @@ class Deck {
 
   /**
    * Picks the first card found matching property:value from the display, or false if none is found.
-   * If multiple property:value pairs should be matched, provide them as arrays.
    * If no property or value is provided, the first card in the display will be returned.
+   * For more complex conditions, see ObjectFilter.
    */
   pickFromDisplay(property, value) {
     // If no property is provided, take the first card.
@@ -202,7 +213,10 @@ class Deck {
       c = this.display.shift();
     }
     else {
-      c = pickFromObjectArray(this.display, property, value);
+      let condition = {};
+      condition[property] = value;
+      c = new ObjectFilter(condition).removeFromArray(this.display, 1)[0];
+
       if (!c)
         log('Could not find any card where ' + property + ' is ' + value + ' in display of deck ' + this.id + '.', 'error');
     }
