@@ -105,13 +105,16 @@ tests.helpersGeneral.arrayManagement = function() {
   if (!compareObjects(getFrequencies([4, 5, 4, 'banana']), {4: 2, 5: 1, banana: 1}))
     return 'getFrequencies is not working properly.';
 }
-tests.helpersGeneral.getNonZeroThreshold = function() {
+tests.helpersGeneral.getFirstPositiveThreshold = function() {
   let a = [0, 0, 0, 0];
   if (getPositiveThreshold(a) != 1)
     return 'getNonZeroThreshold does not work properly for zero-arrays.';
   a.push(1);
   if (getPositiveThreshold(a) != .8)
     return 'getNonZeroThreshold does not work properly.';
+  a[2] = -1;
+  if (getPositiveThreshold(a) != .8)
+    return 'getNonZeroThreshold does not process negative numbers correctly.';
   a.unshift(1);
   if (getPositiveThreshold(a) != 0)
     return 'getNonZeroThreshold does not work properly for percentile 0.';
