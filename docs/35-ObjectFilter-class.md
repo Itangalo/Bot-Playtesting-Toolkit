@@ -43,6 +43,8 @@ Conditions are added like so:
     myFilter.addOrCondition({d: 3});
     myFilter.addNotOrCondition({e: 0}); // Only objects where c = 2, d = 3 _or_ e != 0 will be included.
 
+The methods for adding conditions return the object filter itself, allowing chaining.
+
 ## Applying filters
 
 ### Evaluating against a single object
