@@ -71,3 +71,7 @@ An example of how data can be processed and stored:
     return stats;
 
 Note in particular that the `stats` must be returned. Helper functions, such as `getMax()` used above, are described elsewhere.
+
+## Additional arguments
+
+You might want to run your module in diffent modes, or with different things turned on or off. One way of doing this is to pass extra arguments to the `simulate` function. Any arguments provided beyond the number of iterations and the module to use will be passed to the module functions, so calling `simulate(500, 'myModule', 'default')` will for example call `buildInitialData` passing `'default'` as an argument.
