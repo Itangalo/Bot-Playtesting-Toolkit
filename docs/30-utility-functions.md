@@ -4,7 +4,7 @@ The Bot Playtesting Toolkit provides a number of functions that may come handy w
 
 ## Utility functions for handling arrays
 
-Note that the [ObjectFilter](ObjectFilter.md) class is very handy for selecting or removing items from arrays, based on simple or complex conditions.
+Note that [the ObjectFilter class](35-ObjectFilter-class.md) is very handy for selecting or removing items from arrays, based on simple or complex conditions.
 
 ### sortByProperty()
 
