@@ -104,49 +104,17 @@ tests.helpersGeneral.arrayManagement = function() {
     return 'Limiting range in getLongestStraight is not working properly.';
   if (!compareObjects(getFrequencies([4, 5, 4, 'banana']), {4: 2, 5: 1, banana: 1}))
     return 'getFrequencies is not working properly.';
-  a = [
-    {a: 1, b: 2, c: 3},
-    {a: 2, b: 3, c: 1},
-    {a: 3, b: 1, c: 2},
-    {a: 3, b: 3, c: 2},
-  ];
-  b = pickFromObjectArray(a, 'a', 3, false);
-  if (!compareObjects(b, {a: 3, b: 1, c: 2}))
-    return 'pickFromObjectArray does not pick the right object.';
-  if (a.length != 4)
-    return 'pickFromObjectArray removes objects when it should not.';
-  b = pickFromObjectArray(a, ['a', 'b'], [3, 3], false);
-  if (!compareObjects(b, {a: 3, b: 3, c: 2}))
-    return 'pickFromObjectArray does not pick the right object when provided multiple search criteria.';
-  b = pickFromObjectArray(a, 'a', 3);
-  if (a.length != 3)
-    return 'pickFromObjectArray does not remove objects when it should.';
-  a = [
-    {a: 1, b: 2, c: 3},
-    {a: 2, b: 3, c: 1},
-    {a: 2, b: 3, c: 1},
-    {a: 3, b: 1, c: 2},
-    {a: 3, b: 3, c: 2},
-  ];
-  b = pickAllFromObjectArray(a, 'b', 3, false);
-  if (b.length != 3 || b[0].b != 3 || b[1].b != 3 || b[2].b != 3)
-    return 'pickAllFromObjectArray does not pick the right objects.';
-  if (a.length != 5)
-    return 'pickAllFromObjectArray removes objects when it should not.';
-  b = pickAllFromObjectArray(a, ['a', 'b'], [2, 3], false);
-  if (b.length != 2)
-    return 'pickAllFromObjectArray does not work properly with multiple search criteria.';
-  b = pickAllFromObjectArray(a, ['a', 'b'], [2, 3]);
-  if (a.length != 3)
-    return 'pickAllFromObjectArray does not remove objects when it should.';
 }
-tests.helpersGeneral.getNonZeroThreshold = function() {
+tests.helpersGeneral.getFirstPositiveThreshold = function() {
   let a = [0, 0, 0, 0];
   if (getPositiveThreshold(a) != 1)
     return 'getNonZeroThreshold does not work properly for zero-arrays.';
   a.push(1);
   if (getPositiveThreshold(a) != .8)
     return 'getNonZeroThreshold does not work properly.';
+  a[2] = -1;
+  if (getPositiveThreshold(a) != .8)
+    return 'getNonZeroThreshold does not process negative numbers correctly.';
   a.unshift(1);
   if (getPositiveThreshold(a) != 0)
     return 'getNonZeroThreshold does not work properly for percentile 0.';
@@ -166,7 +134,44 @@ tests.helpersGeneral.getHighestProperty = function() {
 // getSum and getAverage. Perhaps also selectRandom and percentile.
 
 tests.objectFilter = {};
-tests.objectFilter.theLot = function () {
+tests.objectFilter.transferredTests = function() {
+  a = [
+    {a: 1, b: 2, c: 3},
+    {a: 2, b: 3, c: 1},
+    {a: 3, b: 1, c: 2},
+    {a: 3, b: 3, c: 2},
+  ];
+  b = new ObjectFilter({a: 3}).findFirstInArray(a);
+  if (!compareObjects(b, {a: 3, b: 1, c: 2}))
+    return 'ObjectFilter does not pick the right object.';
+  if (a.length != 4)
+    return 'ObjectFilter removes objects when it should not.';
+  b = new ObjectFilter({b: 3}).addAndCondition({a: 3}).findFirstInArray(a);
+  if (!compareObjects(b, {a: 3, b: 3, c: 2}))
+    return 'pickFromObjectArray does not pick the right object when provided multiple search criteria.';
+  b = new ObjectFilter({a: 3}).removeFirstFromArray(a);
+  if (a.length != 3)
+    return 'ObjectFilter does not remove objects when it should.';
+  a = [
+    {a: 1, b: 2, c: 3},
+    {a: 2, b: 3, c: 1},
+    {a: 2, b: 3, c: 1},
+    {a: 3, b: 1, c: 2},
+    {a: 3, b: 3, c: 2},
+  ];
+  b = new ObjectFilter({b: 3}).applyOnArray(a);
+  if (b.length != 3 || b[0].b != 3 || b[1].b != 3 || b[2].b != 3)
+    return 'ObjectFilter does not pick the right objects.';
+  if (a.length != 5)
+    return 'ObjectFilter removes objects when it should not.';
+  b = new ObjectFilter({a: 2}).addAndCondition({b: 3}).applyOnArray(a);
+  if (b.length != 2)
+    return 'ObjectFilter does not work properly with multiple search criteria.';
+  b = new ObjectFilter({a: 2}).addAndCondition({b: 3}).removeFromArray(a);
+  if (a.length != 3)
+    return 'ObjectFilter does not remove objects when it should.';
+}
+tests.objectFilter.individualConditions = function() {
   let arr = [
     {a: 1, b: 1},
     {a: 1, b: 2},
@@ -202,9 +207,30 @@ tests.objectFilter.theLot = function () {
   t.addNotOrCondition({a: 1}).addNotOrCondition({b: 2});
   if (t.applyOnArray(arr).length != 2)
     return 'ObjectFilter does not apply multiple NOT OR conditions properly.';
-
-
-  debugger
+  t = new ObjectFilter({a: 1});
+  t.removeFromArray(arr, 1);
+  if (arr.length != 4)
+    return 'ObjectFilter does not restrict the number of objects to remove (n=1).';
+  t.removeFromArray(arr, 2);
+  if (arr.length != 2)
+    return 'ObjectFilter does not restrict the number of objects to remove (n=2).';
+};
+tests.objectFilter.complexFilter = function() {
+  let t = new ObjectFilter();
+  let arr = [
+    {a: 1, b: 1},
+    {a: 1, b: 2},
+    {a: 1, b: 3},
+    {a: 1, b: 3, c: 0},
+    {a: 2, b: 2, c: 1},
+    {a: 3, b: 2},
+  ];
+  t.addAndCondition({a: [1, 2]});
+  if (t.applyOnArray(arr).length != 5)
+    return 'ObjectFilter does not handle arrayed filter values correctly.';
+  t = new ObjectFilter().addOrCondition({b: 2}).addOrCondition({b: 3}).addAndCondition({a: 3});
+  if (!compareObjects(t.applyOnArray(arr)[0], {a: 3, b: 2}))
+    return 'ObjectFilter does not handle combined AND and OR conditions correctly.';
 };
 
 tests.agents = {};
@@ -418,14 +444,16 @@ tests.track.gridMovement = function() {
   if (spaces.length != 1)
     return 'getSpacesWithinRange does not terminate when the search rim is empty.';
   space = track.getSpace('1x1');
-  spaces = space.getSpacesWithinRange(Number.POSITIVE_INFINITY, true, 'object', {property:'region', value:'woodland'});
+  let filter = new ObjectFilter({region: 'woodland'});
+  spaces = space.getSpacesWithinRange(Number.POSITIVE_INFINITY, true, 'object', filter);
   if (spaces.length != 12)
     return 'Search restrictions do not work properly on getSpacesWithinRange';
-  spaces = space.getMatchingSpacesWithinRange('region', 'woodland');
+  spaces = space.getMatchingSpacesWithinRange(filter);
   if (spaces.length != 12)
     return 'getMatchingSpacesWithinRange does not work properly.';
   space = track.getSpace('3x4');
-  spaces = space.getMatchingSpacesWithinRange('region', 'city');
+  filter = new ObjectFilter({region: 'city'});
+  spaces = space.getMatchingSpacesWithinRange(filter);
   if (spaces.length != 8)
     return 'getMatchingSpacesWithinRange does not include first space regardless of restrictions.';
 };
