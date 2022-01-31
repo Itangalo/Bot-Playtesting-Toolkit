@@ -176,83 +176,6 @@ function shuffle(array) {
   return array;
 }
 
-/**
- * Returns first object in an array matching property:value or false if no match is found.
- * 
- * @param property: The property name to search in, or an array of property names if multiple
- *    property:values pairs should be matched.
- * @param value: The value to match, or an array of values if multiple property:value pairs
- *    should be matched.
- * @param {boolean} remove: Whether to also remove the object from the array. Defaults to true.
- */
-function pickFromObjectArray(objectArray, property, value, remove = true) {
-  if (objectArray.length == 0)
-    return false;
-  // Turn single-value search criteria into arrays.
-  if (typeof property != 'object')
-    property = [property];
-  if (typeof value != 'object')
-    value = [value];
-  if (property.length != value.length)
-    throw('The number of values to search for must match the number of properties.');
-
-  // Find the first matching object.
-  for (let i in objectArray) {
-    let match = true;
-    for (let j in property) {
-      if (objectArray[i][property[j]] != value[j])
-        match = false;
-    }
-    if (match) {
-      if (remove)
-        return objectArray.splice(i, 1)[0];
-      else
-        return objectArray[i];
-    }
-  }
-  return false;
-}
-
-/**
- * Returns an array with all objects matching property:value in the search array.
- * 
- * @param property: The property name to search in, or an array of property names if multiple
- *    property:values pairs should be matched.
- * @param value: The value to match, or an array of values if multiple property:value pairs
- *    should be matched.
- * @param {boolean} remove: Whether to also remove the objects from the array. Defaults to true.
- */
-function pickAllFromObjectArray(objectArray, property, value, remove = true) {
-  let result = [];
-  if (objectArray.length == 0)
-    return result;
-  // Turn single-value search criteria into arrays.
-  if (typeof property != 'object')
-    property = [property];
-  if (typeof value != 'object')
-    value = [value];
-  if (property.length != value.length)
-    throw('The number of values to search for must match the number of properties.');
-
-  // Find matching objects.
-  for (let i = 0; i < objectArray.length; i++) {
-    let match = true;
-    for (let j in property) {
-      if (objectArray[i][property[j]] != value[j])
-        match = false;
-    }
-    if (match) {
-      if (remove) {
-        result.push(objectArray.splice(i, 1));
-        i--; // The indices are shifted, so we move back one step.
-      }
-      else
-        result.push(objectArray[i]);
-    }
-  }
-  return result;
-}
-
 // Returns how many times 'value' occurs in 'array'.
 function getFrequency(array, value) {
   let frequency = 0;
@@ -389,7 +312,7 @@ function isIterable(obj) {
 function getAgentById(id) {
   if (!gameState.agents)
     return false;
-  return pickFromObjectArray(gameState.agents, 'id', id, false);
+  return new ObjectFilter({id: id}).findFirstInArray(gameState.agents);
 }
 
 // Selects a and returns a random element from an array. If the array consists of
@@ -532,7 +455,7 @@ function compareObjects(o1, o2) {
  * @param {string} type: The type of object: cards, spaces or goods.
  * @param {string} method: The name of the resolver method.
  */
-function callResolver(type, method) {
+function callResolver(method) {
   if (!method)
     return false;
 
@@ -540,14 +463,10 @@ function callResolver(type, method) {
     log('Active module does not have any resolvers.', 'error');
     return false;
   }
-  if (!modules[module].resolvers[type]) {
-    log('Active module does not have any resolvers for ' + type + '.', 'error');
-    return false;
-  }
-  if (!modules[module].resolvers[type][method]) {
-    log('Active module does not have a resolver ' + method + ' for ' + type + '.', 'error');
+  if (!modules[module].resolvers[method]) {
+    log('Active module does not have a resolver ' + method + '.', 'error');
     return false;
   }
 
-  return modules[module].resolvers[type][method](...parseArguments(arguments, 2));
+  return modules[module].resolvers[type][method](...parseArguments(arguments, 1));
 }

@@ -57,7 +57,7 @@ The property `autoFillDisplay` can be set to `true` to have BPT automatically fi
 
 ### Card properties
 
-The property `resolver` can be set to any name of a function stored at `modules[module].resolvers.cards`. Calling card.resolve(...arguments) will send off the request to the resolver function of the card and return the result. If the card has no resolver, `false` is returned.
+The property `resolver` can be set to any name of a function stored at `modules[module].resolvers`. Calling card.resolve(...arguments) will send off the request to the resolver function of the card and return the result. If the card has no resolver, `false` is returned.
 
 `myCard.deck` points to the deck from which the card was created.
 
@@ -149,4 +149,4 @@ Adds the card to the bottom of the card's deck.
 
 `myCard.resolve(...arguments)`
 
-Calls any resolver set for the card and returns the result. Any arguments provided will be passed on to the resolver. The card needs to have a the property 'resolver' set and a corresponding method must be placed in modules[module].resolvers.cards. If no resolver is set, `false` is returned.
+Calls any resolver set for the card and returns the result. Any arguments provided will be passed on to the resolver. The card needs to have a the property 'resolver' set and a corresponding method must be placed in modules[module].resolvers. If no resolver is set, `false` is returned.

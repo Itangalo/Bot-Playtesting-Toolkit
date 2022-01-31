@@ -4,6 +4,8 @@ The Bot Playtesting Toolkit provides a number of functions that may come handy w
 
 ## Utility functions for handling arrays
 
+Note that [the ObjectFilter class](35-ObjectFilter-class.md) is very handy for selecting or removing items from arrays, based on simple or complex conditions.
+
 ### sortByProperty()
 
 `sortByProperty(objArray, property, ascending = true)`
@@ -25,28 +27,6 @@ This function sorts an array of objects based on a given sub property. The array
 `shuffle(array)`
 
 This function randomizes the order of elements in an array. The array is changed in place and the array is also returned.
-
-### pickFromObjectArray()
-
-`pickFromObjectArray(objectArray, property, value, remove = true)`
-
-Example usage 1: `pickFromObjectArray(gameState.decks.myDeck.discardPile, 'title', 'Library of Leng')`
-Example usage 2: `pickFromObjectArray(gameState.decks.myDeck.discardPile, ['colour', 'value'], ['spades', 1])`
-
-Returns the first object matching property:value in an array of objects, or `false` if no match is found. If multiple property:value pairs should be fulfilled, provide them as arrays.
-
-`remove` determines whether the object should be removed from the search array or not. Defaults to `true`.
-
-### pickAllFromObjectArray()
-
-`pickAllFromObjectArray(objectArray, property, value, remove = true)`
-
-Example usage 1: pickAllFromObjectArray(gameState.availableQuests, 'startingPlace', 'Village')
-Example usage 1: pickAllFromObjectArray(gameState.theStore, ['type', 'cost'], ['potion', 2], false)
-
-Returns an array of all objects matching property:value in an array of objects, defaulting to an empty array if none are found. If multiple property:value pairs should be fulfilled, provide them as arrays.
-
-`remove` determines whether the objects should be removed from the search array or not. Defaults to `true`.
 
 ### getFrequency()
 
@@ -96,6 +76,11 @@ Goes through all the objects in the provided array and returns the sum of the va
 
 Goes through all the objects in the provided array and returns the arithmetic mean of the values in the given property (or sub property).
 
+### getPositiveThreshold()
+
+`getPositiveThreshold(arr)`
+
+Returns the percentile (as a decimal) where the array value first becomes positive. Assumes that the array is sorted. For example, `getPositiveThreshold([-1, 0, 0, 2])` would return `.75`.
 
 ## Other utility functions
 

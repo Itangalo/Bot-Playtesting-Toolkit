@@ -25,8 +25,9 @@ function simulate(iterations = false, mod = false) {
   if (mod !== false)
     module = mod;
 
+  let extraArguments = parseArguments(arguments, 2);
   log('Starting to build initial data.', 'system');
-  let gameStateSeed = modules[module].buildInitialData();
+  let gameStateSeed = modules[module].buildInitialData(...extraArguments);
   log('Initial data complete.', 'system');
 
   /**
@@ -70,23 +71,23 @@ function simulate(iterations = false, mod = false) {
     }
 
     // Make any customized additional processing of the game state.
-    modules[module].preIteration();
+    modules[module].preIteration(...extraArguments);
 
     /**
      * Play the game until it is over.
      */
     gameState.round = 0;
     log('Starting first round in iteration ' + iteration, 'system');
-    while (!modules[module].gameOver()) {
+    while (!modules[module].gameOver(...extraArguments)) {
       gameState.round++;
       // Call the function carrying out the actual actions in a round.
-      modules[module].playRound();
+      modules[module].playRound(...extraArguments);
     }
 
     /**
      * Process data that should be stored for statistics.
      */
-    results.push(modules[module].buildStatistics());
+    results.push(modules[module].buildStatistics(...extraArguments));
   }
 
   /**
