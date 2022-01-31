@@ -1,5 +1,12 @@
 /**
  * Class for creating and applying filters/conditions on object properties.
+ * 
+ * @param {object} andCondition: Any AND condition to add when the filter is created.
+ * 
+ * Any conditions are added either on the form {a: value} or {a: [value1, value2, ...]},
+ * where the condition is fulfilled if property 'a' has _any_ of the provided values.
+ * Conditions are combined by the addAndCondition(), addOrCondition, addNotCondition() and
+ * addNorOrCondition() methods.
  */
 class ObjectFilter {
   constructor(andCondition = false) {
@@ -12,22 +19,43 @@ class ObjectFilter {
       this.addAndCondition(andCondition);
   }
 
-  // Methods for adding new conditions.
+  /**
+   * Adds an AND condition to the filter. See class documentation for details.
+   */
   addAndCondition(condition) {
-    this.andConditions.push(condition);
+    this.andConditions.push(this._assureConditionFormat(condition));
     return this;
   }
+  /**
+   * Adds an OR condition to the filter. See class documentation for details.
+   */
   addOrCondition(condition) {
-    this.orConditions.push(condition);
+    this.orConditions.push(this._assureConditionFormat(condition));
     return this;
   }
+  /**
+   * Adds an NOT condition to the filter. See class documentation for details.
+   */
   addNotCondition(condition) {
-    this.notConditions.push(condition);
+    this.notConditions.push(this._assureConditionFormat(condition));
     return this;
   }
+  /**
+   * Adds an NOT OR condition to the filter. See class documentation for details.
+   */
   addNotOrCondition(condition) {
-    this.notOrConditions.push(condition);
+    this.notOrConditions.push(this._assureConditionFormat(condition));
     return this;
+  }
+
+  // Used internally to convert all condition values into arrays.
+  _assureConditionFormat(condition) {
+    if (condition instanceof ObjectFilter)
+      return condition;
+    for (let i in condition)
+      if (condition[i] === undefined || typeof(condition[i].includes) != 'function')
+        condition[i] = [condition[i]];
+    return condition;
   }
   
   /**
@@ -42,39 +70,47 @@ class ObjectFilter {
   applyOnObject(obj) {
     // Check AND conditions.
     for (let c of this.andConditions)
-      for (let p in c)
-        if (!this.valueMathces(obj[p], c[p])) return false;
+      if (c instanceof ObjectFilter && c.applyOnObject(obj) === false)
+        return false;
+      else {
+        for (let p in c)
+          if (!c[p].includes(obj[p])) return false;
+      }
     // Check NOT conditions.
     for (let c of this.notConditions)
-      for (let p in c)
-        if (this.valueMathces(obj[p], c[p])) return false;
-
+      if (c instanceof ObjectFilter && c.applyOnObject(obj) === true)
+        return false;
+      else {
+        for (let p in c)
+          if (c[p].includes(obj[p])) return false;
+      }
     // All AND checks passed. If no OR checks exist, we are done.
     if (this.orConditions.length == 0 && this.notOrConditions.length == 0)
       return true;
 
     // Check OR conditions.
     for (let c of this.orConditions)
-      for (let p in c)
-        if (this.valueMathces(obj[p], c[p])) return true;
+      if (c instanceof ObjectFilter && c.applyOnObject(obj) === true)
+        return true;
+      else {
+        for (let p in c)
+          if (c[p].includes(obj[p])) return true;
+      }
     // Check NOT OR conditions.
     for (let c of this.notOrConditions)
-      for (let p in c)
-        if (!this.valueMathces(obj[p], c[p])) return true;
-
+      if (c instanceof ObjectFilter && c.applyOnObject(obj) === false)
+        return true;
+      else {
+        for (let p in c)
+          if (!c[p].includes(obj[p])) return true;
+      }
     // No OR conditions fulfilled if we reach this line.
     return false;
   }
 
-  // Internally used function for comparing values, including checking if value exists in array.
-  valueMathces(search, target) {
-    if (search === undefined)
-      return (target === undefined);
-    if (typeof(search.includes) == 'function')
-      return (search.includes(target));
-    return (search === target);
-  }
-
+  /**
+   * Applies the filter on an array of objects and returns the matching objects (in an array).
+   */
   applyOnArray(objectArray) {
     let output = [];
     for (let o of objectArray)
@@ -82,10 +118,34 @@ class ObjectFilter {
     return output;
   }
 
-  removeFromArray(objectArray) {
+  /**
+   * Returns the first object in an array matching the condition, or false if none is found.
+   */
+  findFirstInArray(objectArray) {
+    for (let o of objectArray)
+      if (this.applyOnObject(o)) return o;
+    return false;
+  }
+
+  /**
+   * Removes the first matching object from an array and returns it, or false if none is found.
+   */
+  removeFirstFromArray(objectArray) {
+    let output = this.removeFromArray(objectArray, 1);
+    if (!output.length)
+      return false;
+    return output[0];
+  }
+
+  /**
+   * Applies the filter on an array of objects. Removes and returns the matching objects.
+   * 
+   * @param {number} maxNumber: If set, at most this number of objects are removed.
+   */
+  removeFromArray(objectArray, maxNumber = Number.POSITIVE_INFINITY) {
     let output = [];
     let i = 0;
-    while (i < objectArray.length) {
+    while (i < objectArray.length && output.length < maxNumber) {
       if (this.applyOnObject(objectArray[i]))
         output.push(objectArray.splice(i, 1)[0]);
       else
@@ -93,12 +153,4 @@ class ObjectFilter {
     }
     return output;
   }
-}
-
-
-function tmp2() {
-  let a = ['a', 'b'];
-  Logger.log(typeof(a.includes));
-  a = {a: 1, b: 2};
-  Logger.log(typeof(a.includes));
 }
