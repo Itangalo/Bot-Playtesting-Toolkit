@@ -58,7 +58,7 @@ The property `any` is used for specifying costs that could be paid with _any_ re
 
 The property `anyButSame` is used for specifying costs that could be paid with _any_ resource type handled by the market, but where the resources must be the same (such as in trading 4:1 in Catan).
 
-The property `resolver` can be set to any name of a function stored at `modules[module].resolvers.goods`. Calling goods.resolve(...arguments) will send off the request to the resolver function of the goods and return the result. If the goods has no resolver, `false` is returned.
+The property `resolver` can be set to any name of a function stored at `modules[module].resolvers`. Calling goods.resolve(...arguments) will send off the request to the resolver function of the goods and return the result. If the goods has no resolver, `false` is returned.
 
 `myGoods.quantity` holds how many units of the goods type is available at the market.
 
@@ -153,10 +153,10 @@ If `resolve` is set to `true`, any resolver for the goods will be called if the 
 
 `myMarket.resolve(goodsId, ...arguments)`
 
-Calls any resolver set for the goods type in the active module. Any arguments provided after the goods ID will be sent to the resolver. The goods needs to have a the property `resolver` set and a corresponding method must be placed in `modules[module].resolvers.goods`. Note that the resolver also can be called from `myGoods.resolve()`.
+Calls any resolver set for the goods type in the active module. Any arguments provided after the goods ID will be sent to the resolver. The goods needs to have a the property `resolver` set and a corresponding method must be placed in `modules[module].resolvers`. Note that the resolver also can be called from `myGoods.resolve()`.
 
 ### myGoods.resolve()
 
 `myGoods.resolve(...arguments)`
 
-Passes on work to any resolver function declared for the goods, along with any parameters. The goods needs to have a the property `resolver` set and a corresponding method must be placed in `modules[module].resolvers.goods`.
+Passes on work to any resolver function declared for the goods, along with any parameters. The goods needs to have a the property `resolver` set and a corresponding method must be placed in `modules[module].resolvers`.
