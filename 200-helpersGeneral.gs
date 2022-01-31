@@ -455,7 +455,7 @@ function compareObjects(o1, o2) {
  * @param {string} type: The type of object: cards, spaces or goods.
  * @param {string} method: The name of the resolver method.
  */
-function callResolver(type, method) {
+function callResolver(method) {
   if (!method)
     return false;
 
@@ -463,14 +463,10 @@ function callResolver(type, method) {
     log('Active module does not have any resolvers.', 'error');
     return false;
   }
-  if (!modules[module].resolvers[type]) {
-    log('Active module does not have any resolvers for ' + type + '.', 'error');
-    return false;
-  }
-  if (!modules[module].resolvers[type][method]) {
-    log('Active module does not have a resolver ' + method + ' for ' + type + '.', 'error');
+  if (!modules[module].resolvers[method]) {
+    log('Active module does not have a resolver ' + method + '.', 'error');
     return false;
   }
 
-  return modules[module].resolvers[type][method](...parseArguments(arguments, 2));
+  return modules[module].resolvers[type][method](...parseArguments(arguments, 1));
 }

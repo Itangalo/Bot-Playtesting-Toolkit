@@ -24,7 +24,7 @@
  *    - quantity: Set to an integer to limit the amount of that type of goods.
  *      Defaults to infinite.
  *    - maxQuantity: Set to an integer to cap the possible amount of the goods type.
- *    - resolver: Name of a method in modules[module].resolcer.goods. Called
+ *    - resolver: Name of a method in modules[module].resolver. Called
  *      through market.resolve(goodsId, arguments...).
  */
 
@@ -255,7 +255,7 @@ class Market {
     this.goods[goodsId].quantity -= amount;
 
     if (resolve) {
-      let args = parseArguments(arguments, 3);
+      let args = parseArguments(arguments, 4);
       return this.resolve(goodsId, ...args);
     }
     return this[goodsId];
@@ -264,7 +264,7 @@ class Market {
    * Calls any resolver set for the goods type in the active module.
    * Any arguments after the goods ID will be sent to the resolver.
    * The goods needs to have a the property 'resolver' set and a corresponding
-   * method must be placed in modules[module].resolvers.goods.
+   * method must be placed in modules[module].resolvers.
    * Note that resolver also can be called from goods.resolve().
    */
   resolve(goodsId) {
@@ -273,7 +273,7 @@ class Market {
       return false;
     }
     let args = parseArguments(arguments, 1);
-    return callResolver('goods', this[goodsId].resolver, ...args);
+    return callResolver(this[goodsId].resolver, ...args);
   }
 }
 
@@ -294,8 +294,8 @@ class Goods {
    *  - quantity: Set to an integer to limit the amount of that type of goods.
    *    Defaults to infinite.
    *  - maxQuantity: Set to an integer to cap the possible amount of the goods type.
-   *  - resolver: Name of a method in the goodsResolver object. Called
-   *    through goods.resolve(arguments...) or market.resolve(goodsId, arguments...).
+   *  - resolver: Name of a resolver method. Called through goods.resolve(arguments...)
+   *    or market.resolve(goodsId, arguments...).
    * @param {Market} market: A market object, to which the goods should be added.
    */
   constructor(goodsData, market) {
@@ -318,9 +318,9 @@ class Goods {
    * Passes on work to any resolver function declared for the goods,
    * along with any parameters. The goods needs to have a the property
    * 'resolver' set and a corresponding method must be placed in
-   * modules[module].resolvers.goods.
+   * modules[module].resolvers.
    */
   resolve() {
-    return callResolver('goods', this.resolver, ...arguments);
+    return callResolver(this.resolver, ...arguments);
   }
 }

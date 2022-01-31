@@ -16,7 +16,7 @@ class Deck {
    *
    * @param {Array} cardDataArray: An array of objects which will be used to create cards.
    * Optional. Special properties used for cards:
-   *  - resolver (string): Name of method in modules[module].resolvers.cards. Called from card.resolver().
+   *  - resolver (string): Name of method in modules[module].resolvers. Called from card.resolver().
    */
   constructor(deckData, cardDataArray = false) {
     // Add default settings, overwrite with provided data.
@@ -260,9 +260,9 @@ class Card {
   /**
    * Calls any resolver set for the card. Any arguments will be sent to the resolver.
    * The card needs to have a the property 'resolver' set and a corresponding
-   * method must be placed in modules[module].resolvers.cards.
+   * method must be placed in modules[module].resolvers.
    */
   resolve() {
-    return callResolver('cards', this.resolver, ...arguments);
+    return callResolver(this.resolver, ...arguments);
   }
 }

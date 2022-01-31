@@ -382,8 +382,7 @@ class Space {
    * Some special properties for spaceData:
    *    - connectsTo: A space ID or an array of IDs, to which the space connects. Only relevant if
    *      the track.gridMovement is true.
-   *    - resolver: Name of a method in the spaceResolver object. Called
-   *      through track.resolve(pawnId).
+   *    - resolver: Name of a resolver method. Called through track.resolve(pawnId).
    */
   constructor(spaceData, track) {
     if (!track instanceof Track)
@@ -460,10 +459,10 @@ class Space {
   /**
    * Passes on work to any resolver function declared for the space, along
    * with any parameters. Spaces needs to have a the property 'resolver' set
-   * and a corresponding method must be placed in modules[module].resolvers.spaces.
+   * and a corresponding method must be placed in modules[module].resolvers.
    */
   resolve() {
-    return callResolver('spaces', this.resolver, ...arguments);
+    return callResolver(this.resolver, ...arguments);
   }
 }
 
@@ -619,12 +618,12 @@ class Pawn {
   /**
    * Calls any resolver set for the pawn's space. Any arguments will be sent to the resolver.
    * The space needs to have a the property 'resolver' set and a corresponding method must
-   * be placed in modules[module].resolvers.spaces. Note that resolver also can be called from
+   * be placed in modules[module].resolvers. Note that resolver also can be called from
    * space.resolve().
    */
   resolve() {
     if (!this.space)
       return false;
-    return this.space.resove(...arguments);
+    return this.space.resolve(...arguments);
   }
 }
