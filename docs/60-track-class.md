@@ -220,7 +220,7 @@ See `mySpace.getSpacesWithinRange()` for a closer description.
 
 `mySpace.resolve(...arguments)`
 
-Calls any resolver set for the space. Any arguments will be sent to the resolver. The space needs to have a the property `resolver` set and a corresponding method must be placed in `modules[module].resolvers.spaces`.
+Calls any resolver set for the space. Any arguments will be sent to the resolver. The space needs to have a the property `resolver` set and a corresponding method must be placed in `modules[module].resolvers`.
 
 ### myPawn.setSpace()
 
