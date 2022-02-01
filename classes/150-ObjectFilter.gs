@@ -22,6 +22,7 @@ class ObjectFilter {
    */
   and() {
     this.addMode = 'andConditions';
+    return this;
   }
 
   /**
@@ -29,6 +30,7 @@ class ObjectFilter {
    */
   or() {
     this.addMode = 'orConditions';
+    return this;
   }
 
   /**

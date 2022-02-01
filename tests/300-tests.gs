@@ -146,7 +146,7 @@ tests.objectFilter.transferredTests = function() {
     return 'ObjectFilter does not pick the right object.';
   if (a.length != 4)
     return 'ObjectFilter removes objects when it should not.';
-  b = new ObjectFilter({b: 3}).addAndCondition({a: 3}).findFirstInArray(a);
+  b = new ObjectFilter({b: 3}).addEqualsCondition({a: 3}).findFirstInArray(a);
   if (!compareObjects(b, {a: 3, b: 3, c: 2}))
     return 'pickFromObjectArray does not pick the right object when provided multiple search criteria.';
   b = new ObjectFilter({a: 3}).removeFirstFromArray(a);
@@ -164,10 +164,10 @@ tests.objectFilter.transferredTests = function() {
     return 'ObjectFilter does not pick the right objects.';
   if (a.length != 5)
     return 'ObjectFilter removes objects when it should not.';
-  b = new ObjectFilter({a: 2}).addAndCondition({b: 3}).applyOnArray(a);
+  b = new ObjectFilter({a: 2}).addEqualsCondition({b: 3}).applyOnArray(a);
   if (b.length != 2)
     return 'ObjectFilter does not work properly with multiple search criteria.';
-  b = new ObjectFilter({a: 2}).addAndCondition({b: 3}).removeFromArray(a);
+  b = new ObjectFilter({a: 2}).addEqualsCondition({b: 3}).removeFromArray(a);
   if (a.length != 3)
     return 'ObjectFilter does not remove objects when it should.';
 }
@@ -188,23 +188,23 @@ tests.objectFilter.individualConditions = function() {
   let a = t.removeFromArray(arr);
   if (a.length != 6 || arr.length != 0)
     return 'ObjectFilter does not splice object arrays properly.';
-  t.addAndCondition({a: 1});
+  t.addEqualsCondition({a: 1});
   if (t.applyOnObject(a[0] !== true) || t.applyOnObject(a[4]) !== false)
     return 'ObjectFilter does not apply single AND condition properly.';
-  t.addAndCondition({b: 2});
+  t.addEqualsCondition({b: 2});
   if (t.applyOnObject(a[1] !== true) || t.applyOnObject(a[0]) !== false)
     return 'ObjectFilter does not apply multiple AND condition properly.';
-  t.addOrCondition({c: 0});
+  t.or().addEqualsCondition({c: 0});
   if (t.applyOnObject(a[1]) === true)
     return 'ObjectFilter does not apply single OR condition properly.';
-  t = new ObjectFilter().addOrCondition({a: 1}).addOrCondition({a: 2});
+  t = new ObjectFilter().or().addEqualsCondition({a: 1}).addEqualsCondition({a: 2});
   arr = t.removeFromArray(a);
   if (arr.length != 5 || a.length != 1)
     return 'ObjectFilter does not apply multiple OR conditions properly.';
-  t.addNotCondition({c: undefined});
+  t.and().addNotEqualsCondition({c: undefined});
   if (t.applyOnArray(arr).length != 2)
     return 'ObjectFilter does not apply NOT condition on undefined properties correctly.';
-  t.addNotOrCondition({a: 1}).addNotOrCondition({b: 2});
+  t.or().addNotEqualsCondition({a: 1}).addNotEqualsCondition({b: 2});
   if (t.applyOnArray(arr).length != 2)
     return 'ObjectFilter does not apply multiple NOT OR conditions properly.';
   t = new ObjectFilter({a: 1});
@@ -225,10 +225,10 @@ tests.objectFilter.complexFilter = function() {
     {a: 2, b: 2, c: 1},
     {a: 3, b: 2},
   ];
-  t.addAndCondition({a: [1, 2]});
+  t.addEqualsCondition({a: [1, 2]});
   if (t.applyOnArray(arr).length != 5)
     return 'ObjectFilter does not handle arrayed filter values correctly.';
-  t = new ObjectFilter().addOrCondition({b: 2}).addOrCondition({b: 3}).addAndCondition({a: 3});
+  t = new ObjectFilter().or().addEqualsCondition({b: 2}).addEqualsCondition({b: 3}).and().addEqualsCondition({a: 3});
   if (!compareObjects(t.applyOnArray(arr)[0], {a: 3, b: 2}))
     return 'ObjectFilter does not handle combined AND and OR conditions correctly.';
 };
