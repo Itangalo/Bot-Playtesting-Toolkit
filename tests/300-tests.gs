@@ -232,6 +232,44 @@ tests.objectFilter.complexFilter = function() {
   if (!compareObjects(t.applyOnArray(arr)[0], {a: 3, b: 2}))
     return 'ObjectFilter does not handle combined AND and OR conditions correctly.';
 };
+tests.objectFilter.greaterLesser = function() {
+  let arr = [
+    {a: 1, b: 1},
+    {a: 1, b: 2},
+    {a: 1, b: 3},
+    {a: 1, b: 3, c: 0},
+    {a: 2, b: 2, c: 1},
+    {a: 3, b: 2},
+  ];
+  let t = new ObjectFilter();
+  t.addGreaterThanCondition({b: 2});
+  if (t.applyOnArray(arr).length != 2)
+    return 'GreaterThan condition does not work properly.';
+  t.addLessThanCondition({c: 1});
+  if (t.applyOnArray(arr).length != 1)
+    return 'LessThan condition does not work properly on empty values.';
+  t = new ObjectFilter();
+  t.addGreaterOrEqualCondition({a: 2});
+  if (t.applyOnArray(arr).length != 2)
+    return 'Greater-or-equal condition does not work properly.';
+  t.addLessOrEqualCondition({c: 1});
+  if (t.applyOnArray(arr).length != 1)
+    return 'Less-or-equal condition does not work properly.';
+}
+tests.objectFilter.filterCondition = function() {
+  let arr = [
+    {a: 1, b: 1},
+    {a: 1, b: 2},
+    {a: 1, b: 3},
+    {a: 1, b: 3, c: 0},
+    {a: 2, b: 2, c: 1},
+    {a: 3, b: 2},
+  ];
+  let t = new ObjectFilter().or().addEqualsCondition({b: 1}).addEqualsCondition({b: 2});
+  let t2 = new ObjectFilter({c: undefined}).addFilterCondition(t);
+  if (t2.applyOnArray(arr).length != 3)
+    return 'FilterCondition does not work properly.';
+}
 
 tests.agents = {};
 tests.agents.properties = function() {
