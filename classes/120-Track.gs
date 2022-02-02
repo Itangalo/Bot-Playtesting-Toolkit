@@ -14,6 +14,8 @@
  *    - gridMovement: If true, possible movement is defined through connections on spaces. Defaults to false.
  *    - symmetricConnections: If true, any connections between spaces are assumed to go both ways.
  *      Only relevant if gridMovement is true. Defaults to true.
+ *    - cacheGraph: If true, the created map of connections between spaces is stored between game iterations.
+ *      Only use if the connections do not change within or between games. Defaults to false.
  *
  * @param {Array} spacesDataArray: An array of objects describing each space on the track.
  * See Space class for details.
@@ -60,19 +62,29 @@ class Track {
     // Build a graph of how the spaces connect, if advanced movement is used.
     // Data used by the a-star algorithm, to find paths in the grid.
     if (this.gridMovement) {
-      this.graph = [];
-      for (let i = 0; i < this.spaces.length; i++)
-        this.graph.push([]);
-      for (let s of this.spaces) {
-        for (let c of s.connectsTo) {
-          let target = new ObjectFilter({id: c}).findFirstInArray(this.spaces);
-          this.graph[s.index][target.index] = 1;
-          if (this.symmetricConnections)
-            this.graph[target.index][s.index] = 1;
-        }
+      if (this.cacheGraph) {
+        this.graph = getCache('track.' + this.id + '.grid');
+        this.heuristic = getCache('track.' + this.id + '.heuristic');
       }
-      let row = Array(this.graph.length).fill(1);
-      this.heuristic = Array(this.graph.length).fill(row);
+      else
+        this.graph = false;
+      if (!this.graph) {
+        this.graph = [];
+        for (let i = 0; i < this.spaces.length; i++)
+          this.graph.push([]);
+        for (let s of this.spaces) {
+          for (let c of s.connectsTo) {
+            let target = new ObjectFilter({id: c}).findFirstInArray(this.spaces);
+            this.graph[s.index][target.index] = 1;
+            if (this.symmetricConnections)
+              this.graph[target.index][s.index] = 1;
+          }
+        }
+        let row = Array(this.graph.length).fill(1);
+        this.heuristic = Array(this.graph.length).fill(row);
+        setCache('track.' + this.id + '.grid', this.graph);
+        setCache('track.' + this.id + '.heuristic', this.heuristic);
+      }
       this.pawnPaths = {};
     }
 

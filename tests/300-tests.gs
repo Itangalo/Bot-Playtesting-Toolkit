@@ -433,7 +433,7 @@ tests.track.convertions = function() {
     return 'convertSpaceData does not convert to property values correctly.';
 };
 tests.track.gridMovement = function() {
-  let tData = buildObjectFromLine('testData', 'K6:K8');
+  let tData = buildObjectFromLine('testData', 'K6:K9');
   let sData = buildObjectArrayFromRows('testData', 'L2:N63');
   let track = new Track(tData, sData);
   if (track.spaces[0].connectsTo[0] != '1x2')

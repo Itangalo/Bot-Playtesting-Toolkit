@@ -302,7 +302,7 @@ function copy(object) {
  * Returns a cached object, identified by 'key', or undefined if it is not cached.
  * Cached objects are kept between game iterations.
  */
-getChace = function(key, value) {
+function getCache(key) {
   if (!BPTstatic.cache) {
     BPTstatic.cache = {};
     return undefined;
@@ -313,7 +313,7 @@ getChace = function(key, value) {
 /**
  * Stores an object in the cache, to use in future game iterations. Identified by 'key'.
  */
-setCache = function(key, value) {
+function setCache(key, value) {
   if (!BPTstatic.cache)
     BPTstatic.cache = {};
   BPTstatic.cache[key] = value;
