@@ -20,7 +20,7 @@ class Deck {
    */
   constructor(deckData, cardDataArray = false) {
     // Add default settings, overwrite with provided data.
-    Object.assign(this, applyDefaults(global.defaults.deck, deckData));
+    Object.assign(this, applyDefaults(BPTstatic.defaults.deck, deckData));
     // Verify that an ID is present.
     Object.assign(this, deckData);
     if (this.id === undefined)

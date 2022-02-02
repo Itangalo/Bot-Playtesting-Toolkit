@@ -3,7 +3,7 @@
  */
 
 function setInitialDefaults() {
-  global.defaults = {
+  BPTstatic.defaults = {
     module: 'example1',
     iterations: 100,
     logging : {
@@ -49,7 +49,7 @@ function setInitialDefaults() {
     },
   };
   // Apply some defaults right away.
-  module = global.defaults.module;
+  module = BPTstatic.defaults.module;
   for (let i of ['logging', 'statistics'])
-    global[i] = global.defaults[i];
+    BPTstatic[i] = BPTstatic.defaults[i];
 }

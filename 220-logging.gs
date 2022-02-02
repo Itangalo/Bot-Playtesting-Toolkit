@@ -9,9 +9,9 @@
  * @param {string} type: The type of log message, used for restricting actual output.
  */
 function log(message, type) {
-  if (global.logging.categories[type]) {
-    if (global.logging.showTimestamps)
-      message += ' (time: ' + (Date.now() - global.startTime) + ')';
+  if (BPTstatic.logging.categories[type]) {
+    if (BPTstatic.logging.showTimestamps)
+      message += ' (time: ' + (Date.now() - BPTstatic.startTime) + ')';
     Logger.log(message);
   }
 }

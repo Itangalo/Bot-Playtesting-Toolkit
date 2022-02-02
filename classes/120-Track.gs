@@ -23,7 +23,7 @@
 class Track {
   constructor(trackData, spacesDataArray = false, pawnsDataArray = false) {
     // Add default settings, overwrite with provided data.
-    Object.assign(this, applyDefaults(global.defaults.track, trackData));
+    Object.assign(this, applyDefaults(BPTstatic.defaults.track, trackData));
     // Verify that an ID is present.
     if (this.id === undefined)
       throw('Tracks must have an id property set.');
@@ -138,7 +138,7 @@ class Track {
       if (this.assumePresent) {
         return new Pawn({id: pawnId}, this);
       }
-      if (global.debugRunning)
+      if (BPTstatic.debugRunning)
         return false;
       throw('Tried to get pawn ' + pawnId + ' but no such pawn exist on track + ' + this.id + '.');
     }

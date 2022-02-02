@@ -7,12 +7,12 @@
 
 // Wrapper to allow skipping some intentional errors when debugging.
 function debugTests() {
-  global.debugRunning = true;
+  BPTstatic.debugRunning = true;
   runTests();
 }
 
 function runTests() {
-  global.testRunning = true;
+  BPTstatic.testRunning = true;
   setInitialDefaults();
 
   let errors = [];
@@ -372,7 +372,7 @@ tests.track.basic = function() {
   try {pawn = track.getPawn('pawn1');} // This should fail.
   catch (error) {ok = true;}
   finally {
-    if (!ok && !global.debugRunning) return 'Pawns are incorrectly assumed to be present on the track.';
+    if (!ok && !BPTstatic.debugRunning) return 'Pawns are incorrectly assumed to be present on the track.';
   }
   track.assumePresent = true;
   pawn = track.getPawn('pawn1');

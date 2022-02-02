@@ -11,11 +11,11 @@
  */
 
 // Initiate some global variables.
-var global = {}; // Further populated by buildInitialData().
+var BPTstatic = {}; // Further populated by buildInitialData().
 var modules = {}; // Populated by custom code.
 var module;
 var gameState = {};
-global.startTime = Date.now();
+BPTstatic.startTime = Date.now();
 
 function simulate(iterations = false, mod = false) {
   // Set global default values.
@@ -35,7 +35,7 @@ function simulate(iterations = false, mod = false) {
    */
   let results = []; // Variable used to save data from each game iteration.
   if (!iterations)
-    iterations = global.defaults.iterations;
+    iterations = BPTstatic.defaults.iterations;
   for (let iteration = 1; iteration <= iterations; iteration++) {
     /**
      * Set up each game.
