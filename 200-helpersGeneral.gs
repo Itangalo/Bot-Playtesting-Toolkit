@@ -298,16 +298,6 @@ function copy(object) {
   return JSON.parse(JSON.stringify(object));
 }
 
-// Checks if an object/array is iterable.
-// Code from https://stackoverflow.com/questions/18884249/checking-whether-something-is-iterable
-function isIterable(obj) {
-  // checks for null and undefined
-  if (obj == null) {
-    return false;
-  }
-  return typeof obj[Symbol.iterator] === 'function';
-}
-
 // Returns the agent with the matching id or false if none is found.
 function getAgentById(id) {
   if (!gameState.agents)
