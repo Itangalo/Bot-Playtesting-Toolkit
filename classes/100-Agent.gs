@@ -99,6 +99,7 @@ class Agent {
     if (!modules[module].agentStrategies[this.strategy][method])
       throw('Method ' + method + ' does not exist in ' + this.strategy + '.');
 
-    return modules[module].agentStrategies[this.strategy][method](this, ...arguments);
+    let args = parseArguments(arguments, 1);
+    return modules[module].agentStrategies[this.strategy][method](this, ...args);
   }
 }

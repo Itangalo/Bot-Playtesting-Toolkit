@@ -479,5 +479,5 @@ function callResolver(method) {
     return false;
   }
 
-  return modules[module].resolvers[type][method](...parseArguments(arguments, 1));
+  return modules[module].resolvers[method](...parseArguments(arguments, 1));
 }
