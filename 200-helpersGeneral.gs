@@ -326,6 +326,26 @@ function getAgentById(id) {
   return new ObjectFilter({id: id}).findFirstInArray(gameState.agents);
 }
 
+// Returns an array of tracked data for the given property. Adds zeroes when needed.
+function getTrackedData(property) {
+  let output = [];
+  for (let a of gameState.agents) {
+    if (!a.tracking || !a.tracking[property])
+      output.push({
+        increaseCount: 0,
+        increaseSum: 0,
+        decreaseCount: 0,
+        decreaseSum: 0,
+        unchangedCount: 0,
+        count: 0,
+        sum: 0,
+      });
+    else
+      output.push(a.tracking[property]);
+  }
+  return output;
+}
+
 // Selects a and returns a random element from an array. If the array consists of
 // objects, 'property' can be set to a property name in order to use the property
 // values for weighting probability.
