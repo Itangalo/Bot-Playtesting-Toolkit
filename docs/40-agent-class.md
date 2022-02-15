@@ -33,6 +33,18 @@ If an agent should be able to use strategies, it must have the `strategy` proper
 
 Agents are automatically added to `gameState.agents`. This is an _array_, not a general object as is the case with some other classes. Keeping the agents in an array allows shifting the order of the agents (for example to change turn order). Agents can be accessed through `gameState.agents` and there is also a `getAgentById(myId)` method used for fetching a particular agent.
 
+## Functions available for agents
+
+### myAgent.getRandomOpponent()
+
+`myAgent.getRandomOpponent(filter)`
+
+Returns one random agent which is not the current agent. The `filter` parameter can contain an ObjectFilter, which will add extra constraints on how the agent is selected.
+
+### myAgent.makeFirstAgent()
+
+Moves the agent first in the list of agents (and removes it from its previous place). See also the utility function `getAndRotateFirstAgent()`.
+
 ## Using strategies
 
 The main purpose of strategies is to isolate game decisions in separate functions, to make the code more readable and make it easier to swap one strategy for another.
