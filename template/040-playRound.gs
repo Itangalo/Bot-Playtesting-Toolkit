@@ -3,31 +3,25 @@
  */
 
 modules.myModule.playRound = function() {
-  // Agents draw cards.
-  for (let a of gameState.agents) {
-    // Shuffle deck if player is out of cards. Discard pile is added by default.
-    if (a.deck.cards.length == 0)
-      a.deck.shuffle();
+  // Take agent first in the list and put it last.
+  let actingAgent = getAndRotateFirstAgent();
 
-    a.card = a.deck.drawAndDiscard();
-    // Some cards have resolver functions, doing extra stuff to the agent.
-    // We pass the agent object as argument.
-    a.card.resolve(a);
-  }
-  
-  // The agent with _lowest_ card loses hit points.
-  sortBySubProperty(gameState.agents, 'card', 'value');
-  let damage = gameState.agents[0].card.value - gameState.agents[1].card.value; // Zero or negative.
-  // Add any attack booster.
-  if (damage > 0) {
-    damage += gameState.agents[1].attackBoosters;
-    gameState.agents[1].attackBoosters = 0;
-  }
-  gameState.agents[0].trackChange('hitPoints', damage);
+  // Roll dice and use the sum to see how many steps to move the agent's pawn.
+  // (Assumes there is a track named 'board' present, and a pawn matching the agent id.)
+  // let dice = new DiceRoll();
+  // actingAgent.board.pawn.move(dice.sum());
+  // Call any resolver set for the space where the pawn ended up. Pass the agent as argument.
+  // actingAgent.board.pawn.space.resolve(actingAgent);
 
-  // After this thrilling combat, agents may buy stuff. Note that the agent is automatically
-  // added as argument to the strategy callback.
-  for (let a of gameState.agents) {
-    a.consultStrategy('buy');
-  }
+  // Shuffle deck1 if it is empty. This automatically adds the discard pile for the deck.
+  // if (gameState.decks.deck1.cards.length == 0)
+  //   gameState.decks.deck1.shuffle();
+
+  // Call the agent strategy to see which card in the agent's display should be used.
+  // let card = actingAgent.consultStrategy('selectCard');
+  // Remove the card from the display.
+  // actingAgent.deck.pickFromDisplay('id', card.id);
+  // Call the resolver set on the card. Pass the agent as argument. Then discard.
+  // card.resolve(actingAgent);
+  // card.discard();
 }

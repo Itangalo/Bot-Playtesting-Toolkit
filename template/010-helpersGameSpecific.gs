@@ -1,3 +1,3 @@
 /**
- * Helper functions that are specific to each game.
+ * Helper functions that are specific to your game and are not stored in the actual module.
  */

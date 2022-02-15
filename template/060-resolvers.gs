@@ -10,11 +10,11 @@
 
 modules.myModule.resolvers = {};
 
-modules.myModule.resolvers.heal = function(agent) {
+modules.myModule.resolvers.myCardResolver1 = function(agent) {
   agent.trackChange('hitPoints', 2);
-  log(agent.id + ' draws a two and heals 2 hit points.', 'example');
+  log(agent.id + ' uses a card to heal 2 hit points.', 'example');
 }
-modules.myModule.resolvers.income = function(agent) {
+modules.myModule.resolvers.myCardResolver2 = function(agent) {
   agent.trackChange('gold', 1);
-  log(agent.id + ' draws a face card and gains one gold.', 'example');
+  log(agent.id + ' uses a card to gain 1 gold.', 'example');
 }

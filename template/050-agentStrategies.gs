@@ -9,24 +9,21 @@
 modules.myModule.agentStrategies = {};
 
 // Add base entries for the strategies.
-modules.myModule.agentStrategies.offensive = {};
-modules.myModule.agentStrategies.defensive = {};
+modules.myModule.agentStrategies.random = {};
 
 /**
  * Add strategy callbacks.
  */
-// This strategy means always buys attack boosters, if possible.
-modules.myModule.agentStrategies.offensive.buy = function(agent) {
-  while (gameState.markets.market1.getBuyableItems(agent).attackBooster !== undefined) {
-    // The buy returns the updated resources. The extra 'agent' argument is passed to the goods resolver.
-    gameState.markets.market1.buy('attackBooster', agent);
-    agent.attackBoosters++;
-  }
+// This strategy just selects a random card from the agent's display.
+modules.myModule.agentStrategies.random.selectCard = function(agent) {
+  return selectRandom(agent.deck.display);
 }
-// This strategy means always buying healing, if possible.
-modules.myModule.agentStrategies.defensive.buy = function(agent) {
-  while (gameState.markets.market1.getBuyableItems(agent).healing !== undefined) {
-    gameState.markets.market1.buy('healing', agent);
-    agent.hitPoints += 2;
-  }
+
+// Add a new strategy, inheriting from the random strategy.
+modules.myModule.agentStrategies.strategy2 = Object.assign({}, modules.myModule.agentStrategies.random);
+// Overwrite the 'selectCard' method.
+modules.myModule.agentStrategies.strategy2.selectCard = function(agent) {
+  // Select the card with the lowest value for the property 'price'.
+  sortByProperty(agent.deck.display, 'price');
+  return agent.deck.display[0];
 }
