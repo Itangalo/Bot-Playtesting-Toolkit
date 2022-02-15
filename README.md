@@ -22,7 +22,7 @@ The idea behind the Bot Playtesting Toolkit is that human time is precious, whil
 
 ## How do I use the Bot Playtesting Toolkit?
 
-Check out [the wiki](https://github.com/Itangalo/Bot-Playtesting-Toolkit/wiki).
+Check out [the documentation](https://github.com/Itangalo/Bot-Playtesting-Toolkit/tree/main/docs).
 
 BPT is under development. To be sure to be notified about new stuff, either subscribe to this repository here on GitHub or follow [my blog](https://creatingboardgames.wordpress.com/).
 
