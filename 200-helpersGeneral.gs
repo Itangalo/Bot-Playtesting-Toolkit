@@ -299,6 +299,15 @@ function copy(object) {
 }
 
 /**
+ * Stores an object in the cache, to use in future game iterations. Identified by 'key'.
+ */
+function setCache(key, value) {
+  if (!BPTstatic.cache)
+    BPTstatic.cache = {};
+  BPTstatic.cache[key] = value;
+}
+
+/**
  * Returns a cached object, identified by 'key', or undefined if it is not cached.
  * Cached objects are kept between game iterations.
  */
@@ -308,15 +317,6 @@ function getCache(key) {
     return undefined;
   }
   return BPTstatic.cache[key];
-}
-
-/**
- * Stores an object in the cache, to use in future game iterations. Identified by 'key'.
- */
-function setCache(key, value) {
-  if (!BPTstatic.cache)
-    BPTstatic.cache = {};
-  BPTstatic.cache[key] = value;
 }
 
 // Returns the agent with the matching id or false if none is found.
