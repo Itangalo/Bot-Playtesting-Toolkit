@@ -1,17 +1,4 @@
 /**
- * This example simulates a silly game with the following rules:
- * 
- * Players take one standard deck each and flip the top card in each round.
- *  - The player with the lowest card lose hit points equal to the value
- *    difference between the cards.
- *  - A 'two' gives two health points.
- *  - Jack, queen and king gives a gold.
- *  - Two golds can be used to either buy 1 hit point or cause 1 hit point
- *    extra damage in next time damage is dealt.
- * First to get 0 hit points loses.
- */
-
-/**
  * Builds the data needed to start a game.
  * 
  * Should populate the BPTstatic variable and also return an object describing initial game state.
@@ -28,6 +15,9 @@ modules.myModule.buildInitialData = function() {
    * or something else that does not change in or between games.
    */
 
+  // Tell BPT which log messages to show or hide.
+  BPTstatic.logging.categories.rounds = false;
+  BPTstatic.logging.categories.myCategory = true;
 
   /**
    * Build object describing initial game state.

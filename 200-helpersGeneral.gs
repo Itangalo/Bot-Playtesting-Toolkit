@@ -326,6 +326,16 @@ function getAgentById(id) {
   return new ObjectFilter({id: id}).findFirstInArray(gameState.agents);
 }
 
+/**
+ * Returns the first agent in the list of agents, and moves it last in the list.
+ */
+function getAndRotateFirstAgent() {
+  let agent = gameState.agents[0];
+  gameState.agents.shift();
+  gameState.agents.push(agent);
+  return agent;
+}
+
 // Returns an array of tracked data for the given property. Adds zeroes when needed.
 function getTrackedData(property) {
   let output = [];
