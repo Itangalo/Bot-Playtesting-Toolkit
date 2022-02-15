@@ -8,13 +8,13 @@ The Bot Playtesting Toolkit expects some functions in a module. These functions 
 
 This function is responsible for two things.
 
-**The first is populating the `global` object with appropriate data.** This is a good place to put values that are used in different parts of the code, such as the number of victory points that ends the game, default values for various things, or other data you might want to store in globally accessible variables. Note that all the data stored here should be non-changing, and _not_ change between games or within games.
+**The first is populating the `BPTstatic` object with appropriate data.** This is a good place to put values that are used in different parts of the code, such as the number of victory points that ends the game, default values for various things, or other data you might want to store in globally accessible variables. Note that all the data stored here should be non-changing, and _not_ change between games or within games.
 
-The `global` object contains some settings that are used by the BPT framework itself:
+The `BPTstatic` object contains some settings that are used by the BPT framework itself:
 
-* `global.defaults.iterations` tells how many iterations of to run of a game if no specific number is set. An example value is `100`.
-* `global.logging` contains a list of which categories of log messages to display, and also a setting for turning on/off the display of timestamps in the log messages. See documentation for the `log` function for more information.
-* `global.percentilesForStatistics` contains an array of the percentile limits to include in the statistics for the game. An example value is `[0, .05, .15, .50, .85, .95, 1]`.
+* `BPTstatic.defaults.iterations` tells how many iterations of to run of a game if no specific number is set. An example value is `100`.
+* `BPTstatic.defaults.logging.categories` contains a list of which categories of log messages to display, and also a setting for turning on/off the display of timestamps in the log messages. See documentation for the `log` function for more information.
+* `BPTstatic.defaults.statistics.percentiles` contains an array of the percentile limits to include in the statistics for the game. An example value is `[0, .05, .15, .50, .85, .95, 1]`.
 
 **The second thing the function should do is to return a seed for the initial game state.** The actual game state is built before each iteration of a game, based on a copy of the seed. The game state seed should contain any information that is necessary to know the game state, and could in principle be structured in any way you see fit. If data is entered in some special ways, though, BPT will automatically process the data before each iteration and build objects that could save a lot of work.
 

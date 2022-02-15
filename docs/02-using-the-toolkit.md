@@ -14,10 +14,10 @@ The game-specific code is kept in a so-called _module_, making it easier to upda
 
 If you want to try out BPT, these are good steps:
 
-1. Make a [copy of the BPT spreadsheet template (v. 1.2)](https://docs.google.com/spreadsheets/d/1A8oDT3vX8Vmp8sLPuJUWkdaXtlPyG8c5h9lBO0KkKUc/copy). It includes all the scripts for BPT, as well as two example modules.
+1. Make a [copy of the BPT spreadsheet template (v. 1.3)](https://docs.google.com/spreadsheets/d/18dcpXRoDMpPDYROjD1UG9uJWCTJcbNkED2HGi6jk2c0/copy). It includes all the scripts for BPT, as well as two example modules and a template you can tweak and change.
 2. In the _extensions_ menu, click _apps script_ to open the coding environment. You will now see a lot of files in the left sidebar and some JavaScript code in the main window.
 3. In the first file (already selected), click the _run_ button. This will run a simulation of the game _example1_, but more importantly it will open a dialogue where you can approve that the script reads from your Google spreadsheets. (This is required to be able to read from data from the spreadsheet, and there was no way of restricting access to only the current sheet. Sorry.)
-4. Start experimenting. You will want to look in the examples files, as well as in the documentation here in the wiki.
+4. Start experimenting. You will want to look in the examples files, as well as in the documentation here in the wiki. The template files includes a lot of example code you can copy and change as you wish.
 
 If you like the Bot Playtesting Toolkit, and are used to working with version control, you will sooner or later want to install the Chrome extension [Google Apps Script GitHub Assistant](https://chrome.google.com/webstore/detail/google-apps-script-github/lfjcgcmkmjjlieihflfhjopckgpelofo). It allows working against a GitHub repository (such as this) in the Google apps script coding environment.
 
@@ -26,7 +26,7 @@ If you like the Bot Playtesting Toolkit, and are used to working with version co
 The Bot Playtesting Toolkit follows the overall flow described below when simulating games. At each step it calls some particular functions that hold the code that is specific for your game.
 
 1. Some global variables are set up, mostly being empty. Which module (game) to use is determined, as well as how many iterations to run.
-2. A 'seed' for the initial game state is stored. The seed is built by the function `buildInitialData()`, to a large degree by reading information from the spreadsheet. The function can also store any information that does not change within or between games in the `global` variable.
+2. A 'seed' for the initial game state is stored. The seed is built by the function `buildInitialData()`, to a large degree by reading information from the spreadsheet. The function can also store any information that does not change within or between games in the `BPTstatic` variable.
 3. A first game session is prepared. Some parts of the initial game state seed are processed automatically, and any extra preparations are done by the function `preIteration()`. After this, the global variable `gameState` holds all the information of the game. The content of this object will be read and changed throughout the game iteration, representing how the game changes.
 4. The function `gameOver()` is called. If it returns `false`, the game is _on_. The toolkit notes that a new round starts and calls `playRound()`, which is responsible for all the things happening to the game state while the game goes on. Then step 4 is run again. If `gameOver()` returns `true`, this game iteration is finished.
 7. When the game is over, `buildStatistics()` is called. This function processes and collects any data from the game state that should be used for statistics, and returns it to the toolkit.

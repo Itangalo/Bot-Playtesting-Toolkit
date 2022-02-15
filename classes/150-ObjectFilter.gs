@@ -1,63 +1,100 @@
 /**
  * Class for creating and applying filters/conditions on object properties.
  * 
- * @param {object} andCondition: Any AND condition to add when the filter is created.
- * 
- * Any conditions are added either on the form {a: value} or {a: [value1, value2, ...]},
- * where the condition is fulfilled if property 'a' has _any_ of the provided values.
- * Conditions are combined by the addAndCondition(), addOrCondition, addNotCondition() and
- * addNorOrCondition() methods.
+ * @param {object} equalCondition: Any equals condition to add when the filter is created.
+ *
+ * Conditions are added as either AND or OR conditions. The filter is fulfilled if all
+ * AND condition are fulfilled and, if any are present, at least one OR condition.
+ * The and() and or() methods tell the filter how to treat upcoming conditions. Default is AND.
  */
 class ObjectFilter {
-  constructor(andCondition = false) {
+  constructor(equalsCondition = false) {
     this.andConditions = [];
     this.orConditions = [];
-    this.notConditions = [];
-    this.notOrConditions = [];
+    this.and();
 
-    if (andCondition)
-      this.addAndCondition(andCondition);
+    if (equalsCondition)
+      this.addEqualsCondition(equalsCondition);
   }
 
   /**
-   * Adds an AND condition to the filter. See class documentation for details.
+   * Switches the filter to stack AND conditions.
    */
-  addAndCondition(condition) {
-    this.andConditions.push(this._assureConditionFormat(condition));
-    return this;
-  }
-  /**
-   * Adds an OR condition to the filter. See class documentation for details.
-   */
-  addOrCondition(condition) {
-    this.orConditions.push(this._assureConditionFormat(condition));
-    return this;
-  }
-  /**
-   * Adds an NOT condition to the filter. See class documentation for details.
-   */
-  addNotCondition(condition) {
-    this.notConditions.push(this._assureConditionFormat(condition));
-    return this;
-  }
-  /**
-   * Adds an NOT OR condition to the filter. See class documentation for details.
-   */
-  addNotOrCondition(condition) {
-    this.notOrConditions.push(this._assureConditionFormat(condition));
+  and() {
+    this.addMode = 'andConditions';
     return this;
   }
 
-  // Used internally to convert all condition values into arrays.
-  _assureConditionFormat(condition) {
-    if (condition instanceof ObjectFilter)
-      return condition;
-    for (let i in condition)
-      if (condition[i] === undefined || typeof(condition[i].includes) != 'function')
-        condition[i] = [condition[i]];
-    return condition;
+  /**
+   * Switches the filter to stack OR conditions.
+   */
+  or() {
+    this.addMode = 'orConditions';
+    return this;
   }
-  
+
+  /**
+   * Adds a whole object filter as condition.
+   */
+  addFilterCondition(filter) {
+    this[this.addMode].push(new ConditionFilter(this, filter));
+    return this;
+  }
+
+  /**
+   * Requires that the stated object property should match the stated value, or one of
+   * several stated values. On the form {a: 3} or {a: [2, 3, 5]}.
+   */
+  addEqualsCondition(condition) {
+    this[this.addMode].push(new ConditionEquals(this, condition));
+    return this;
+  }
+
+  /**
+   * Requires that the stated object property should different from the stated value, or
+   * from all of several stated values. On the form {a: 3} or {a: [2, 3, 5]}.
+   */
+  addNotEqualsCondition(condition) {    
+    this[this.addMode].push(new ConditionNotEquals(this, condition));
+    return this;
+  }
+
+  /**
+   * Requires that the stated object property is higher than the stated value.
+   * On the form {a: 3}.
+   */
+  addGreaterThanCondition(condition) {    
+    this[this.addMode].push(new ConditionGreaterThan(this, condition));
+    return this;
+  }
+
+  /**
+   * Requires that the stated object property is higher than or equal to the
+   * stated value. On the form {a: 3}.
+   */
+  addGreaterOrEqualCondition(condition) {    
+    this[this.addMode].push(new ConditionGreaterOrEqual(this, condition));
+    return this;
+  }
+
+  /**
+   * Requires that the stated object property is lower than the stated value.
+   * On the form {a: 3}.
+   */
+  addLessThanCondition(condition) {    
+    this[this.addMode].push(new ConditionLessThan(this, condition));
+    return this;
+  }
+
+  /**
+   * Requires that the stated object property is lower than or equal to the
+   * stated value. On the form {a: 3}.
+   */
+  addLessOrEqualCondition(condition) {    
+    this[this.addMode].push(new ConditionLessOrEqual(this, condition));
+    return this;
+  }
+
   /**
    * Checks whether a single object fulfills the conditions.
    * 
@@ -70,40 +107,16 @@ class ObjectFilter {
   applyOnObject(obj) {
     // Check AND conditions.
     for (let c of this.andConditions)
-      if (c instanceof ObjectFilter && c.applyOnObject(obj) === false)
-        return false;
-      else {
-        for (let p in c)
-          if (!c[p].includes(obj[p])) return false;
-      }
-    // Check NOT conditions.
-    for (let c of this.notConditions)
-      if (c instanceof ObjectFilter && c.applyOnObject(obj) === true)
-        return false;
-      else {
-        for (let p in c)
-          if (c[p].includes(obj[p])) return false;
-      }
+      if (!c.evaluate(obj)) return false;
+
     // All AND checks passed. If no OR checks exist, we are done.
-    if (this.orConditions.length == 0 && this.notOrConditions.length == 0)
+    if (this.orConditions.length == 0)
       return true;
 
     // Check OR conditions.
     for (let c of this.orConditions)
-      if (c instanceof ObjectFilter && c.applyOnObject(obj) === true)
-        return true;
-      else {
-        for (let p in c)
-          if (c[p].includes(obj[p])) return true;
-      }
-    // Check NOT OR conditions.
-    for (let c of this.notOrConditions)
-      if (c instanceof ObjectFilter && c.applyOnObject(obj) === false)
-        return true;
-      else {
-        for (let p in c)
-          if (!c[p].includes(obj[p])) return true;
-      }
+      if (c.evaluate(obj)) return true;
+
     // No OR conditions fulfilled if we reach this line.
     return false;
   }
@@ -152,5 +165,118 @@ class ObjectFilter {
         i++;
     }
     return output;
+  }
+}
+
+
+/**
+ * Class for using another object filter as a condition.
+ * Also base class for conditions, extended by other conditions.
+ *
+ * @param {ObjectFilter} filter: The ObjectFilter to which the condition belongs.
+ * @param {object} conditionData: The object filter to use as condition.
+ */
+class ConditionFilter {
+  constructor(filter, conditionData) {
+    this.validateAndProcess(conditionData);
+  }
+
+  validateAndProcess(conditionData) {
+    if (!(conditionData instanceof ObjectFilter))
+      throw('Only object filters can be added as filter conditions.');
+    this.filter = conditionData;
+  }
+
+  evaluate(obj) {
+    return this.filter.applyOnObject(obj);
+  }
+}
+
+/**
+ * Class for equality or includes conditions in ObjectFilters.
+ * 
+ * @param {object} conditionData: Data describing the condition, on the form {a: 3} or {a: [2, 3, 5]}.
+ */
+class ConditionEquals extends ConditionFilter {
+  validateAndProcess(conditionData) {
+    if (typeof(conditionData) != 'object')
+      throw('The condition data must be an object.');
+    if (Object.keys(conditionData).length != 1)
+      throw('The conditionData should contain one and only one property.');
+    this.property = Object.keys(conditionData)[0];
+    this.values = conditionData[this.property];
+    if (this.values === undefined || typeof(this.values) == 'string' || typeof(this.values.includes) != 'function')
+      this.values = [this.values];
+  }
+
+  evaluate(obj) {
+    return this.values.includes(obj[this.property]);
+  }
+}
+
+/**
+ * Class for inequality or not-includes conditions in ObjectFilters.
+ *
+ * @param {object} conditionData: Data describing the condition, on the form {a: 3} or {a: [2, 3, 5]}.
+ */
+class ConditionNotEquals extends ConditionEquals {
+  evaluate(obj) {
+    return !this.values.includes(obj[this.property]);
+  }
+}
+
+/**
+ * Class for greater-than conditions in ObjectFilters.
+ *
+ * @param {object} conditionData: Data describing the condition, on the form {a: 3}.
+ */
+class ConditionGreaterThan extends ConditionEquals {
+  validateAndProcess(conditionData) {
+    if (typeof(conditionData) != 'object')
+      throw('The conditionData must be an object.');
+    if (Object.keys(conditionData).length != 1)
+      throw('The conditionData should contain one and only one property.');
+    this.property = Object.keys(conditionData)[0];
+    this.value = conditionData[this.property];
+    if (isNaN(this.value) || this.value == null || this.value == undefined)
+      throw('Tried to add paramter ' + this.value + ' as condition, but number is required.');
+    this.value = parseFloat(this.value);
+  }
+
+  evaluate(obj) {
+    return (obj[this.property] > this.value);
+  }
+}
+
+/**
+ * Class for greater-or-equal-to conditions in ObjectFilters.
+ *
+ * @param {object} conditionData: Data describing the condition, on the form {a: 3}.
+ */
+class ConditionGreaterOrEqual extends ConditionGreaterThan {
+  evaluate(obj) {
+    return (obj[this.property] >= this.value);
+  }
+}
+
+/**
+ * Class for less-than conditions in ObjectFilters.
+ *
+ * @param {object} conditionData: Data describing the condition, on the form {a: 3}.
+ */
+class ConditionLessThan extends ConditionGreaterThan {
+  evaluate(obj) {
+    return (obj[this.property] < this.value);
+  }
+}
+
+/**
+ * Class for less-or-equal-to conditions in ObjectFilters.
+ *
+ * @param {object} conditionData: Data describing the condition, on the form {a: 3}.
+ */
+class ConditionLessOrEqual extends ConditionGreaterThan {
+  evaluate(obj) {
+    return (obj[this.property] <= this.value);
   }
 }

@@ -7,12 +7,12 @@
 
 // Wrapper to allow skipping some intentional errors when debugging.
 function debugTests() {
-  global.debugRunning = true;
+  BPTstatic.debugRunning = true;
   runTests();
 }
 
 function runTests() {
-  global.testRunning = true;
+  BPTstatic.testRunning = true;
   setInitialDefaults();
 
   let errors = [];
@@ -146,7 +146,7 @@ tests.objectFilter.transferredTests = function() {
     return 'ObjectFilter does not pick the right object.';
   if (a.length != 4)
     return 'ObjectFilter removes objects when it should not.';
-  b = new ObjectFilter({b: 3}).addAndCondition({a: 3}).findFirstInArray(a);
+  b = new ObjectFilter({b: 3}).addEqualsCondition({a: 3}).findFirstInArray(a);
   if (!compareObjects(b, {a: 3, b: 3, c: 2}))
     return 'pickFromObjectArray does not pick the right object when provided multiple search criteria.';
   b = new ObjectFilter({a: 3}).removeFirstFromArray(a);
@@ -164,10 +164,10 @@ tests.objectFilter.transferredTests = function() {
     return 'ObjectFilter does not pick the right objects.';
   if (a.length != 5)
     return 'ObjectFilter removes objects when it should not.';
-  b = new ObjectFilter({a: 2}).addAndCondition({b: 3}).applyOnArray(a);
+  b = new ObjectFilter({a: 2}).addEqualsCondition({b: 3}).applyOnArray(a);
   if (b.length != 2)
     return 'ObjectFilter does not work properly with multiple search criteria.';
-  b = new ObjectFilter({a: 2}).addAndCondition({b: 3}).removeFromArray(a);
+  b = new ObjectFilter({a: 2}).addEqualsCondition({b: 3}).removeFromArray(a);
   if (a.length != 3)
     return 'ObjectFilter does not remove objects when it should.';
 }
@@ -188,23 +188,23 @@ tests.objectFilter.individualConditions = function() {
   let a = t.removeFromArray(arr);
   if (a.length != 6 || arr.length != 0)
     return 'ObjectFilter does not splice object arrays properly.';
-  t.addAndCondition({a: 1});
+  t.addEqualsCondition({a: 1});
   if (t.applyOnObject(a[0] !== true) || t.applyOnObject(a[4]) !== false)
     return 'ObjectFilter does not apply single AND condition properly.';
-  t.addAndCondition({b: 2});
+  t.addEqualsCondition({b: 2});
   if (t.applyOnObject(a[1] !== true) || t.applyOnObject(a[0]) !== false)
     return 'ObjectFilter does not apply multiple AND condition properly.';
-  t.addOrCondition({c: 0});
+  t.or().addEqualsCondition({c: 0});
   if (t.applyOnObject(a[1]) === true)
     return 'ObjectFilter does not apply single OR condition properly.';
-  t = new ObjectFilter().addOrCondition({a: 1}).addOrCondition({a: 2});
+  t = new ObjectFilter().or().addEqualsCondition({a: 1}).addEqualsCondition({a: 2});
   arr = t.removeFromArray(a);
   if (arr.length != 5 || a.length != 1)
     return 'ObjectFilter does not apply multiple OR conditions properly.';
-  t.addNotCondition({c: undefined});
+  t.and().addNotEqualsCondition({c: undefined});
   if (t.applyOnArray(arr).length != 2)
     return 'ObjectFilter does not apply NOT condition on undefined properties correctly.';
-  t.addNotOrCondition({a: 1}).addNotOrCondition({b: 2});
+  t.or().addNotEqualsCondition({a: 1}).addNotEqualsCondition({b: 2});
   if (t.applyOnArray(arr).length != 2)
     return 'ObjectFilter does not apply multiple NOT OR conditions properly.';
   t = new ObjectFilter({a: 1});
@@ -225,18 +225,58 @@ tests.objectFilter.complexFilter = function() {
     {a: 2, b: 2, c: 1},
     {a: 3, b: 2},
   ];
-  t.addAndCondition({a: [1, 2]});
+  t.addEqualsCondition({a: [1, 2]});
   if (t.applyOnArray(arr).length != 5)
     return 'ObjectFilter does not handle arrayed filter values correctly.';
-  t = new ObjectFilter().addOrCondition({b: 2}).addOrCondition({b: 3}).addAndCondition({a: 3});
+  t = new ObjectFilter().or().addEqualsCondition({b: 2}).addEqualsCondition({b: 3}).and().addEqualsCondition({a: 3});
   if (!compareObjects(t.applyOnArray(arr)[0], {a: 3, b: 2}))
     return 'ObjectFilter does not handle combined AND and OR conditions correctly.';
 };
+tests.objectFilter.greaterLesser = function() {
+  let arr = [
+    {a: 1, b: 1},
+    {a: 1, b: 2},
+    {a: 1, b: 3},
+    {a: 1, b: 3, c: 0},
+    {a: 2, b: 2, c: 1},
+    {a: 3, b: 2},
+  ];
+  let t = new ObjectFilter();
+  t.addGreaterThanCondition({b: 2});
+  if (t.applyOnArray(arr).length != 2)
+    return 'GreaterThan condition does not work properly.';
+  t.addLessThanCondition({c: 1});
+  if (t.applyOnArray(arr).length != 1)
+    return 'LessThan condition does not work properly on empty values.';
+  t = new ObjectFilter();
+  t.addGreaterOrEqualCondition({a: 2});
+  if (t.applyOnArray(arr).length != 2)
+    return 'Greater-or-equal condition does not work properly.';
+  t.addLessOrEqualCondition({c: 1});
+  if (t.applyOnArray(arr).length != 1)
+    return 'Less-or-equal condition does not work properly.';
+}
+tests.objectFilter.filterCondition = function() {
+  let arr = [
+    {a: 1, b: 1},
+    {a: 1, b: 2},
+    {a: 1, b: 3},
+    {a: 1, b: 3, c: 0},
+    {a: 2, b: 2, c: 1},
+    {a: 3, b: 2},
+  ];
+  let t = new ObjectFilter().or().addEqualsCondition({b: 1}).addEqualsCondition({b: 2});
+  let t2 = new ObjectFilter({c: undefined}).addFilterCondition(t);
+  if (t2.applyOnArray(arr).length != 3)
+    return 'FilterCondition does not work properly.';
+}
 
 tests.agents = {};
 tests.agents.properties = function() {
   let aData = buildObjectArrayFromRows('testData', 'E2:H5');
-  let a = new Agent(aData[0]);
+  for (let a of aData)
+    new Agent(a);
+  let a = gameState.agents[0];
   a.trackChange('hitPoints', 3);
   if (a.hitPoints != 7)
     return 'Method trackChange does not increase properties correctly.';
@@ -275,6 +315,29 @@ tests.agents.properties = function() {
   if (!compareObjects(a.tracking.hitPoints, trackedChanges))
     return 'Changes are not tracked correctly when reaching min or max limits.';
 };
+tests.agents.getRandomOpponent = function() {
+  let a1 = gameState.agents[0];
+  for (let i = 0; i < 10; i++) {
+    let a2 = a1.getRandomOpponent();
+    if (!['blue', 'black'].includes(a2.id))
+      return 'getRandomOpponent selects current opponent.';
+  }
+  let filter = new ObjectFilter().addGreaterThanCondition({attack: 2});
+  for (let i = 0; i < 10; i++) {
+    let a2 = a1.getRandomOpponent(filter);
+    if (a2.id != 'black')
+      return 'getRandomOpponent does not apply provided filter properly.';
+  }
+};
+tests.agents.moveAround = function() {
+  let a1 = getAndRotateFirstAgent();
+  if (a1.id == gameState.agents[0].id || a1.id != gameState.agents[2].id)
+    return 'getAndRotateFirstAgent does not move first player last.';
+  a1.makeFirstAgent();
+  if (a1.id != gameState.agents[0].id || gameState.agents.length != 3)
+    return 'makeFirstAgent does not move the agent first.';
+};
+
 
 tests.deck = {};
 tests.deck.basics = function() {
@@ -334,7 +397,7 @@ tests.track.basic = function() {
   try {pawn = track.getPawn('pawn1');} // This should fail.
   catch (error) {ok = true;}
   finally {
-    if (!ok && !global.debugRunning) return 'Pawns are incorrectly assumed to be present on the track.';
+    if (!ok && !BPTstatic.debugRunning) return 'Pawns are incorrectly assumed to be present on the track.';
   }
   track.assumePresent = true;
   pawn = track.getPawn('pawn1');
@@ -395,7 +458,7 @@ tests.track.convertions = function() {
     return 'convertSpaceData does not convert to property values correctly.';
 };
 tests.track.gridMovement = function() {
-  let tData = buildObjectFromLine('testData', 'K6:K8');
+  let tData = buildObjectFromLine('testData', 'K6:K9');
   let sData = buildObjectArrayFromRows('testData', 'L2:N63');
   let track = new Track(tData, sData);
   if (track.spaces[0].connectsTo[0] != '1x2')

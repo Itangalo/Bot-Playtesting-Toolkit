@@ -7,6 +7,7 @@ More detailed documentation for coders:
 * [The functions each module must provide, and what they should do](10-required-functions.md)
 * [API documentation for functions for reading from spreadsheets](20-reading-from-spreadsheets.md)
 * [API documentation for other utility functions](30-utility-functions.md)
+* [API documentation for the ObjectFilter class](35-ObjectFilter-class.md)
 * [API documentation for the Agent class, including its purpose](40-agent-class.md)
 * [API documentation for the Deck and Card classes, including their purposes](50-deck-class.md)
 * [API documentation for the Track, Space and Pawn classes, including their purposes](60-track-class.md)

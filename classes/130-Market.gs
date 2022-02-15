@@ -32,7 +32,7 @@
 class Market {
   constructor(marketData, goodsDataArray = false) {
     // Add default settings, overwrite with provided data.
-    Object.assign(this, applyDefaults(global.defaults.market, marketData));
+    Object.assign(this, applyDefaults(BPTstatic.defaults.market, marketData));
     // Verify that an ID is present.
     if (this.id === undefined)
       throw('Markets must have an id property set.');
@@ -302,7 +302,7 @@ class Goods {
     if (!market instanceof Market)
       throw('Goods must be added to a proper market.');
     // Add default settings, overwrite with provided data.
-    Object.assign(this, applyDefaults(global.defaults.goods, goodsData));
+    Object.assign(this, applyDefaults(BPTstatic.defaults.goods, goodsData));
 
     if (this.id === undefined)
       throw('Goods must have an id property set.');

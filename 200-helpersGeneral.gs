@@ -298,14 +298,25 @@ function copy(object) {
   return JSON.parse(JSON.stringify(object));
 }
 
-// Checks if an object/array is iterable.
-// Code from https://stackoverflow.com/questions/18884249/checking-whether-something-is-iterable
-function isIterable(obj) {
-  // checks for null and undefined
-  if (obj == null) {
-    return false;
+/**
+ * Stores an object in the cache, to use in future game iterations. Identified by 'key'.
+ */
+function setCache(key, value) {
+  if (!BPTstatic.cache)
+    BPTstatic.cache = {};
+  BPTstatic.cache[key] = value;
+}
+
+/**
+ * Returns a cached object, identified by 'key', or undefined if it is not cached.
+ * Cached objects are kept between game iterations.
+ */
+function getCache(key) {
+  if (!BPTstatic.cache) {
+    BPTstatic.cache = {};
+    return undefined;
   }
-  return typeof obj[Symbol.iterator] === 'function';
+  return BPTstatic.cache[key];
 }
 
 // Returns the agent with the matching id or false if none is found.
@@ -313,6 +324,36 @@ function getAgentById(id) {
   if (!gameState.agents)
     return false;
   return new ObjectFilter({id: id}).findFirstInArray(gameState.agents);
+}
+
+/**
+ * Returns the first agent in the list of agents, and moves it last in the list.
+ */
+function getAndRotateFirstAgent() {
+  let agent = gameState.agents[0];
+  gameState.agents.shift();
+  gameState.agents.push(agent);
+  return agent;
+}
+
+// Returns an array of tracked data for the given property. Adds zeroes when needed.
+function getTrackedData(property) {
+  let output = [];
+  for (let a of gameState.agents) {
+    if (!a.tracking || !a.tracking[property])
+      output.push({
+        increaseCount: 0,
+        increaseSum: 0,
+        decreaseCount: 0,
+        decreaseSum: 0,
+        unchangedCount: 0,
+        count: 0,
+        sum: 0,
+      });
+    else
+      output.push(a.tracking[property]);
+  }
+  return output;
 }
 
 // Selects a and returns a random element from an array. If the array consists of
@@ -468,5 +509,5 @@ function callResolver(method) {
     return false;
   }
 
-  return modules[module].resolvers[type][method](...parseArguments(arguments, 1));
+  return modules[module].resolvers[method](...parseArguments(arguments, 1));
 }

@@ -82,6 +82,32 @@ class Agent {
   }
 
   /**
+   * Returns a randomly selected agent other than this agent.
+   * 
+   * @param {ObjectFilter} filter: If used, any additional restrictions will be applied.
+   */
+  getRandomOpponent(filter = false) {
+    if (filter === false)
+      filter = new ObjectFilter().addNotEqualsCondition({id: this.id});
+    else
+      filter.addNotEqualsCondition({id: this.id});
+    
+    let candidates = filter.applyOnArray(gameState.agents);
+    if (candidates.length == 0)
+      throw('Tried to select a random opponent, but found no matching agents.');
+
+    return selectRandom(candidates);
+  }
+
+  /**
+   * Places the agent first in the list of agents.
+   */
+  makeFirstAgent() {
+    let a = new ObjectFilter({id: this.id}).removeFirstFromArray(gameState.agents);
+    gameState.agents.unshift(a);
+  }
+
+  /**
    * Used to call a strategy on behalf of the agent. Any arguments will be passed on
    * to the strategy method. First argument will always be the agent object.
    * 
@@ -99,6 +125,7 @@ class Agent {
     if (!modules[module].agentStrategies[this.strategy][method])
       throw('Method ' + method + ' does not exist in ' + this.strategy + '.');
 
-    return modules[module].agentStrategies[this.strategy][method](this, ...arguments);
+    let args = parseArguments(arguments, 1);
+    return modules[module].agentStrategies[this.strategy][method](this, ...args);
   }
 }
