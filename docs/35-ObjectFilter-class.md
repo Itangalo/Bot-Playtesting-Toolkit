@@ -3,7 +3,7 @@
 The `ObjectFilter` class is used for four things:
 
 1. Creating simple of complex filters or conditions, intended to be applied on object properties.
-2. Evaluating the filter/condition on a single object (returning `true` or `false`.
+2. Evaluating the filter/condition on a single object (returning `true` or `false`).
 3. In an array of objects, finding one, many or all objects that match the filter.
 4. In an array of objects, finding and removing one, many or all objects that match the filter.
 
@@ -15,22 +15,32 @@ Getting all agents on the blue team:
 
 `let blueTeam = new ObjectFilter({team: 'blue'}).applyOnArray(gameState.agents);`
 
-Selecting all spaces on a track (chess board) where the colour is black there is no piece:
+Selecting all spaces on a track (i.e. chess board) where the colour is black there is no piece:
 
-`let mySpaces = new ObjectFilter().addAndCondition({colour: 'black'}).addAndCondition({piece: false}).applyOnArray(gameState.track.board.spaces);`
+`let mySpaces = new ObjectFilter().addEqualsCondition({colour: 'black'}).addEqualsCondition({piece: false}).applyOnArray(gameState.track.board.spaces);`
 
 Taking out all cards that are spades or twos:
 
-`let myCards = new ObjectFilter().addOrCondition({colour: 'spades'}).addOrCondition({value: 2}).removeFromArray(gameState.decks.myDeck.cards);`
+`let myCards = new ObjectFilter().or().addEqualsCondition({colour: 'spades'}).addEqualsCondition({value: 2}).removeFromArray(gameState.decks.myDeck.cards);`
 
 
 ## Creating an object filter
 
-Object filters are created by `let filter = new ObjectFilter()`, or by directly stating adding a condition: `let filter = new ObjectFilter({a: 5})`. Any conditions added on creation are treated as AND conditions.
+Object filters are created by `let filter = new ObjectFilter()`, or by directly stating adding a condition: `let filter = new ObjectFilter({a: 5})`. Any conditions added on creation are treated as _equals_ conditions and added as an _and_ condition.
 
 The introducing examples don't store the filter itself, only the results when applying the filter to an array of objects, but it is quite possible to save the filter in a variable to use later on.
 
 ## Adding conditions
+
+The filter has a stack of AND conditions and a stack of OR conditions. The filter is considered fulfilled if all conditions in the AND stack are fulfilled and at least one condition in OR stack is fulfilled (if any conditions are present).
+
+Conditions are by default added to the AND stack. The stack to use is set by calling `myFilter.and()` and `myFilter.or()`.
+
+There are six types of conditions that can be added:
+
+* <break>
+
+Conditions are added either to a stack of AND condition
 
 There are AND conditions, OR conditions, NOT conditions and NOT OR conditions. The filter is considered fulfilled if all conditions in AND and NOT are fulfilled and at least one condition in OR and OR NOT (combined) are fulfilled, if such exist.
 
