@@ -274,7 +274,9 @@ tests.objectFilter.filterCondition = function() {
 tests.agents = {};
 tests.agents.properties = function() {
   let aData = buildObjectArrayFromRows('testData', 'E2:H5');
-  let a = new Agent(aData[0]);
+  for (let a of aData)
+    new Agent(a);
+  let a = gameState.agents[0];
   a.trackChange('hitPoints', 3);
   if (a.hitPoints != 7)
     return 'Method trackChange does not increase properties correctly.';
@@ -313,6 +315,29 @@ tests.agents.properties = function() {
   if (!compareObjects(a.tracking.hitPoints, trackedChanges))
     return 'Changes are not tracked correctly when reaching min or max limits.';
 };
+tests.agents.getRandomOpponent = function() {
+  let a1 = gameState.agents[0];
+  for (let i = 0; i < 10; i++) {
+    let a2 = a1.getRandomOpponent();
+    if (!['blue', 'black'].includes(a2.id))
+      return 'getRandomOpponent selects current opponent.';
+  }
+  let filter = new ObjectFilter().addGreaterThanCondition({attack: 2});
+  for (let i = 0; i < 10; i++) {
+    let a2 = a1.getRandomOpponent(filter);
+    if (a2.id != 'black')
+      return 'getRandomOpponent does not apply provided filter properly.';
+  }
+};
+tests.agents.moveAround = function() {
+  let a1 = getAndRotateFirstAgent();
+  if (a1.id == gameState.agents[0].id || a1.id != gameState.agents[2].id)
+    return 'getAndRotateFirstAgent does not move first player last.';
+  a1.makeFirstAgent();
+  if (a1.id != gameState.agents[0].id || gameState.agents.length != 3)
+    return 'makeFirstAgent does not move the agent first.';
+};
+
 
 tests.deck = {};
 tests.deck.basics = function() {
