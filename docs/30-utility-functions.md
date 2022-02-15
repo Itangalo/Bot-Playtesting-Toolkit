@@ -102,6 +102,10 @@ Returns `true` if the provided object is iterable (i.e. can be used in a _for of
 
 Returns the agent with the provided id, or `false` if no match is found.
 
+### getAndRotateFirstAgent()
+
+Returns the first agent in the list of agent, and moves it to the bottom of the list. See also `myAgent.makeFirstAgent()`.
+
 ### selectRandom()
 
 `selectRandom(arr, property = false)`
