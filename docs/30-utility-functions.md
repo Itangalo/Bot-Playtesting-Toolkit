@@ -90,11 +90,17 @@ Returns the percentile (as a decimal) where the array value first becomes positi
 
 Returns a deep copy of the provided object, for example to avoid making changes in the original object. Note that methods/functions are _not_ copied.
 
-### isIterable()
+### setCache()
 
-`isIterable(obj)`
+`setCache(key, value)`
 
-Returns `true` if the provided object is iterable (i.e. can be used in a _for of_ loop), otherwise `false`.
+Stores an object in the cache, to use in future game iterations. Identified by `key`. Useful when creating heavy objects that are not changed between iterations.
+
+### getCache()
+
+`getCache(key)`
+
+Returns a cached object, identified by 'key', or `undefined` if it is not cached. Cached objects are kept between game iterations.
 
 ### getAgentById()
 
