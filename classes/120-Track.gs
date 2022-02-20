@@ -266,6 +266,39 @@ class Track {
   }
 
   /**
+   * Returns the space closest to a given point.
+   *
+   * @param {object} point: An object with (at least) coordinate values for the point to search from.
+   * @param {number} searchDistance: A maximum distance from the point to search. Improves search speed.
+   *
+   * @return {Space} The space object with coordinates closest to the given point. If several
+   * equally near, one of these is selected randomly.
+   */
+  getClosestSpace(point, searchDistance = 1) {
+    // Get all spaces within searchDistance from the point, in all directions.
+    let filter = new ObjectFilter();
+    for (let c of this.coordinates) {
+      let value = {};
+      value[c] = point[c] - searchDistance;
+      filter.addGreaterOrEqualCondition(value);
+      value[c] = point[c] + searchDistance;
+      filter.addLessOrEqualCondition(value);
+    }
+    // Get the distance from the point for all these candidates.
+    let candidates = [];
+    for (let s of filter.applyOnArray(this.spaces)) {
+      candidates.push({
+        space: s,
+        distance: getDistance(point, s, this.coordinates)
+      });
+    }
+    // Find the closest one, or possibly _one_ of the closest ones.
+    if (candidates.length == 0)
+      throw('No space is within search distance from the given point.');
+    return sortByProperty(candidates, 'distance', true, true)[0]['space'];
+  }
+
+  /**
    * Does an estimation of whether there is a line of sight between two spaces. If point coordinates
    * are provided, these will be used instead of spaces' coordinates.
    * 

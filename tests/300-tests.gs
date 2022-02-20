@@ -548,6 +548,11 @@ tests.track.lineOfSight = function() {
   if (track.lineOfSight(spaceA, spaceB) === true)
     return 'lineOfSight says true when checking lines from space edges that should be blocked.';
 };
+tests.track.closestSpace = function() {
+  let closest = gameState.tracks.testLineOfSight.getClosestSpace({x: 2, y: 2.1}, 1);
+  if (closest.id != '2x3')
+    return 'getClosestSpace does not work properly';
+}
 
 tests.market = {};
 tests.market.theLot = function() {
