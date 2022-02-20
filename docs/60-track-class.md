@@ -162,6 +162,12 @@ Takes an array with space data and returns the spaces converted to another forma
 `returnType`: How the returned spaces should be represented – 'object', 'id' or 'index', or a name of a property on the spaces. Defaults to 'object'.
 `requirement`: Any requirement set here on the format {property:myProperty, value:requiredValue} will restrict the searched spaces. Defaults to false (no restriction).
 
+### myTrack.getClosestSpace()
+
+`myTrack.getClosestSpace(point, searchDistance = 1)`
+
+Returns the space closest to a given point. The `point` argument is an object with (at least) coordinate values for the point to search from. The `searchDistance` tells how far from the point the search should go, in any direction. Smaller values increases the speed of the search. The function returns the Space object with coordinates closest to the given point. If more than one space is closest, one of these is selected randomly.
+
 ### myTrack.lineOfSight()
 
 `myTrack.lineOfSight(spaceA, spaceB, points = false)`
