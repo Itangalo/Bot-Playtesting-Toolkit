@@ -549,6 +549,12 @@ tests.track.lineOfSight = function() {
     return 'lineOfSight says true when checking lines from space edges that should be blocked.';
 };
 tests.track.closestSpace = function() {
+  let nearby = gameState.tracks.testLineOfSight.getSpacesWithinRadius({x: 2, y: 2.1}, 1);
+  if (nearby.length != 1)
+    return 'getSpacesWithinRadius uses square search when it should be circle.';
+  nearby = gameState.tracks.testLineOfSight.getSpacesWithinRadius({x: 2, y: 2.1}, 1, 'square');
+  if (nearby.length != 5)
+    return 'getSpacesWithinRadius uses circle search when it should be square.';
   let closest = gameState.tracks.testLineOfSight.getClosestSpace({x: 2, y: 2.1}, 1);
   if (closest.id != '2x3')
     return 'getClosestSpace does not work properly';

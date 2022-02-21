@@ -266,36 +266,54 @@ class Track {
   }
 
   /**
+   * Returns all the spaces within the radius of the given point.
+   * 
+   * @param {object} point: An object with (at least) coordinate values for the point to search from.
+   * @param {number} radius: A maximum distance from the point to search.
+   * @param {string} shape: Set to 'square' to search a square instead of a circle.
+   * 
+   * @return: An array of spaces, sorted by distance to the point.
+   */
+  getSpacesWithinRadius(point, radius = 1, shape = 'circle') {
+    // Get all spaces within the distance from the point, in a square.
+    let filter = new ObjectFilter();
+    for (let c of this.coordinates) {
+      let value = {};
+      value[c] = point[c] - radius;
+      filter.addGreaterOrEqualCondition(value);
+      value[c] = point[c] + radius;
+      filter.addLessOrEqualCondition(value);
+    }
+    // Get the distance from the point for all these candidates.
+    let spaces = [];
+    for (let s of filter.applyOnArray(this.spaces)) {
+      let distance = getDistance(point, s, this.coordinates);
+      if (shape == 'square' || distance <= radius)
+        spaces.push({
+          space: s,
+          distance: distance,
+        });
+    }
+    // Sort by distance from the point.
+    sortByProperty(spaces, 'distance', true, true)[0]['space'];
+    return buildArrayWithProperty(spaces, 'space');
+  }
+
+  /**
    * Returns the space closest to a given point.
    *
    * @param {object} point: An object with (at least) coordinate values for the point to search from.
-   * @param {number} searchDistance: A maximum distance from the point to search. Improves search speed.
+   * @param {number} radius: A maximum distance from the point to search. Smaller number increases search speed.
+   * @param {string} shape: Set to 'square' to search a square instead of a circle.
    *
    * @return {Space} The space object with coordinates closest to the given point. If several
    * equally near, one of these is selected randomly.
    */
-  getClosestSpace(point, searchDistance = 1) {
-    // Get all spaces within searchDistance from the point, in all directions.
-    let filter = new ObjectFilter();
-    for (let c of this.coordinates) {
-      let value = {};
-      value[c] = point[c] - searchDistance;
-      filter.addGreaterOrEqualCondition(value);
-      value[c] = point[c] + searchDistance;
-      filter.addLessOrEqualCondition(value);
-    }
-    // Get the distance from the point for all these candidates.
-    let candidates = [];
-    for (let s of filter.applyOnArray(this.spaces)) {
-      candidates.push({
-        space: s,
-        distance: getDistance(point, s, this.coordinates)
-      });
-    }
-    // Find the closest one, or possibly _one_ of the closest ones.
-    if (candidates.length == 0)
+  getClosestSpace(point, radius = 1, shape = 'circle') {
+    let spaceList = this.getSpacesWithinRadius(point, radius, shape);
+    if (spaceList.length == 0)
       throw('No space is within search distance from the given point.');
-    return sortByProperty(candidates, 'distance', true, true)[0]['space'];
+    return spaceList[0];
   }
 
   /**
