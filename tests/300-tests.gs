@@ -342,7 +342,7 @@ tests.agents.moveAround = function() {
 tests.deck = {};
 tests.deck.basics = function() {
   let dData = {
-    id: 'test',
+    id: 'tests',
     shuffleWhenCreated: false,
     addDiscardWhenShuffling: true,
     displaySize: 5,
@@ -468,7 +468,7 @@ tests.track.gridMovement = function() {
   if (track.graph[1][0] != 1)
     return 'Symmetric connections are not created correctly.';
   
-  let pawn = track.getPawn('test');
+  let pawn = track.getPawn('tests');
   pawn.setSpace('5x1');
   pawn.path = track.buildPath(pawn.space.id, '5x5');
   if (pawn.path.length != 7)
@@ -643,4 +643,40 @@ tests.diceRoll.theLot = function() {
   if (d.getHighestFrequency(4) != 2)
     return 'countEquals does not apply threshold correctly.';
   
+}
+
+/**
+ * These tests are a bit different. The Table object is for log output and is
+ * tested by looking at the log output.
+ */
+tests.table = {};
+tests.table.theLot = function() {
+  let m = new Table(4, 13);
+  Logger.log('This should be an empty table with 4 rows and 13 columns.', 'tests');
+  log(m.getPrintout(), 'tests');
+
+  m.setValue(1, 1, 'foo').setValue(2, 2, 'bar');
+  log('This table should contain foo and bar. Columns should be aligned.', 'tests');
+  log(m.getPrintout(), 'tests');
+
+  m.skipEmptyLines = true;
+  log('In this table all empty lines should be hidden.', 'tests');
+  log(m.getPrintout(), 'tests');
+
+  m.addHeaderRow();
+  m.setColumnHeader(1, 'A');
+  m.setColumnHeader(2, 'B');
+  m.setColumnHeader(3, 'C');
+  m.setColumnHeader(4, 'D');
+  m.setColumnHeader(5, 'E');
+  log('This table should have five headers for columns.', 'tests');
+  log(m.getPrintout(), 'tests');
+
+  m.addHeaderColumn();
+  m.setRowHeader(1, 'one');
+  m.setRowHeader(2, 'two');
+  m.setRowHeader(3, 'three');
+  m.setRowHeader(4, 'four');
+  log('This table should have headers for each row, aligned.', 'tests');
+  log(m.getPrintout(), 'tests');
 }
