@@ -12,6 +12,8 @@
  *    - assumePresent: If true, missing pawns are created when calling getPawn(pawnId). Defaults to true.
  *    - loop: If true, the last space is followed by the first. Defaults to false.
  *    - gridMovement: If true, possible movement is defined through connections on spaces. Defaults to false.
+ *    - connectRadius: If set to a numeric value, each space will connect to all spaces within that distance
+ *      unless overridden by the 'connectsTo' property for the space.
  *    - symmetricConnections: If true, any connections between spaces are assumed to go both ways.
  *      Only relevant if gridMovement is true. Defaults to true.
  *    - cacheGraph: If true, the created map of connections between spaces is stored between game iterations.
@@ -59,40 +61,60 @@ class Track {
    * Rebuilds track data. Needed when new spaces are added.
    */
   rebuild() {
-    // Build a graph of how the spaces connect, if advanced movement is used.
+    // Map space IDs to indices, for quicker reference. And update space indices.
+    this.spaceMapping = {};
+    for (let i in this.spaces) {
+      this.spaceMapping[this.spaces[i].id] = i;
+      this.spaces[i].index = parseInt(i);
+    }
+
+    // Build a graph of how the spaces connect, if grid movement is used.
     // Data used by the a-star algorithm, to find paths in the grid.
     if (this.gridMovement) {
+      // Reset pawn paths.
+      this.pawnPaths = {};
+
+      // Attempt to fetch cached data, if relevant.
       if (this.cacheGraph) {
         this.graph = getCache('track.' + this.id + '.grid');
         this.heuristic = getCache('track.' + this.id + '.heuristic');
       }
       else
         this.graph = false;
+
+      // Build new graph data, if necessary.
       if (!this.graph) {
         this.graph = [];
         for (let i = 0; i < this.spaces.length; i++)
           this.graph.push([]);
         for (let s of this.spaces) {
-          for (let c of s.connectsTo) {
-            let target = new ObjectFilter({id: c}).findFirstInArray(this.spaces);
-            this.graph[s.index][target.index] = 1;
+          let connected = [];
+          // Use connectRadius, if appropriate.
+          if (this.connectRadius && !s.connectsTo.length) {
+            let filter = new ObjectFilter({id: s.id});
+            connected = this.getSpacesWithinRadius(s, this.connectRadius);
+            filter.removeFirstFromArray(connected);
+            connected = this.convertSpaceData(connected, 'object', 'index');
+          }
+          // Otherwise, use explicit connections set on the space.
+          else {
+            connected = this.convertSpaceData(s.connectsTo, 'id', 'index');
+          }
+          // Connect to each relevant space, and the reverse if relevant.
+          for (let targetIndex of connected) {
+            this.graph[s.index][targetIndex] = 1;
             if (this.symmetricConnections)
-              this.graph[target.index][s.index] = 1;
+              this.graph[targetIndex][s.index] = 1;
           }
         }
         let row = Array(this.graph.length).fill(1);
         this.heuristic = Array(this.graph.length).fill(row);
-        setCache('track.' + this.id + '.grid', this.graph);
-        setCache('track.' + this.id + '.heuristic', this.heuristic);
+        // Cache for future reference, if relevant.
+        if (this.cacheGraph) {
+          setCache('track.' + this.id + '.grid', this.graph);
+          setCache('track.' + this.id + '.heuristic', this.heuristic);
+        }
       }
-      this.pawnPaths = {};
-    }
-
-    // Map space IDs to indices, for quicker reference. And update space indices.
-    this.spaceMapping = {};
-    for (let i in this.spaces) {
-      this.spaceMapping[this.spaces[i].id] = i;
-      this.spaces[i].index = parseInt(i);
     }
   }
 

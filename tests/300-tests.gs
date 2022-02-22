@@ -453,7 +453,10 @@ tests.track.convertions = function() {
   spaces = track.convertSpaceData(spaces, 'object', 'id');
   if (spaces[0] != '1x1')
     return 'convertSpaceData does not convert to id correctly.';
-  spaces = track.convertSpaceData(spaces, 'id', 'region');
+  spaces = track.convertSpaceData(spaces, 'id', 'index');
+  if (spaces[0] != 0)
+    return 'convertSpaceData does not convert from id to index correctly.';
+  spaces = track.convertSpaceData(spaces, 'index', 'region');
   if (spaces[0] != 'woodland')
     return 'convertSpaceData does not convert to property values correctly.';
 };
@@ -520,6 +523,24 @@ tests.track.gridMovement = function() {
   if (spaces.length != 8)
     return 'getMatchingSpacesWithinRange does not include first space regardless of restrictions.';
 };
+tests.track.connectRadius = function() {
+  let tData = buildObjectFromLine('testData', 'K66:K71');
+  let sData = buildObjectArrayFromRows('testData', 'L65:N73');
+  let track = new Track(tData, sData);
+  let path = track.buildPath('1x1', '3x3');
+  if (path !== false)
+    return 'Track connects spaces even when no connections are set.';
+  track.connectRadius = 1;
+  track.rebuild();
+  path = track.buildPath('1x1', '3x3');
+  if (path.length != 4)
+    return 'Connect radius does not cause spaces to connect.';
+  track.connectRadius = 1.5;
+  track.rebuild();
+  path = track.buildPath('1x1', '3x3');
+  if (path.length != 3)
+    return 'Connect radius does not cause spaces within relevant distance to connect.';
+}
 tests.track.lineOfSight = function() {
   let tData = buildObjectFromLine('testData', 'K66:K71');
   let sData = buildObjectArrayFromRows('testData', 'L65:O73');
