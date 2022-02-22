@@ -102,6 +102,12 @@ Stores an object in the cache, to use in future game iterations. Identified by `
 
 Returns a cached object, identified by 'key', or `undefined` if it is not cached. Cached objects are kept between game iterations.
 
+### repString()
+
+`repString(length, character = ' ')`
+
+Returns a string with 'character' repeated 'length' times. The character defaults to a blank space. If a sequence of characters is given, instead of a single, the full string will be repeated.
+
 ### getAgentById()
 
 `getAgentById(id)`
