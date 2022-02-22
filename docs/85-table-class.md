@@ -2,6 +2,9 @@
 
 The Table class is created to help make log outputs of a game board or some other part of the game state. The class manages text put in a table. It is only used to build and then print complex log messages – not to manipulate the game state.
 
+![image](https://user-images.githubusercontent.com/262940/155134242-50cad38c-acde-4f73-acca-d45cab25b850.png)
+_Example of table created using the Table class._
+
 ## Creating a table, setting values and printing table content
 
     myTable = new Table(rows, columns, defaultString = '·', separator = ' ')
