@@ -39,28 +39,28 @@ class Table {
   }
 
   // Adds a header row on top of the content.
-  addHeaderRow() {
+  addColumnHeaders() {
     this.content.unshift(this.getEmptyLine());
     this.rowOffset++;
     return this;
   }
 
   // Adds a header column to the left of the content.
-  addHeaderColumn() {
+  addRowHeaders() {
     for (let i in this.content)
       this.content[i].unshift(this.defaultString);
     this.columnOffset++;
   }
 
-  // Sets a row header.
-  setRowHeader(rowNumber, value) {
-    this.setValue(rowNumber, 0, value);
-    return this;
-  }
-
   // Sets a column header.
   setColumnHeader(columnNumber, value) {
     this.setValue(0, columnNumber, value);
+    return this;
+  }
+
+  // Sets a row header.
+  setRowHeader(rowNumber, value) {
+    this.setValue(rowNumber, 0, value);
     return this;
   }
 
