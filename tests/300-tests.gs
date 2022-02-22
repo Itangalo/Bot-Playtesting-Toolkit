@@ -661,8 +661,12 @@ tests.table.theLot = function() {
   Logger.log('This should be an empty table with 4 rows and 13 columns.', 'tests');
   log(m.getPrintout(), 'tests');
 
-  m.setValue(1, 1, 'foo').setValue(2, 2, 'bar');
+  m.setValue(1, 1, 'foo').setValue(3, 3, 'bar');
   log('This table should contain foo and bar. Columns should be aligned.', 'tests');
+  log(m.getPrintout(), 'tests');
+
+  m.addColumn().addRow();
+  log('This table should be 5×14.', 'tests');
   log(m.getPrintout(), 'tests');
 
   m.skipEmptyLines = true;
@@ -681,5 +685,13 @@ tests.table.theLot = function() {
   m.setRowHeader(3, 'three');
   m.setRowHeader(4, 'four');
   log('This table should have headers for each row, aligned, where the first has capital letters.', 'tests');
+  log(m.getPrintout(), 'tests');
+
+  m.adjustOutput = 'center';
+  log('This table should have output in center for each column.', 'tests');
+  log(m.getPrintout(), 'tests');
+
+  m.adjustOutput = 'right';
+  log('This table should have output right aligned.', 'tests');
   log(m.getPrintout(), 'tests');
 }

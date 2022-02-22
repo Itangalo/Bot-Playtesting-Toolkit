@@ -4,13 +4,13 @@
  * 
  * @param {number} rows: The number of rows for the table.
  * @param {number} columns: The number of columns for the table.
- * @param {string} defaultString: Initial content of each cell. Defaults to '·'.
+ * @param {string} emptyString: Content to print for empty cell. Defaults to '·'.
  * @param {string} separator: String to separate each cell with when printed out. Defaults to a space.
  */
 class Table {
-  constructor(rows, columns, defaultString = '·', separator = ' ') {
+  constructor(rows, columns, emptyString = '·', separator = ' ') {
     this.content = new Array();
-    this.defaultString = defaultString;
+    this.emptyString = emptyString;
     this.rows = rows;
     this.columns = columns;
     for (let i = 0; i < rows; i++)
@@ -27,14 +27,34 @@ class Table {
 
   getEmptyLine() {
     if (!this.content.length)
-      return new Array(this.columns).fill(this.defaultString);
+      return new Array(this.columns);
     else
-      return new Array(this.content[0].length).fill(this.defaultString);
+      return new Array(this.content[0].length);
   }
 
   // Sets the value for the given row and column.
   setValue(row, column, value) {
-    this.content[this.rowOffset + parseInt(row)][this.columnOffset + parseInt(column)] = value;
+    let t = this;
+    let r = this.rowOffset + parseInt(row);
+    let c = this.columnOffset + parseInt(column);
+    if (r >= this.content.length || c >= this.content[0].length)
+      throw('Table has size ' + this.content.length + '×' + this.content[0].length + ', but tried to set value at (' + r + ', ' + c + ').');
+    this.content[r][c] = value;
+    return this;
+  }
+
+  // Adds a new row at the end of the table.
+  addRow() {
+    this.content.push(this.getEmptyLine());
+    this.rows++;
+    return this;
+  }
+
+  // Adds a new column at the end of the table.
+  addColumn() {
+    for (let r of this.content)
+      r.push(null);
+    this.columns++;
     return this;
   }
 
@@ -50,7 +70,7 @@ class Table {
   // Adds a header column to the left of the content.
   addRowHeaders(headers = []) {
     for (let i in this.content)
-      this.content[i].unshift(this.defaultString);
+      this.content[i].unshift(null);
     this.columnOffset++;
     for (let i in headers)
       this.setRowHeader(parseInt(i) + 1, headers[i]);
@@ -77,6 +97,12 @@ class Table {
         while (compareObjects(processed[i], this.getEmptyLine()))
           processed.splice(i, 1);
 
+    // Fill all empty cells with the emptyString.
+    for (let r in processed)
+      for (let c in processed[r])
+        if (!processed[r][c])
+          processed[r][c] = this.emptyString;
+
     if (this.adjustOutput) {
       // Get maximum length for all columns.
       let lengths = new Array(processed[0].length).fill(0);
@@ -88,8 +114,14 @@ class Table {
       // Pad the cells.
       for (let c = 0; c < processed[0].length; c++) {
         for (let r = 0; r < processed.length; r++) {
-          let padding = lengths[c] - processed[r][c].length;
-          processed[r][c] += new Array(padding + 1).join(' ');
+          let pre = Math.floor((lengths[c] - processed[r][c].length) / 2);
+          let post = Math.ceil((lengths[c] - processed[r][c].length) / 2);
+          if (this.adjustOutput == 'center')
+            processed[r][c] = repString(pre) + processed[r][c] + repString(post);
+          else if (this.adjustOutput == 'right')
+            processed[r][c] = repString(pre + post) + processed[r][c];
+          else
+            processed[r][c] += repString(pre + post);
         }
       }
     }

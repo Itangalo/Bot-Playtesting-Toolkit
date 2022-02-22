@@ -338,6 +338,13 @@ function getCache(key) {
   return BPTstatic.cache[key];
 }
 
+/**
+ * Returns a string with 'character' repeated 'length' times.
+ */
+function repString(length, character = ' ') {
+  return new Array(length + 1).join(character);
+}
+
 // Returns the agent with the matching id or false if none is found.
 function getAgentById(id) {
   if (!gameState.agents)
