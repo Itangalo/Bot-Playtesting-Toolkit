@@ -669,20 +669,17 @@ tests.table.theLot = function() {
   log('In this table all empty lines should be hidden.', 'tests');
   log(m.getPrintout(), 'tests');
 
-  m.addColumnHeaders();
-  m.setColumnHeader(1, 'A');
-  m.setColumnHeader(2, 'B');
+  m.addColumnHeaders(['a', 'b', 'c', 'd', 'e', 'f']);
   m.setColumnHeader(3, 'C');
   m.setColumnHeader(4, 'D');
   m.setColumnHeader(5, 'E');
-  log('This table should have five headers for columns.', 'tests');
+  log('This table should have six headers for columns, where three have capital letters.', 'tests');
   log(m.getPrintout(), 'tests');
 
-  m.addRowHeaders();
-  m.setRowHeader(1, 'one');
+  m.addRowHeaders(['ONE']);
   m.setRowHeader(2, 'two');
   m.setRowHeader(3, 'three');
   m.setRowHeader(4, 'four');
-  log('This table should have headers for each row, aligned.', 'tests');
+  log('This table should have headers for each row, aligned, where the first has capital letters.', 'tests');
   log(m.getPrintout(), 'tests');
 }
