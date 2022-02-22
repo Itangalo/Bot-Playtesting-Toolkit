@@ -27,6 +27,13 @@ The function `myTable.getPrintout()` processes the table content and returns a s
 
 Headers can be added to the top of columns by using `myTable.addColumnHeaders(headers)`, where `headers` is an optional array of headers to add. Header for an individual column can also be set by calling `myTable.setColumnHeader(column, value)`. Setting headers for each row is done in the same way, with the sister functions.
 
+## Other functions for tables
+
+    myTable.addRow()
+    myTable.addColumn()
+
+The `addRow()` and `addColumn()` functions add a row or column to the end of the table.
+
 ## Special properties for tables
 
 `myTable.rows` and `myTable.columns` contains the number of rows and columns for the table content.
@@ -37,6 +44,6 @@ Headers can be added to the top of columns by using `myTable.addColumnHeaders(he
 
 `myTable.lineBreak` contains the string to used when joining table rows in printouts.
 
-`myTable.adjustOutput` can be set to `false` to _not_ have cells adjusted to the same widths on printouts.
+`myTable.adjustOutput` can be set to `false` to _not_ have cells adjusted to the same widths on printouts. Set to `center` or `right` to have cell content centred or right-aligned.
 
 `myTable.skipEmptyLines` can be set to `true` to skip any empty lines in printouts.
