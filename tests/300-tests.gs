@@ -524,8 +524,8 @@ tests.track.gridMovement = function() {
     return 'getMatchingSpacesWithinRange does not include first space regardless of restrictions.';
 };
 tests.track.connectRadius = function() {
-  let tData = buildObjectFromLine('testData', 'K66:K71');
-  let sData = buildObjectArrayFromRows('testData', 'L65:N73');
+  let tData = buildObjectFromLine('testData', 'K65:K71');
+  let sData = buildObjectArrayFromRows('testData', 'L75:N83');
   let track = new Track(tData, sData);
   let path = track.buildPath('1x1', '3x3');
   if (path !== false)
@@ -540,6 +540,15 @@ tests.track.connectRadius = function() {
   path = track.buildPath('1x1', '3x3');
   if (path.length != 3)
     return 'Connect radius does not cause spaces within relevant distance to connect.';
+  
+  // Rebuild with customized connections for some spaces.
+  sData = buildObjectArrayFromRows('testData', 'L75:O83');
+  track = new Track(tData, sData);
+  track.connectRadius = 1;
+  track.rebuild();
+  path = track.buildPath('1x1', '3x3');
+  if (path.length != 5)
+    return 'Connect radius connects with radius even when connections are overridden.';
 }
 tests.track.lineOfSight = function() {
   let tData = buildObjectFromLine('testData', 'K66:K71');
