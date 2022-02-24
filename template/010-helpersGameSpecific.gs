@@ -13,6 +13,6 @@ function board() {
 }
 
 // It is sometimes useful to print out simplified representations of the board, or some game stats.
-// How this could be done varies greatly from game to game.
+// How this could be done varies greatly from game to game. See also the Table class.
 function printBoard() {
 }

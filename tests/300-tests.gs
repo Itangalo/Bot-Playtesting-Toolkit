@@ -607,7 +607,6 @@ tests.track.connectRadius = function() {
   track.connectRadius = 1;
   track.rebuild();
   path = track.buildPath('1x1', '3x3');
-  debugger
   if (path.length != 5)
     return 'Connect radius connects with radius even when connections are overridden.';
 }

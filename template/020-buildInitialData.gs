@@ -1,7 +1,8 @@
 /**
  * Builds the data needed to start a game.
  * 
- * Should populate the BPTstatic variable and also return an object describing initial game state.
+ * Module entry is required. The function buildInitialData is optional. If used, it should 
+ * populate the BPTstatic variable and also return an object describing initial game state.
  */
 
 // Add an entry for the module.

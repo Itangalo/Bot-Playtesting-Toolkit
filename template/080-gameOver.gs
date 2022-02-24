@@ -1,5 +1,5 @@
 /**
- * Tells when the game is over.
+ * Tells when the game is over. Required function.
  *
  * @return Either true or false.
  */

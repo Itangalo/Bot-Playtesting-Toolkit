@@ -27,7 +27,9 @@ function simulate(iterations = false, mod = false) {
 
   let extraArguments = parseArguments(arguments, 2);
   log('Starting to build initial data.', 'system');
-  let gameStateSeed = modules[module].buildInitialData(...extraArguments);
+  let gameStateSeed = {};
+  if (modules[module].buildInitialData)
+    gameStateSeed = modules[module].buildInitialData(...extraArguments);
   log('Initial data complete.', 'system');
 
   /**
@@ -70,8 +72,14 @@ function simulate(iterations = false, mod = false) {
       }
     }
 
+    // Only on the first iteration, run postBuild().
+    if (iteration == 1 && modules[module].postBuild)
+      modules[module].postBuild(...extraArguments);
+
+
     // Make any customized additional processing of the game state.
-    modules[module].preIteration(...extraArguments);
+    if (modules[module].preIteration)
+      modules[module].preIteration(...extraArguments);
 
     /**
      * Play the game until it is over.

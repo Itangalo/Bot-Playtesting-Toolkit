@@ -1,6 +1,6 @@
 /**
  * Called when a game iteration is over. Returns an object with the data used
- * for statistics based on all games. Data must be numeric.
+ * for statistics based on all games. Data must be numeric. Required function.
  *
  * @return Object on the form {property: numericalValue, ...}
  */

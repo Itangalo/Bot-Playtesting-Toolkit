@@ -1,6 +1,6 @@
 /**
  * @file: Contains function called before each game iteration is run,
- * after all standard processing of the game state has been made.
+ * after all standard processing of the game state has been made. Optional.
  */
 
 modules.myModule.preIteration = function() {
