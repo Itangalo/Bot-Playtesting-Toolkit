@@ -1,12 +1,12 @@
-# Functions a module must include
+# Main functions called when running a module
 
 Modules, containing any specific code to run for a game, are added to the object `modules`, for example `modules.myModule = {}`.
 
-The Bot Playtesting Toolkit expects some functions in a module. These functions should be added to the individual module objects, for example `modules.myModule.buildInitialData = function() {...}`.
+The Bot Playtesting Toolkit expects some functions in a module. Additionally, some particular functions are called if they exist and are otherwise skipped. These functions are added to the individual module objects, for example `modules.myModule.buildInitialData = function() {...}`.
 
 ## buildInitialData()
 
-This function is responsible for two things.
+This function is optional. It is responsible for two things.
 
 **The first is populating the `BPTstatic` object with appropriate data.** This is a good place to put values that are used in different parts of the code, such as the number of victory points that ends the game, default values for various things, or other data you might want to store in globally accessible variables. Note that all the data stored here should be non-changing, and _not_ change between games or within games.
 
@@ -27,15 +27,21 @@ Building the data for these types of objects is usually done by reading data fro
 
 Note that `buildInitialData()` must return the game state seed, and should thus end with `return gameStateSeed`.
 
+## postBuild()
+
+This function is optional. It is used to process any data after the gameState has been created, but before the first iteration. Its intended use is to make any heavy processing of data once only, when possible.
+
+Any data that should be stored must be stored using setCache(), to be available throughout all iterations. **Note that objects with methods (such as spaces, decks, etc.) can not be cached.**
+
 ## preIteration()
 
-The game state seed is processed by BPT before each game iteration, and the globally accessible `gameState` variable is set up. There are a number of things that can be taken care of automatically, such as shuffling decks, filling card displays or placing pawns on tracks, but there may by other more customized preparations that needs to be taken care of as well. Any such preparations are done by `preIteration()`.
+This function is optional. The game state seed is processed by BPT before each game iteration, and the globally accessible `gameState` variable is set up. There are a number of things that can be taken care of automatically, such as shuffling decks, filling card displays or placing pawns on tracks, but there may by other more customized preparations that needs to be taken care of as well. Any such preparations are done by `preIteration()`.
 
 This function could for example give each agent a random quest card, randomize player order, or place cubes on the board according to the top three cards in a deck. The function may manipulate `gameState` in any way necessary. It does not take any arguments and is not expected to return anything.
 
 ## playRound()
 
-This function contains much of the actual game. For complex games, this function will probably either be quite long or split up into sub functions. Much of the complex work is also delegated to the agent strategies.
+This function is required. It contains much of the actual game. For complex games, this function will probably either be quite long or split up into sub functions. Much of the complex work is also delegated to the agent strategies.
 
 The function is called by BPT once every round, but for some games it might be easier to instead consider each round as a turn. The number of the round is stored in `gameState.round` by BPT.
 
@@ -43,11 +49,11 @@ This function may use or manipulate `gameState` in any way necessary. It does no
 
 ## gameOver()
 
-This function is called before each round. It reads the `gameState` and returns either `true` or `false`. If it returns `true`, the current game iteration ends.
+This function is required. It is called before each round. It reads the `gameState` and returns either `true` or `false`. If it returns `true`, the current game iteration ends.
 
 ## buildStatistics()
 
-This function is called after the end of each game iteration. It should collect or build any data from the `gameState` that should be included in the statistics for all the played games. The data should be returned in an object, with column header as property name.
+This function is required. It is called after the end of each game iteration. It should collect or build any data from the `gameState` that should be included in the statistics for all the played games. The data should be returned in an object, with column header as property name.
 
 Some things to note:
 
