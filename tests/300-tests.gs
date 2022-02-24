@@ -270,6 +270,66 @@ tests.objectFilter.filterCondition = function() {
   if (t2.applyOnArray(arr).length != 3)
     return 'FilterCondition does not work properly.';
 }
+tests.objectFilter.empty = function() {
+  let obj = {
+    a: [],
+    b: null,
+    c: false,
+    d: 0,
+    e: '',
+    f: [undefined],
+    g: undefined,
+  };
+  let filter = new ObjectFilter().addEmptyCondition('a');
+  if (!filter.applyOnObject(obj))
+    return 'Empty condition treats an empty array incorrectly.';
+  filter = new ObjectFilter().addEmptyCondition('b');
+  if (!filter.applyOnObject(obj))
+    return 'Empty condition treats null incorrectly.';
+  filter = new ObjectFilter().addEmptyCondition('c');
+  if (!filter.applyOnObject(obj))
+    return 'Empty condition treats false incorrectly.';
+  filter = new ObjectFilter().addEmptyCondition('d');
+  if (filter.applyOnObject(obj))
+    return 'Empty condition incorrectly treats 0 as empty.';
+  filter = new ObjectFilter().addEmptyCondition('e');
+  if (!filter.applyOnObject(obj))
+    return 'Empty condition treats empty strings incorrectly.';
+  filter = new ObjectFilter().addEmptyCondition('f');
+  if (filter.applyOnObject(obj))
+    return 'Empty condition treats an array with an undefined element incorrectly.';
+  filter = new ObjectFilter().addEmptyCondition('g');
+  if (!filter.applyOnObject(obj))
+    return 'Empty condition treats undefined incorrectly.';
+  filter = new ObjectFilter().addEmptyCondition('h');
+  if (!filter.applyOnObject(obj))
+    return 'Empty condition treats missing properties incorrectly.';
+
+  filter = new ObjectFilter().addNotEmptyCondition('a');
+  if (filter.applyOnObject(obj))
+    return 'Not-empty condition treats an empty array incorrectly.';
+  filter = new ObjectFilter().addNotEmptyCondition('b');
+  if (filter.applyOnObject(obj))
+    return 'Not-empty condition treats null incorrectly.';
+  filter = new ObjectFilter().addNotEmptyCondition('c');
+  if (filter.applyOnObject(obj))
+    return 'Not-empty condition treats false incorrectly.';
+  filter = new ObjectFilter().addNotEmptyCondition('d');
+  if (!filter.applyOnObject(obj))
+    return 'Not-empty condition incorrectly treats 0 as empty.';
+  filter = new ObjectFilter().addNotEmptyCondition('e');
+  if (filter.applyOnObject(obj))
+    return 'Not-empty condition treats empty strings incorrectly.';
+  filter = new ObjectFilter().addNotEmptyCondition('f');
+  if (!filter.applyOnObject(obj))
+    return 'Not-empty condition treats an array with an undefined element incorrectly.';
+  filter = new ObjectFilter().addNotEmptyCondition('g');
+  if (filter.applyOnObject(obj))
+    return 'Not-empty condition treats undefined incorrectly.';
+  filter = new ObjectFilter().addNotEmptyCondition('h');
+  if (filter.applyOnObject(obj))
+    return 'Not-empty condition treats missing properties incorrectly.';
+}
 
 tests.agents = {};
 tests.agents.properties = function() {
@@ -547,6 +607,7 @@ tests.track.connectRadius = function() {
   track.connectRadius = 1;
   track.rebuild();
   path = track.buildPath('1x1', '3x3');
+  debugger
   if (path.length != 5)
     return 'Connect radius connects with radius even when connections are overridden.';
 }

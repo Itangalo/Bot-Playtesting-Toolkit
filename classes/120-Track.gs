@@ -13,7 +13,7 @@
  *    - loop: If true, the last space is followed by the first. Defaults to false.
  *    - gridMovement: If true, possible movement is defined through connections on spaces. Defaults to false.
  *    - connectRadius: If set to a numeric value, each space will connect to all spaces within that distance
- *      unless overridden by the 'connectsTo' property for the space.
+ *      unless source or target spaces have explicit connections set by the 'connectsTo' property.
  *    - symmetricConnections: If true, any connections between spaces are assumed to go both ways.
  *      Only relevant if gridMovement is true. Defaults to true.
  *    - cacheGraph: If true, the created map of connections between spaces is stored between game iterations.
@@ -91,9 +91,9 @@ class Track {
           let connected = [];
           // Use connectRadius, if appropriate.
           if (this.connectRadius && !s.connectsTo.length) {
-            let filter = new ObjectFilter({id: s.id});
+            let filter = new ObjectFilter().or().addEqualsCondition({id: s.id}).addNotEmptyCondition('connectsTo');
             connected = this.getSpacesWithinRadius(s, this.connectRadius);
-            filter.removeFirstFromArray(connected);
+            filter.removeFromArray(connected);
             connected = this.convertSpaceData(connected, 'object', 'index');
           }
           // Otherwise, use explicit connections set on the space.
