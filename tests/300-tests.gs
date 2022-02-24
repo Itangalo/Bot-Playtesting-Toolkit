@@ -270,6 +270,66 @@ tests.objectFilter.filterCondition = function() {
   if (t2.applyOnArray(arr).length != 3)
     return 'FilterCondition does not work properly.';
 }
+tests.objectFilter.empty = function() {
+  let obj = {
+    a: [],
+    b: null,
+    c: false,
+    d: 0,
+    e: '',
+    f: [undefined],
+    g: undefined,
+  };
+  let filter = new ObjectFilter().addEmptyCondition('a');
+  if (!filter.applyOnObject(obj))
+    return 'Empty condition treats an empty array incorrectly.';
+  filter = new ObjectFilter().addEmptyCondition('b');
+  if (!filter.applyOnObject(obj))
+    return 'Empty condition treats null incorrectly.';
+  filter = new ObjectFilter().addEmptyCondition('c');
+  if (!filter.applyOnObject(obj))
+    return 'Empty condition treats false incorrectly.';
+  filter = new ObjectFilter().addEmptyCondition('d');
+  if (filter.applyOnObject(obj))
+    return 'Empty condition incorrectly treats 0 as empty.';
+  filter = new ObjectFilter().addEmptyCondition('e');
+  if (!filter.applyOnObject(obj))
+    return 'Empty condition treats empty strings incorrectly.';
+  filter = new ObjectFilter().addEmptyCondition('f');
+  if (filter.applyOnObject(obj))
+    return 'Empty condition treats an array with an undefined element incorrectly.';
+  filter = new ObjectFilter().addEmptyCondition('g');
+  if (!filter.applyOnObject(obj))
+    return 'Empty condition treats undefined incorrectly.';
+  filter = new ObjectFilter().addEmptyCondition('h');
+  if (!filter.applyOnObject(obj))
+    return 'Empty condition treats missing properties incorrectly.';
+
+  filter = new ObjectFilter().addNotEmptyCondition('a');
+  if (filter.applyOnObject(obj))
+    return 'Not-empty condition treats an empty array incorrectly.';
+  filter = new ObjectFilter().addNotEmptyCondition('b');
+  if (filter.applyOnObject(obj))
+    return 'Not-empty condition treats null incorrectly.';
+  filter = new ObjectFilter().addNotEmptyCondition('c');
+  if (filter.applyOnObject(obj))
+    return 'Not-empty condition treats false incorrectly.';
+  filter = new ObjectFilter().addNotEmptyCondition('d');
+  if (!filter.applyOnObject(obj))
+    return 'Not-empty condition incorrectly treats 0 as empty.';
+  filter = new ObjectFilter().addNotEmptyCondition('e');
+  if (filter.applyOnObject(obj))
+    return 'Not-empty condition treats empty strings incorrectly.';
+  filter = new ObjectFilter().addNotEmptyCondition('f');
+  if (!filter.applyOnObject(obj))
+    return 'Not-empty condition treats an array with an undefined element incorrectly.';
+  filter = new ObjectFilter().addNotEmptyCondition('g');
+  if (filter.applyOnObject(obj))
+    return 'Not-empty condition treats undefined incorrectly.';
+  filter = new ObjectFilter().addNotEmptyCondition('h');
+  if (filter.applyOnObject(obj))
+    return 'Not-empty condition treats missing properties incorrectly.';
+}
 
 tests.agents = {};
 tests.agents.properties = function() {
@@ -342,7 +402,7 @@ tests.agents.moveAround = function() {
 tests.deck = {};
 tests.deck.basics = function() {
   let dData = {
-    id: 'test',
+    id: 'tests',
     shuffleWhenCreated: false,
     addDiscardWhenShuffling: true,
     displaySize: 5,
@@ -453,7 +513,10 @@ tests.track.convertions = function() {
   spaces = track.convertSpaceData(spaces, 'object', 'id');
   if (spaces[0] != '1x1')
     return 'convertSpaceData does not convert to id correctly.';
-  spaces = track.convertSpaceData(spaces, 'id', 'region');
+  spaces = track.convertSpaceData(spaces, 'id', 'index');
+  if (spaces[0] != 0)
+    return 'convertSpaceData does not convert from id to index correctly.';
+  spaces = track.convertSpaceData(spaces, 'index', 'region');
   if (spaces[0] != 'woodland')
     return 'convertSpaceData does not convert to property values correctly.';
 };
@@ -468,7 +531,7 @@ tests.track.gridMovement = function() {
   if (track.graph[1][0] != 1)
     return 'Symmetric connections are not created correctly.';
   
-  let pawn = track.getPawn('test');
+  let pawn = track.getPawn('tests');
   pawn.setSpace('5x1');
   pawn.path = track.buildPath(pawn.space.id, '5x5');
   if (pawn.path.length != 7)
@@ -520,6 +583,33 @@ tests.track.gridMovement = function() {
   if (spaces.length != 8)
     return 'getMatchingSpacesWithinRange does not include first space regardless of restrictions.';
 };
+tests.track.connectRadius = function() {
+  let tData = buildObjectFromLine('testData', 'K65:K71');
+  let sData = buildObjectArrayFromRows('testData', 'L75:N83');
+  let track = new Track(tData, sData);
+  let path = track.buildPath('1x1', '3x3');
+  if (path !== false)
+    return 'Track connects spaces even when no connections are set.';
+  track.connectRadius = 1;
+  track.rebuild();
+  path = track.buildPath('1x1', '3x3');
+  if (path.length != 4)
+    return 'Connect radius does not cause spaces to connect.';
+  track.connectRadius = 1.5;
+  track.rebuild();
+  path = track.buildPath('1x1', '3x3');
+  if (path.length != 3)
+    return 'Connect radius does not cause spaces within relevant distance to connect.';
+  
+  // Rebuild with customized connections for some spaces.
+  sData = buildObjectArrayFromRows('testData', 'L75:O83');
+  track = new Track(tData, sData);
+  track.connectRadius = 1;
+  track.rebuild();
+  path = track.buildPath('1x1', '3x3');
+  if (path.length != 5)
+    return 'Connect radius connects with radius even when connections are overridden.';
+}
 tests.track.lineOfSight = function() {
   let tData = buildObjectFromLine('testData', 'K66:K71');
   let sData = buildObjectArrayFromRows('testData', 'L65:O73');
@@ -548,6 +638,17 @@ tests.track.lineOfSight = function() {
   if (track.lineOfSight(spaceA, spaceB) === true)
     return 'lineOfSight says true when checking lines from space edges that should be blocked.';
 };
+tests.track.closestSpace = function() {
+  let nearby = gameState.tracks.testLineOfSight.getSpacesWithinRadius({x: 2, y: 2.1}, 1);
+  if (nearby.length != 1)
+    return 'getSpacesWithinRadius uses square search when it should be circle.';
+  nearby = gameState.tracks.testLineOfSight.getSpacesWithinRadius({x: 2, y: 2.1}, 1, 'square');
+  if (nearby.length != 5)
+    return 'getSpacesWithinRadius uses circle search when it should be square.';
+  let closest = gameState.tracks.testLineOfSight.getClosestSpace({x: 2, y: 2.1}, 1);
+  if (closest.id != '2x3')
+    return 'getClosestSpace does not work properly';
+}
 
 tests.market = {};
 tests.market.theLot = function() {
@@ -638,4 +739,49 @@ tests.diceRoll.theLot = function() {
   if (d.getHighestFrequency(4) != 2)
     return 'countEquals does not apply threshold correctly.';
   
+}
+
+/**
+ * These tests are a bit different. The Table object is for log output and is
+ * tested by looking at the log output.
+ */
+tests.table = {};
+tests.table.theLot = function() {
+  let m = new Table(4, 13);
+  Logger.log('This should be an empty table with 4 rows and 13 columns.', 'tests');
+  log(m.getPrintout(), 'tests');
+
+  m.setValue(1, 1, 'foo').setValue(3, 3, 'bar');
+  log('This table should contain foo and bar. Columns should be aligned.', 'tests');
+  log(m.getPrintout(), 'tests');
+
+  m.addColumn().addRow();
+  log('This table should be 5×14.', 'tests');
+  log(m.getPrintout(), 'tests');
+
+  m.skipEmptyLines = true;
+  log('In this table all empty lines should be hidden.', 'tests');
+  log(m.getPrintout(), 'tests');
+
+  m.addColumnHeaders(['a', 'b', 'c', 'd', 'e', 'f']);
+  m.setColumnHeader(3, 'C');
+  m.setColumnHeader(4, 'D');
+  m.setColumnHeader(5, 'E');
+  log('This table should have six headers for columns, where three have capital letters.', 'tests');
+  log(m.getPrintout(), 'tests');
+
+  m.addRowHeaders(['ONE']);
+  m.setRowHeader(2, 'two');
+  m.setRowHeader(3, 'three');
+  m.setRowHeader(4, 'four');
+  log('This table should have headers for each row, aligned, where the first has capital letters.', 'tests');
+  log(m.getPrintout(), 'tests');
+
+  m.adjustOutput = 'center';
+  log('This table should have output in center for each column.', 'tests');
+  log(m.getPrintout(), 'tests');
+
+  m.adjustOutput = 'right';
+  log('This table should have output right aligned.', 'tests');
+  log(m.getPrintout(), 'tests');
 }

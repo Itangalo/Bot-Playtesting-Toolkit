@@ -12,6 +12,8 @@
  *    - assumePresent: If true, missing pawns are created when calling getPawn(pawnId). Defaults to true.
  *    - loop: If true, the last space is followed by the first. Defaults to false.
  *    - gridMovement: If true, possible movement is defined through connections on spaces. Defaults to false.
+ *    - connectRadius: If set to a numeric value, each space will connect to all spaces within that distance
+ *      unless source or target spaces have explicit connections set by the 'connectsTo' property.
  *    - symmetricConnections: If true, any connections between spaces are assumed to go both ways.
  *      Only relevant if gridMovement is true. Defaults to true.
  *    - cacheGraph: If true, the created map of connections between spaces is stored between game iterations.
@@ -59,40 +61,60 @@ class Track {
    * Rebuilds track data. Needed when new spaces are added.
    */
   rebuild() {
-    // Build a graph of how the spaces connect, if advanced movement is used.
+    // Map space IDs to indices, for quicker reference. And update space indices.
+    this.spaceMapping = {};
+    for (let i in this.spaces) {
+      this.spaceMapping[this.spaces[i].id] = i;
+      this.spaces[i].index = parseInt(i);
+    }
+
+    // Build a graph of how the spaces connect, if grid movement is used.
     // Data used by the a-star algorithm, to find paths in the grid.
     if (this.gridMovement) {
+      // Reset pawn paths.
+      this.pawnPaths = {};
+
+      // Attempt to fetch cached data, if relevant.
       if (this.cacheGraph) {
         this.graph = getCache('track.' + this.id + '.grid');
         this.heuristic = getCache('track.' + this.id + '.heuristic');
       }
       else
         this.graph = false;
+
+      // Build new graph data, if necessary.
       if (!this.graph) {
         this.graph = [];
         for (let i = 0; i < this.spaces.length; i++)
           this.graph.push([]);
         for (let s of this.spaces) {
-          for (let c of s.connectsTo) {
-            let target = new ObjectFilter({id: c}).findFirstInArray(this.spaces);
-            this.graph[s.index][target.index] = 1;
+          let connected = [];
+          // Use connectRadius, if appropriate.
+          if (this.connectRadius && !s.connectsTo.length) {
+            let filter = new ObjectFilter().or().addEqualsCondition({id: s.id}).addNotEmptyCondition('connectsTo');
+            connected = this.getSpacesWithinRadius(s, this.connectRadius);
+            filter.removeFromArray(connected);
+            connected = this.convertSpaceData(connected, 'object', 'index');
+          }
+          // Otherwise, use explicit connections set on the space.
+          else {
+            connected = this.convertSpaceData(s.connectsTo, 'id', 'index');
+          }
+          // Connect to each relevant space, and the reverse if relevant.
+          for (let targetIndex of connected) {
+            this.graph[s.index][targetIndex] = 1;
             if (this.symmetricConnections)
-              this.graph[target.index][s.index] = 1;
+              this.graph[targetIndex][s.index] = 1;
           }
         }
         let row = Array(this.graph.length).fill(1);
         this.heuristic = Array(this.graph.length).fill(row);
-        setCache('track.' + this.id + '.grid', this.graph);
-        setCache('track.' + this.id + '.heuristic', this.heuristic);
+        // Cache for future reference, if relevant.
+        if (this.cacheGraph) {
+          setCache('track.' + this.id + '.grid', this.graph);
+          setCache('track.' + this.id + '.heuristic', this.heuristic);
+        }
       }
-      this.pawnPaths = {};
-    }
-
-    // Map space IDs to indices, for quicker reference. And update space indices.
-    this.spaceMapping = {};
-    for (let i in this.spaces) {
-      this.spaceMapping[this.spaces[i].id] = i;
-      this.spaces[i].index = parseInt(i);
     }
   }
 
@@ -263,6 +285,57 @@ class Track {
       return this.convertSpaceData(allSpaces, 'index', returnType);
     }
     return spaces.map(x => this.convertSpaceData(x, 'index', returnType));
+  }
+
+  /**
+   * Returns all the spaces within the radius of the given point.
+   * 
+   * @param {object} point: An object with (at least) coordinate values for the point to search from.
+   * @param {number} radius: A maximum distance from the point to search.
+   * @param {string} shape: Set to 'square' to search a square instead of a circle.
+   * 
+   * @return: An array of spaces, sorted by distance to the point.
+   */
+  getSpacesWithinRadius(point, radius = 1, shape = 'circle') {
+    // Get all spaces within the distance from the point, in a square.
+    let filter = new ObjectFilter();
+    for (let c of this.coordinates) {
+      let value = {};
+      value[c] = point[c] - radius;
+      filter.addGreaterOrEqualCondition(value);
+      value[c] = point[c] + radius;
+      filter.addLessOrEqualCondition(value);
+    }
+    // Get the distance from the point for all these candidates.
+    let spaces = [];
+    for (let s of filter.applyOnArray(this.spaces)) {
+      let distance = getDistance(point, s, this.coordinates);
+      if (shape == 'square' || distance <= radius)
+        spaces.push({
+          space: s,
+          distance: distance,
+        });
+    }
+    // Sort by distance from the point.
+    sortByProperty(spaces, 'distance', true, true)[0]['space'];
+    return buildArrayWithProperty(spaces, 'space');
+  }
+
+  /**
+   * Returns the space closest to a given point.
+   *
+   * @param {object} point: An object with (at least) coordinate values for the point to search from.
+   * @param {number} radius: A maximum distance from the point to search. Smaller number increases search speed.
+   * @param {string} shape: Set to 'square' to search a square instead of a circle.
+   *
+   * @return {Space} The space object with coordinates closest to the given point. If several
+   * equally near, one of these is selected randomly.
+   */
+  getClosestSpace(point, radius = 1, shape = 'circle') {
+    let spaceList = this.getSpacesWithinRadius(point, radius, shape);
+    if (spaceList.length == 0)
+      throw('No space is within search distance from the given point.');
+    return spaceList[0];
   }
 
   /**
@@ -497,12 +570,12 @@ class Pawn {
     if (this.id === undefined)
       throw('Pawns must have an id property set.');
     // Add the track name + pawn to any agent matching the pawn id.
-    for (let a of gameState.agents) {
-      if (this.id == a.id) {
-        if (a[track.id] === undefined)
-          a[track.id] = {};
-        a[track.id].pawn = this;
-      }
+    let agent = getAgentById(this.id);
+    if (agent) {
+      if (agent[track.id] === undefined)
+        agent[track.id] = {
+          pawn: this,
+        };
     }
 
     this.track = track;

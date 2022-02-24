@@ -8,19 +8,19 @@ Note that [the ObjectFilter class](35-ObjectFilter-class.md) is very handy for s
 
 ### sortByProperty()
 
-`sortByProperty(objArray, property, ascending = true)`
+`sortByProperty(objArray, property, ascending = true, shuffleFirst = false)`
 
-Example usage: `sortByProperty(gameState.agents, 'hitPoints')`
+This function sorts an array of objects by a given property. The array is changed in place and the array is also returned. The default is to sort _ascending_, and only numerical sorting is applied. The `shuffleFirst` option is useful to avoid bias based on any previous order.
 
-This function sorts an array of objects by a given property. The array is changed in place and the array is also returned. The default is to sort _ascending_, and only numerical sorting is applied.
+Example usage: `sortByProperty(gameState.agents, 'hitPoints', false, true)` sorts agents by number of hit points, lowest first, and shuffles the order before sorting.
 
 ### sortBySubProperty()
 
-`sortBySubProperty(objArray, property, subProperty, ascending = true)`
+`sortBySubProperty(objArray, property, subProperty, ascending = true, shuffleFirst = false)`
 
-Example usage: `sortByProperty(gameState.agents, 'cards', 'length', false)`
+This function sorts an array of objects based on a given sub property. The array is changed in place and the array is also returned. The default is to sort _ascending_, and only numerical sorting is applied. The `shuffleFirst` option is useful to avoid bias based on any previous order.
 
-This function sorts an array of objects based on a given sub property. The array is changed in place and the array is also returned. The default is to sort _ascending_, and only numerical sorting is applied.
+Example usage: `sortByProperty(gameState.agents, 'cards', 'length', false, true)` sorts agents by the number of cards, most cards first. Agents are shuffled before being sorted.
 
 ### shuffle()
 
@@ -101,6 +101,12 @@ Stores an object in the cache, to use in future game iterations. Identified by `
 `getCache(key)`
 
 Returns a cached object, identified by 'key', or `undefined` if it is not cached. Cached objects are kept between game iterations.
+
+### repString()
+
+`repString(length, character = ' ')`
+
+Returns a string with 'character' repeated 'length' times. The character defaults to a blank space. If a sequence of characters is given, instead of a single, the full string will be repeated.
 
 ### getAgentById()
 

@@ -60,6 +60,24 @@ class ObjectFilter {
   }
 
   /**
+   * Requires that the stated object property is undefined, null, false or an empty string/array.
+   * Only property name is passed as condition.
+   */
+  addEmptyCondition(condition) {
+    this[this.addMode].push(new ConditionEmpty(this, condition));
+    return this;
+  }
+
+  /**
+   * Requires that the stated object property is NOT undefined, null, false or an empty string/array.
+   * Only property name is passed as condition.
+   */
+  addNotEmptyCondition(condition) {
+    this[this.addMode].push(new ConditionNotEmpty(this, condition));
+    return this;
+  }
+
+  /**
    * Requires that the stated object property is higher than the stated value.
    * On the form {a: 3}.
    */
@@ -222,6 +240,44 @@ class ConditionEquals extends ConditionFilter {
 class ConditionNotEquals extends ConditionEquals {
   evaluate(obj) {
     return !this.values.includes(obj[this.property]);
+  }
+}
+
+/**
+ * Class for 'empty' conditions in ObjectFilters.
+ * Returns true if the given property is undefined, null, false, an empty array or an empty string.
+ *
+ * @param {object} conditionData: The name of the property which should be empty.
+ */
+class ConditionEmpty extends ConditionEquals {
+  validateAndProcess(conditionData) {
+    if (typeof(conditionData) != 'string')
+      throw('The condition data must be a string.');
+    this.property = conditionData;
+  }
+
+  evaluate(obj) {
+    if (compareObjects(obj[this.property], []))
+      return true;
+    if ([undefined, null, false, ''].includes(obj[this.property]))
+      return true;
+    return false;
+  }
+}
+
+/**
+ * Class for 'not empty' conditions in ObjectFilters.
+ * Returns false if the given property is undefined, null, false, an empty array or an empty string.
+ *
+ * @param {object} conditionData: The name of the property which should be empty.
+ */
+class ConditionNotEmpty extends ConditionEmpty {
+  evaluate(obj) {
+    if (compareObjects(obj[this.property], []))
+      return false;
+    if ([undefined, null, false, ''].includes(obj[this.property]))
+      return false;
+    return true;
   }
 }
 

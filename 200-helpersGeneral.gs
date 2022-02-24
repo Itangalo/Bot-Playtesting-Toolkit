@@ -137,8 +137,17 @@ function processValue(value, checkArrays = true) {
  * Helper functions handling arrays.
  */
 
-// Used for sorting an array of objects by an object property.
-function sortByProperty(objArray, property, ascending = true) {
+/**
+ * Used for sorting an array of objects by an object property.
+ * 
+ * @param {array} objArray: The array of objects to be sorted.
+ * @param {string} property: The name of the property to sort by.
+ * @param {boolean} ascending: Set to false to sort descending. Defaults to true.
+ * @param {boolean} shuffleFirst: Set to true to shuffle the array before sorting, to avoid bias.
+ */
+function sortByProperty(objArray, property, ascending = true, shuffleFirst = false) {
+  if (shuffleFirst)
+    shuffle(objArray);
   if (ascending)
     objArray.sort((a, b) => a[property] > b[property] ? 1 : -1);
   else
@@ -146,8 +155,18 @@ function sortByProperty(objArray, property, ascending = true) {
   return objArray;
 }
 
-// Used for sorting an array of objects by a sub property.
-function sortBySubProperty(objArray, property, subProperty, ascending = true) {
+/**
+ * Used for sorting an array of objects by a sub property.
+ * 
+ * @param {array} objArray: The array of objects to be sorted.
+ * @param {string} property: The name of the property containing the sub property.
+ * @param {string} property: The name of the sub property to sort by.
+ * @param {boolean} ascending: Set to false to sort descending. Defaults to true.
+ * @param {boolean} shuffleFirst: Set to true to shuffle the array before sorting, to avoid bias.
+ */
+function sortBySubProperty(objArray, property, subProperty, ascending = true, shuffleFirst = false) {
+  if (shuffleFirst)
+    shuffle(objArray);
   if (ascending)
     objArray.sort((a, b) => a[property][subProperty] > b[property][subProperty] ? 1 : -1);
   else
@@ -317,6 +336,13 @@ function getCache(key) {
     return undefined;
   }
   return BPTstatic.cache[key];
+}
+
+/**
+ * Returns a string with 'character' repeated 'length' times.
+ */
+function repString(length, character = ' ') {
+  return new Array(length + 1).join(character);
 }
 
 // Returns the agent with the matching id or false if none is found.

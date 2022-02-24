@@ -1,5 +1,5 @@
 /**
- * @file: Carries out each round in the game. Called once for each round.
+ * @file: Carries out each round in the game. Called once for each round. Required.
  */
 
 modules.myModule.playRound = function() {

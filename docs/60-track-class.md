@@ -62,6 +62,8 @@ If the property `loop` is set to `true`, pawns will loop from the last space to 
 
 If the property `gridMovement` is set to `true`, the track will not be treated as a linear track. Instead information on the spaces will be used to determine how pawns may move between spaces. Defaults to `false`.
 
+If the property `connectRadius` is set to a positive number, spaces will by default connect to any space within that distance/radius. However, any space that has any values in the `connectsTo` property set will _not_ be connected in this way – the explicit connections override the default connections, counting in both directions. (See documentation on spaces for more information on `connectsTo`.) The setting is only relevant for tracks using grid movement and requires that track and spaces use coordinates.
+
 If the property `symmetricConnections` is set to `true`, any connections between spaces are assumed to go both ways. This will reduce how much data needed for building the track/space information. The setting is only relevant for tracks using grid movement. Defaults to `true`.
 
 The property `coordinates` can be set to an array of strings, such as `['x', 'y']` to tell Bot Playtesting Toolkit what space properties hold coordinates for the space. (Such coordinates are assumed to describe the _center_ of the space.) Coordinates can be used for checking distances and also line of sight.
@@ -161,6 +163,26 @@ Takes an array with space data and returns the spaces converted to another forma
 `flatten`: Whether to flatten the return array or not. Defaults to false.
 `returnType`: How the returned spaces should be represented – 'object', 'id' or 'index', or a name of a property on the spaces. Defaults to 'object'.
 `requirement`: Any requirement set here on the format {property:myProperty, value:requiredValue} will restrict the searched spaces. Defaults to false (no restriction).
+
+### myTrack.getSpacesWithinRadius()
+
+`myTrack.getSpacesWithinRadius(point, radius = 1, shape = 'circle')`
+
+**Requires that track and spaces have coordinates.** The function returns an array with all the spaces within the radius of the given point, sorted by distance to the point (closest first).
+
+`point`: An object with (at least) coordinate values for the point to search from. Can for example be a Space object.
+`radius`: The maximum distance from the point to search for spaces.
+`shape`: If set to 'square', the searched area will be a square rather than a circle (or cube etc, depending on number of coordinates).
+
+### myTrack.getClosestSpace()
+
+`myTrack.getClosestSpace(point, radius = 1, shape = 'circle')`
+
+**Requires that track and spaces have coordinates.** The function returns the space closest to the given point. If several are nearest, one of these is selected randomly.
+
+`point`: An object with (at least) coordinate values for the point to search from.
+`radius`: The maximum distance from the point to search. Smaller radius makes the search faster.
+`shape`: If set to 'square', the searched area will be a square rather than a circle (or cube etc, depending on number of coordinates).
 
 ### myTrack.lineOfSight()
 
