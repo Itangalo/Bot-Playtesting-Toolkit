@@ -36,11 +36,13 @@ The filter has a stack of AND conditions and a stack of OR conditions. The filte
 
 Conditions are by default added to the AND stack. The stack to use is set by calling `myFilter.and()` and `myFilter.or()`.
 
-There are seven types of conditions that can be added:
+There are nine types of conditions that can be added:
 
 * `myFilter.addFilterCondition(filter)` adds another filter as a condition, allowing complex hierarchies of conditions. The condition is fulfilled if the added filter is fulfilled.
 * `myFilter.addEqualsCondition(condition)` requires that the stated object property should match the stated value, or one of several stated values. On the form `{a: 3}` or `{a: [2, 3, 5]}`.
 * `myFilter.addNotEqualsCondition(condition)` requires that the stated object property should different from the stated value, or from all of several stated values. On the form `{a: 3}` or `{a: [2, 3, 5]}`.
+* `myFilter.addEmptyCondition(condition)` requires that the stated object property is `undefined`, `null`, `false`, an empty array or an empty string. The condition is provided as the name of the property (as a string).
+* `myFilter.addNotEmptyCondition(condition)` requires that the stated object property is _not_ `undefined`, `null`, `false`, an empty array or an empty string. The condition is provided as the name of the property (as a string).
 * `myFilter.addGreaterThanCondition(condition)` requires that the stated object property is higher than the stated value. On the form `{a: 3}`.
 * `myFilter.addGreaterOrEqualCondition(condition)` requires that the stated object property is higher than or equal to the stated value. On the form `{a: 3}`.
 * `myFilter.addLessThanCondition(condition)` does what you expect from the pattern above.
