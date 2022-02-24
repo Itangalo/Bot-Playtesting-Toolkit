@@ -570,12 +570,12 @@ class Pawn {
     if (this.id === undefined)
       throw('Pawns must have an id property set.');
     // Add the track name + pawn to any agent matching the pawn id.
-    for (let a of gameState.agents) {
-      if (this.id == a.id) {
-        if (a[track.id] === undefined)
-          a[track.id] = {};
-        a[track.id].pawn = this;
-      }
+    let agent = getAgentById(this.id);
+    if (agent) {
+      if (agent[track.id] === undefined)
+        agent[track.id] = {
+          pawn: this,
+        };
     }
 
     this.track = track;
