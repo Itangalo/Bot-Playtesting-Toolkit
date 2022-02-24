@@ -60,6 +60,24 @@ class ObjectFilter {
   }
 
   /**
+   * Requires that the stated object property is an array and that it contains the stated value,
+   * or one of the stated values. On the form {a: 3} or {a: [2, 3, 5]}.
+   */
+  addContainsCondition(condition) {
+    this[this.addMode].push(new ConditionContains(this, condition));
+    return this;
+  }
+
+  /**
+   * Requires that the stated object property is an array and that it does not contain the stated
+   * value, or any of the stated values. On the form {a: 3} or {a: [2, 3, 5]}.
+   */
+  addNotContainsCondition(condition) {
+    this[this.addMode].push(new ConditionNotContains(this, condition));
+    return this;
+  }
+
+  /**
    * Requires that the stated object property is undefined, null, false or an empty string/array.
    * Only property name is passed as condition.
    */
@@ -240,6 +258,38 @@ class ConditionEquals extends ConditionFilter {
 class ConditionNotEquals extends ConditionEquals {
   evaluate(obj) {
     return !this.values.includes(obj[this.property]);
+  }
+}
+
+/**
+ * Class for checking if an array property conatains any of the stated values, for conditions in ObjectFilters.
+ *
+ * @param {object} conditionData: Data describing the condition, on the form {a: 3} or {a: [2, 3, 5]}.
+ */
+class ConditionContains extends ConditionEquals {
+  evaluate(obj) {
+    if (obj[this.property] === undefined || obj[this.property][0] === undefined)
+      return false;
+    for (let v of this.values)
+      if (obj[this.property].includes(v))
+        return true;
+    return false;
+  }
+}
+
+/**
+ * Class for checking if an array property conatains any of the stated values, for conditions in ObjectFilters.
+ *
+ * @param {object} conditionData: Data describing the condition, on the form {a: 3} or {a: [2, 3, 5]}.
+ */
+class ConditionNotContains extends ConditionEquals {
+  evaluate(obj) {
+    if (obj[this.property] === undefined || obj[this.property][0] === undefined)
+      return true;
+    for (let v of this.values)
+      if (obj[this.property].includes(v))
+        return false;
+    return true;
   }
 }
 
